@@ -13,8 +13,5 @@
     "perspectives",
     "research-framework"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/miles990/multi-agent-research-skill"
-  }
+  "repository": "https://github.com/miles990/multi-agent-research-skill"
 }
