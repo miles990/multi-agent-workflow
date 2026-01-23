@@ -1,0 +1,24 @@
+{
+  "name": "multi-agent-research-skill",
+  "owner": {
+    "name": "miles990"
+  },
+  "metadata": {
+    "description": "Multi-Agent Research Framework - 多視角並行研究，智能匯總成完整報告"
+  },
+  "plugins": [
+    {
+      "name": "multi-agent-research",
+      "source": "./skills/multi-agent-research",
+      "description": "多 Agent 並行研究框架：多視角同時研究，智能匯總成完整報告",
+      "version": "1.0.0",
+      "keywords": [
+        "multi-agent",
+        "parallel-research",
+        "map-reduce",
+        "synthesis",
+        "perspectives"
+      ]
+    }
+  ]
+}
