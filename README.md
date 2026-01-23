@@ -1,5 +1,9 @@
 # Multi-Agent Research Skill
 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/miles990/multi-agent-research-skill)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple.svg)](https://claude.ai/code)
+
 > 多 Agent 並行研究框架：多視角同時研究，智能匯總成完整報告
 
 ## Features
@@ -11,8 +15,19 @@
 
 ## Installation
 
+### Via Plugin Marketplace (Recommended)
+
 ```bash
-# 使用 Claude Code Plugin
+# 添加 Marketplace
+/plugin marketplace add miles990/multi-agent-research-skill
+
+# 安裝 Plugin
+/plugin install multi-agent-research@multi-agent-research-skill
+```
+
+### Direct Install
+
+```bash
 /plugin install miles990/multi-agent-research-skill
 ```
 
@@ -27,16 +42,54 @@
 
 # 深度模式（6 視角）
 /multi-research --deep 重大架構決策
+
+# 自訂視角
+/multi-research --custom 特定領域問題
 ```
 
 ## Default Perspectives
 
 | ID | Name | Focus |
 |----|------|-------|
-| architecture | 架構分析師 | 系統結構、設計模式、可擴展性 |
-| cognitive | 認知科學研究員 | 方法論、思維模式、認知框架 |
-| workflow | 工作流設計師 | 執行流程、整合策略、實作步驟 |
-| industry | 業界實踐研究員 | 現有框架、案例研究、最佳實踐 |
+| `architecture` | 架構分析師 | 系統結構、設計模式、可擴展性 |
+| `cognitive` | 認知科學研究員 | 方法論、思維模式、認知框架 |
+| `workflow` | 工作流設計師 | 執行流程、整合策略、實作步驟 |
+| `industry` | 業界實踐研究員 | 現有框架、案例研究、最佳實踐 |
+
+## Execution Flow
+
+```
+/multi-research [主題]
+         │
+         ▼
+┌─────────────────────────────────────┐
+│  Phase 0: 北極星錨定                 │
+│  Phase 1: Memory 搜尋（避免重複）    │
+│  Phase 2: 視角分解                   │
+└─────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────┐
+│  Phase 3: MAP（並行研究）            │
+│  ┌────────┬────────┬────────┬────┐ │
+│  │ 架構   │ 認知   │ 工作流 │ 業界│ │
+│  │ Agent  │ Agent  │ Agent  │Agent│ │
+│  └────────┴────────┴────────┴────┘ │
+└─────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────┐
+│  Phase 4-5: REDUCE（整合）           │
+│  • 交叉驗證 → 識別共識               │
+│  • 矛盾解決 → 多輪分析               │
+│  • 報告生成 → 匯總報告               │
+└─────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────┐
+│  Phase 6: Memory 存檔                │
+└─────────────────────────────────────┘
+```
 
 ## Output Structure
 
@@ -50,29 +103,6 @@
 │   ├── workflow.md
 │   └── industry.md
 └── synthesis.md        # 匯總報告（主輸出）
-```
-
-## Execution Flow
-
-```
-Phase 0: 北極星錨定
-    ↓
-Phase 1: Memory 搜尋（避免重複研究）
-    ↓
-Phase 2: 視角分解
-    ↓
-Phase 3: MAP（並行研究）
-    ├─ Task API 啟動多個 Agent
-    └─ 各 Agent 獨立研究
-    ↓
-Phase 4: 同步檢查點
-    ↓
-Phase 5: REDUCE（串行整合）
-    ├─ 交叉驗證
-    ├─ 矛盾解決
-    └─ 報告生成
-    ↓
-Phase 6: Memory 存檔
 ```
 
 ## Flags
@@ -90,31 +120,40 @@ Phase 6: Memory 存檔
 ### With evolve Skill
 
 研究流程與 evolve Checkpoint 對應：
-- CP1: Memory 搜尋
-- CP3: 目標確認
-- CP3.5: Memory 存檔
+
+| Checkpoint | 動作 |
+|------------|------|
+| CP1 | Memory 搜尋 |
+| CP3 | 目標確認 |
+| CP3.5 | Memory 存檔 |
 
 ### Zero Dependencies
 
 只使用 Claude Code 內建工具：
-- Task API（並行 Agent）
-- WebSearch（網路搜尋）
-- 檔案系統（狀態管理）
+- **Task API** — 並行 Agent
+- **WebSearch** — 網路搜尋
+- **File System** — 狀態管理
 
 ## Documentation
 
-- [Quick Start Guide](./skills/multi-agent-research/00-quickstart/_base/usage.md)
-- [Default Perspectives](./skills/multi-agent-research/01-perspectives/_base/default-perspectives.md)
-- [Custom Perspectives](./skills/multi-agent-research/01-perspectives/_base/custom-perspectives.md)
-- [Map Phase](./skills/multi-agent-research/02-coordination/_base/map-phase.md)
-- [Reduce Phase](./skills/multi-agent-research/02-coordination/_base/reduce-phase.md)
-- [Cross Validation](./skills/multi-agent-research/03-synthesis/_base/cross-validation.md)
-- [Conflict Resolution](./skills/multi-agent-research/03-synthesis/_base/conflict-resolution.md)
+| Module | Description | Link |
+|--------|-------------|------|
+| Quick Start | 3 分鐘上手 | [→](./skills/multi-agent-research/00-quickstart/_base/usage.md) |
+| Perspectives | 視角配置 | [→](./skills/multi-agent-research/01-perspectives/_base/default-perspectives.md) |
+| Custom | 自訂視角 | [→](./skills/multi-agent-research/01-perspectives/_base/custom-perspectives.md) |
+| Map Phase | 並行研究 | [→](./skills/multi-agent-research/02-coordination/_base/map-phase.md) |
+| Reduce Phase | 整合匯總 | [→](./skills/multi-agent-research/02-coordination/_base/reduce-phase.md) |
+| Cross Validation | 交叉驗證 | [→](./skills/multi-agent-research/03-synthesis/_base/cross-validation.md) |
+| Conflict Resolution | 矛盾解決 | [→](./skills/multi-agent-research/03-synthesis/_base/conflict-resolution.md) |
+
+## Related Projects
+
+- [self-evolving-agent](https://github.com/miles990/self-evolving-agent) — 自我進化 Agent 框架
 
 ## License
 
-MIT
+[MIT](./LICENSE)
 
 ## Author
 
-miles990
+**miles990** — [GitHub](https://github.com/miles990)
