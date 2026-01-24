@@ -17,13 +17,5 @@
     "verify",
     "orchestrate"
   ],
-  "repository": "https://github.com/miles990/multi-agent-workflow",
-  "skills": [
-    "skills/research/SKILL.md",
-    "skills/plan/SKILL.md",
-    "skills/implement/SKILL.md",
-    "skills/review/SKILL.md",
-    "skills/verify/SKILL.md",
-    "skills/orchestrate/SKILL.md"
-  ]
+  "repository": "https://github.com/miles990/multi-agent-workflow"
 }
