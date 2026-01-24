@@ -1,17 +1,29 @@
 {
-  "name": "multi-agent-research",
-  "description": "Multi-Agent Research Framework - 多視角並行研究，智能匯總成完整報告",
-  "version": "1.0.0",
+  "name": "multi-agent-workflow",
+  "description": "Multi-Agent Workflow - 多視角並行工作流生態系（研究、規劃、實作、審查、驗證）",
+  "version": "2.0.0",
   "author": {
     "name": "miles990"
   },
   "keywords": [
     "multi-agent",
-    "parallel-research",
+    "workflow",
+    "parallel-agents",
     "map-reduce",
-    "synthesis",
-    "perspectives",
-    "research-framework"
+    "research",
+    "plan",
+    "implement",
+    "review",
+    "verify",
+    "orchestrate"
   ],
-  "repository": "https://github.com/miles990/multi-agent-research-skill"
+  "repository": "https://github.com/miles990/multi-agent-workflow",
+  "skills": [
+    "skills/research/SKILL.md",
+    "skills/plan/SKILL.md",
+    "skills/implement/SKILL.md",
+    "skills/review/SKILL.md",
+    "skills/verify/SKILL.md",
+    "skills/orchestrate/SKILL.md"
+  ]
 }

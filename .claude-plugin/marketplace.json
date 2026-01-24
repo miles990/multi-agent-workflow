@@ -1,23 +1,23 @@
 {
-  "name": "multi-agent-research-skill",
+  "name": "multi-agent-workflow",
   "owner": {
     "name": "miles990"
   },
   "metadata": {
-    "description": "Multi-Agent Research Framework - 多視角並行研究，智能匯總成完整報告"
+    "description": "Multi-Agent Workflow - 多視角並行工作流生態系（研究、規劃、實作、審查、驗證）"
   },
   "plugins": [
     {
-      "name": "multi-agent-research",
+      "name": "multi-agent-workflow",
       "source": "./",
-      "description": "多 Agent 並行研究框架：多視角同時研究，智能匯總成完整報告",
-      "version": "1.0.0",
+      "description": "多 Agent 並行工作流生態系：RESEARCH → PLAN → IMPLEMENT → REVIEW → VERIFY",
+      "version": "2.0.0",
       "keywords": [
         "multi-agent",
-        "parallel-research",
+        "workflow",
+        "parallel-agents",
         "map-reduce",
-        "synthesis",
-        "perspectives"
+        "orchestrate"
       ]
     }
   ]
