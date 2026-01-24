@@ -240,13 +240,103 @@ IMPLEMENT → REVIEW
 
 工作流會自動與 evolve Checkpoint 同步：
 - CP1: 開始時搜尋 Memory
+- CP0.5: PLAN 完成後創建 Worktree（如啟用）
 - CP2: IMPLEMENT 時 Build + Test
 - CP3.5: 每階段完成更新 index.md
 - CP5: 回退時驗屍分析
 - CP6: VERIFY 完成時發布驗證
+- CP6.5: Worktree 完成處理（合併/保留/清理）
+
+## Git Worktree 模式
+
+### 概述
+
+Worktree 模式在隔離的分支/目錄中執行 IMPLEMENT/REVIEW/VERIFY，確保 main 分支始終穩定。
+
+```
+main (穩定)                    .worktrees/{id}/ (feature 開發)
+    │                                │
+    │  PLAN 完成                     │
+    ├──────────────────────────────→│ 創建 worktree
+    │                                │
+    │                                │← IMPLEMENT
+    │                                │← REVIEW
+    │                                │← VERIFY
+    │                                │
+    │  SHIP IT                       │
+    │←──────────────────────────────┤ 合併 + 清理
+    │                                │
+    ↓ 穩定推進                       (刪除)
+```
+
+### 基本使用
+
+```bash
+# 自動使用 worktree（預設）
+/multi-orchestrate "新增用戶認證功能"
+
+# 強制使用 worktree
+/multi-orchestrate --worktree "新增功能"
+
+# 禁用 worktree（直接在 main 工作）
+/multi-orchestrate --no-worktree "快速修復"
+```
+
+### Worktree 目錄
+
+程式碼變更在 `.worktrees/{feature-id}/` 中執行：
+
+```
+/project/
+├── .worktrees/
+│   └── user-auth/          # 隔離的工作目錄
+│       ├── src/
+│       ├── tests/
+│       └── package.json
+├── .claude/memory/         # Memory 仍在 main
+│   └── implementations/
+│       └── user-auth/
+└── src/                    # main 保持穩定
+```
+
+### 完成處理
+
+```bash
+# SHIP IT → 自動合併並清理
+# BLOCKED → 保留 worktree 繼續迭代
+
+# 恢復 blocked 的工作流
+/multi-orchestrate --resume user-auth
+
+# 放棄工作流（保留 patch）
+/multi-orchestrate --abandon user-auth --keep-patch
+
+# 清理孤立的 worktrees
+/multi-orchestrate --cleanup-worktrees
+```
+
+### 合併策略
+
+```bash
+# 壓縮為單一 commit（預設）
+/multi-orchestrate --merge-strategy squash "功能"
+
+# 保留完整歷史
+/multi-orchestrate --merge-strategy merge "功能"
+
+# Rebase
+/multi-orchestrate --merge-strategy rebase "功能"
+```
+
+### 自訂 Worktree 目錄
+
+```bash
+/multi-orchestrate --worktree-dir ./dev-branches "功能"
+```
 
 ## 下一步
 
 - [階段判斷邏輯](../../01-stage-detection/_base/auto-detect.md)
 - [數據傳遞](../../02-data-flow/_base/stage-handoff.md)
 - [回退規則](../../03-error-handling/_base/rollback-rules.md)
+- [Git Worktree 生命週期](../../04-git-worktree/_base/lifecycle.md)

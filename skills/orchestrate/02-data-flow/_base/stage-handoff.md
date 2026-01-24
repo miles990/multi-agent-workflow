@@ -357,7 +357,79 @@ state_updates:
     - increment iteration count
 ```
 
+## Worktree 模式的數據傳遞
+
+### 路徑解析
+
+在 Worktree 模式下，路徑需要正確區分：
+
+```yaml
+worktree_path_resolution:
+  code_operations:
+    base: "{worktree_directory}"
+    example: ".worktrees/user-auth/src/auth/login.ts"
+
+  memory_operations:
+    base: "{main_directory}/.claude/memory"
+    example: "/project/.claude/memory/implementations/user-auth/"
+
+  git_operations:
+    diff_base: "main..HEAD"
+    in_directory: "{worktree_directory}"
+```
+
+### IMPLEMENT → REVIEW（Worktree 模式）
+
+```yaml
+implement_to_review_worktree:
+  source:
+    stage: IMPLEMENT
+    execution_context:
+      type: "worktree"
+      path: ".worktrees/{id}"
+
+    code_changes:
+      method: "git diff main..HEAD"
+      in_directory: "{worktree_path}"
+
+    memory_output:
+      path: "{main_directory}/.claude/memory/implementations/{id}/"
+
+  target:
+    stage: REVIEW
+    working_directory: "{worktree_path}"
+
+    usage:
+      code_changes:
+        source: "git diff main..feature/{id}"
+        note: "比較 feature 分支與 main"
+```
+
+### Worktree 狀態追蹤
+
+```yaml
+worktree_state_in_handoff:
+  workflow.yaml:
+    worktree:
+      enabled: true
+      directory: ".worktrees/{id}"
+      branch: "feature/{id}"
+      state: "active"
+
+    stages:
+      implement:
+        execution_context:
+          type: "worktree"
+          path: ".worktrees/{id}"
+          commits:
+            - hash: "abc123"
+              message: "feat: add login"
+```
+
+詳見：[../../../../shared/isolation/path-resolution.md](../../../../shared/isolation/path-resolution.md)
+
 ## 相關資源
 
 - [階段判斷](../01-stage-detection/_base/auto-detect.md)
 - [回退規則](../../03-error-handling/_base/rollback-rules.md)
+- [Git Worktree 生命週期](../../04-git-worktree/_base/lifecycle.md)

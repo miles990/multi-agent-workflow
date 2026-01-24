@@ -1,6 +1,6 @@
 # Multi-Agent Workflow
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/miles990/multi-agent-workflow)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/miles990/multi-agent-workflow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple.svg)](https://claude.ai/code)
 
@@ -32,6 +32,7 @@
 - **5 階段完整工作流**：研究 → 規劃 → 實作 → 審查 → 驗證
 - **多視角並行處理**：每個階段 4 個視角同時工作
 - **Map-Reduce 協調**：並行執行 → 交叉驗證 → 智能匯總
+- **Git Worktree 隔離**：IMPLEMENT/REVIEW/VERIFY 在隔離分支中執行
 - **零依賴設計**：只使用 Claude Code 內建工具
 - **Memory 整合**：成果自動存檔，支持跨階段復用
 - **共用模組架構**：避免重複程式碼
@@ -132,6 +133,25 @@
 /multi-orchestrate --from-plan user-auth
 ```
 
+### Git Worktree Mode
+
+```bash
+# 自動使用 worktree（預設）
+/multi-orchestrate 新增用戶認證功能
+
+# 強制使用 worktree
+/multi-orchestrate --worktree 新增功能
+
+# 禁用 worktree（直接在 main 工作）
+/multi-orchestrate --no-worktree 快速修復
+
+# 恢復中斷的工作流
+/multi-orchestrate --resume user-auth
+
+# 清理孤立的 worktrees
+/multi-orchestrate --cleanup-worktrees
+```
+
 ## Skill Perspectives
 
 ### research
@@ -222,6 +242,10 @@ multi-agent-workflow/
 │   │   └── conflict-resolution.md # 矛盾解決
 │   ├── perspectives/
 │   │   └── base-perspective.md   # 視角基礎結構
+│   ├── isolation/                # Git Worktree 隔離
+│   │   ├── worktree-setup.md     # Worktree 創建
+│   │   ├── worktree-completion.md # Worktree 完成
+│   │   └── path-resolution.md    # 路徑解析
 │   └── integration/
 │       ├── evolve-checkpoints.md # CP 對應
 │       └── memory-system.md      # Memory 寫入
@@ -237,11 +261,13 @@ multi-agent-workflow/
 | Module | Description | Link |
 |--------|-------------|------|
 | **research** | 多視角研究 | [→](./skills/research/SKILL.md) |
+| **orchestrate** | 端到端編排 | [→](./skills/orchestrate/SKILL.md) |
 | **Map Phase** | 並行執行 | [→](./shared/coordination/map-phase.md) |
 | **Reduce Phase** | 整合匯總 | [→](./shared/coordination/reduce-phase.md) |
 | **Cross Validation** | 交叉驗證 | [→](./shared/synthesis/cross-validation.md) |
 | **Conflict Resolution** | 矛盾解決 | [→](./shared/synthesis/conflict-resolution.md) |
 | **Perspectives** | 視角配置 | [→](./shared/perspectives/base-perspective.md) |
+| **Git Worktree** | Worktree 隔離 | [→](./skills/orchestrate/04-git-worktree/) |
 | **Memory System** | 存儲系統 | [→](./shared/integration/memory-system.md) |
 | **Checkpoints** | evolve 整合 | [→](./shared/integration/evolve-checkpoints.md) |
 
@@ -252,6 +278,7 @@ multi-agent-workflow/
 | **Zero Dependencies** | 只使用 Task API + 內建工具，無外部 MCP 依賴 |
 | **Multi-Perspective** | Map-Reduce 模式，4 視角同時工作 |
 | **Cross Validation** | 共識識別 + 矛盾解決 |
+| **Git Worktree Isolation** | main 穩定，feature 在隔離分支開發 |
 | **Memory Integration** | 與 evolve Checkpoint 對應 |
 | **Shared Modules** | shared/ 避免重複程式碼 |
 | **Unified Entry** | 單一 plugin，6 個 skill |

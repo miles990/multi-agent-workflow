@@ -18,6 +18,7 @@ keywords: [orchestration, workflow, automation, end-to-end, pipeline]
 | **01-stage-detection** | 階段判斷邏輯 | [→](./01-stage-detection/) |
 | **02-data-flow** | 數據傳遞 | [→](./02-data-flow/) |
 | **03-error-handling** | 錯誤處理與回退 | [→](./03-error-handling/) |
+| **04-git-worktree** | Git Worktree 隔離 | [→](./04-git-worktree/) |
 
 ## 使用方式
 
@@ -34,6 +35,7 @@ keywords: [orchestration, workflow, automation, end-to-end, pipeline]
 ### Flags
 
 ```bash
+# 階段控制
 --from-research ID   # 從已完成的研究開始
 --from-plan ID       # 從已完成的計劃開始
 --start-at STAGE     # 指定起始階段
@@ -41,6 +43,21 @@ keywords: [orchestration, workflow, automation, end-to-end, pipeline]
 --stop-at STAGE      # 停止在指定階段
 --no-rollback        # 禁用自動回退
 --dry-run            # 只顯示流程，不執行
+
+# Git Worktree 控制
+--worktree           # 強制使用 worktree（預設：自動）
+--no-worktree        # 禁用 worktree，直接在 main 工作
+--worktree-dir PATH  # 自訂 worktree 目錄
+
+# 恢復/清理
+--resume ID          # 恢復工作流（自動檢測 worktree）
+--abandon ID         # 放棄工作流
+--keep-patch         # 放棄時保留 patch
+--cleanup-worktrees  # 清理所有孤立的 worktrees
+
+# 合併控制
+--merge-strategy STR # squash（預設）| rebase | merge
+--auto-merge         # 自動合併（不創建 PR）
 ```
 
 ## 工作流架構
@@ -495,6 +512,55 @@ workflow:
 - [數據傳遞](./02-data-flow/_base/stage-handoff.md)
 - [回退規則](./03-error-handling/_base/rollback-rules.md)
 
+## Git Worktree 隔離模式
+
+### 架構
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     Git Worktree 隔離架構                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  /project/ (main)                    .worktrees/{id}/ (feature)         │
+│  ├── src/          (穩定)            ├── src/          (開發中)         │
+│  ├── tests/                          ├── tests/                          │
+│  ├── .claude/                        └── package.json                    │
+│  │   └── memory/   (所有 Memory)                                        │
+│  └── .worktrees/                     分支：feature/{id}                  │
+│      └── {id}/  ─────────────────→                                      │
+│                                                                          │
+│  ───────────────────────────────────────────────────────────            │
+│                                                                          │
+│  RESEARCH → PLAN          IMPLEMENT → REVIEW → VERIFY                   │
+│      ↓         ↓               ↓          ↓         ↓                    │
+│    main      main           worktree  worktree  worktree                │
+│                                                      ↓                   │
+│                               ┌──────────────────────┴──────────────────┐│
+│                               │ SHIP IT → 合併到 main + 清理 worktree   ││
+│                               │ BLOCKED → 保留 worktree 繼續迭代       ││
+│                               └─────────────────────────────────────────┘│
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### 核心優勢
+
+| 優勢 | 說明 |
+|------|------|
+| **main 穩定** | main 分支始終可部署，不受開發影響 |
+| **乾淨回退** | 失敗時只需刪除 worktree，無需 git revert |
+| **並行開發** | 多個 feature 可同時在不同 worktree 中開發 |
+| **清晰 diff** | `git diff main..feature/{id}` 清楚顯示變更 |
+
+### 關鍵 Checkpoint
+
+| Checkpoint | 時機 | 動作 |
+|------------|------|------|
+| CP0.5 | PLAN 完成後 | 創建 worktree |
+| CP6.5 | VERIFY 完成後 | 合併/保留/清理 |
+
+詳見：[04-git-worktree/_base/lifecycle.md](./04-git-worktree/_base/lifecycle.md)
+
 ## 與其他 Skill 的關係
 
 orchestrate 是統一編排器，調用其他 5 個 skill：
@@ -513,6 +579,11 @@ orchestrate 是統一編排器，調用其他 5 個 skill：
 │  5. /multi-verify                                            │
 │                                                              │
 │  每個 skill 都是獨立可用的，orchestrate 負責串聯。          │
+│                                                              │
+│  在 Worktree 模式下：                                        │
+│  - RESEARCH/PLAN 在 main 目錄執行                            │
+│  - IMPLEMENT/REVIEW/VERIFY 在 worktree 目錄執行              │
+│  - Memory 始終寫入 main 目錄                                 │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```

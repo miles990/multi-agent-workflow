@@ -287,3 +287,76 @@ memory:
 | index.md 不存在 | 自動建立 |
 | 寫入失敗 | 重試一次，仍失敗則警告 |
 | 重複 ID | 添加時間戳後綴 |
+
+## Worktree 模式的 Memory 處理
+
+### 核心原則
+
+在 Worktree 模式下，**Memory 始終存儲在 main 目錄中**：
+
+```yaml
+worktree_memory_principle:
+  memory_location: "{main_directory}/.claude/memory"
+  never: "{worktree_directory}/.claude/memory"
+
+  rationale:
+    - Memory 是單一事實來源
+    - 避免 worktree 間的 Memory 衝突
+    - 確保 Memory 不會隨 worktree 刪除而遺失
+```
+
+### 路徑解析
+
+```yaml
+path_resolution:
+  in_worktree:
+    # 檢測是否在 worktree 中
+    detection: "git rev-parse --git-common-dir | grep -q '.git/worktrees'"
+
+    # 解析 main 目錄
+    main_directory: |
+      git rev-parse --git-common-dir | sed 's|/.git/worktrees/.*||'
+
+    # Memory 路徑
+    memory_path: "{main_directory}/.claude/memory"
+
+  in_main:
+    memory_path: ".claude/memory"
+```
+
+### 實際命令
+
+```bash
+# 獲取 Memory 路徑（適用於任何環境）
+get_memory_path() {
+    local git_common=$(git rev-parse --git-common-dir 2>/dev/null)
+
+    if [[ "$git_common" == *".git/worktrees"* ]]; then
+        # 在 worktree 中，解析 main 目錄
+        local main_dir=$(echo "$git_common" | sed 's|/.git/worktrees/.*||')
+        echo "$main_dir/.claude/memory"
+    else
+        # 在 main 目錄中
+        echo "$(git rev-parse --show-toplevel)/.claude/memory"
+    fi
+}
+```
+
+### workflow.yaml 追蹤
+
+```yaml
+# 在 Worktree 模式下的 workflow.yaml
+workflow:
+  id: "user-auth"
+
+  paths:
+    main_directory: "/project"
+    worktree_directory: "/project/.worktrees/user-auth"
+    memory_base: "/project/.claude/memory"  # 始終指向 main
+
+  worktree:
+    enabled: true
+    state: "active"
+```
+
+詳見：[../isolation/path-resolution.md](../isolation/path-resolution.md)
