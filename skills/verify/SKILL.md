@@ -29,6 +29,7 @@ keywords: [multi-agent, parallel, verify, testing, release, pass-at-k, map-reduc
 | **synthesis** | 交叉驗證 + 矛盾解決 | [→](../../shared/synthesis/) |
 | **perspectives** | 視角基礎結構 | [→](../../shared/perspectives/) |
 | **integration** | Checkpoint + Memory 整合 | [→](../../shared/integration/) |
+| **metrics** | 指標收集 | [→](../../shared/metrics/) |
 
 ## 使用方式
 
@@ -86,6 +87,7 @@ keywords: [multi-agent, parallel, verify, testing, release, pass-at-k, map-reduc
 │  • 載入原始需求和 acceptance criteria                            │
 │  • 載入 implementation-log 和 review-summary                    │
 │  • 建立測試基準線                                                │
+│  <!-- METRICS: start_stage stage_id=verify -->                  │
 └─────────────────────────────────────────────────────────────────┘
          ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -109,6 +111,7 @@ keywords: [multi-agent, parallel, verify, testing, release, pass-at-k, map-reduc
 │  │ Task #1  │ Task #2  │ Task #3  │ Task #4  │                  │
 │  └──────────┴──────────┴──────────┴──────────┘                  │
 │  各 Agent 獨立執行測試，產出測試報告                              │
+│  <!-- METRICS: record_agent 每個視角完成時記錄 -->               │
 │  詳見：shared/coordination/map-phase.md                          │
 └─────────────────────────────────────────────────────────────────┘
          ↓
@@ -122,6 +125,7 @@ keywords: [multi-agent, parallel, verify, testing, release, pass-at-k, map-reduc
 │  Phase 5: REDUCE（結果整合）                                     │
 │  • 合併測試結果                                                  │
 │  • pass@k 計算（k 次嘗試成功率）                                 │
+│  <!-- METRICS: record_iteration 記錄 pass_at_k 數據 -->         │
 │  • 識別失敗模式                                                  │
 │  詳見：shared/coordination/reduce-phase.md                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -142,9 +146,25 @@ keywords: [multi-agent, parallel, verify, testing, release, pass-at-k, map-reduc
 │  • 建立 verifications/[feature-id]/ 目錄                         │
 │  • 存儲測試報告 + 發布決策                                       │
 │  • 更新 index.md                                                 │
+│  <!-- METRICS: end_stage stage_id=verify -->                    │
 │  詳見：shared/integration/memory-system.md                       │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## 指標收集
+
+本 skill 在執行過程中自動收集以下指標：
+
+| 收集點 | 時機 | 記錄內容 |
+|--------|------|----------|
+| `start_stage` | Phase 0 開始 | 階段開始時間、視角列表 |
+| `record_agent` | Phase 3 每個視角完成 | 視角 ID、狀態、耗時 |
+| `record_iteration` | Phase 5 結果整合 | pass_at_k 數據、通過/失敗狀態 |
+| `end_stage` | Phase 7 結束 | 階段結束時間、發布決策 |
+
+指標存儲位置：`.claude/memory/metrics/{workflow-id}/metrics.yaml`
+
+詳見：[shared/metrics/collector.md](../../shared/metrics/collector.md)
 
 ## 發布許可標準
 

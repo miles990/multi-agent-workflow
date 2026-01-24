@@ -29,6 +29,7 @@ keywords: [multi-agent, parallel, review, code-review, quality, map-reduce, pers
 | **synthesis** | 交叉驗證 + 矛盾解決 | [→](../../shared/synthesis/) |
 | **perspectives** | 視角基礎結構 | [→](../../shared/perspectives/) |
 | **integration** | Checkpoint + Memory 整合 | [→](../../shared/integration/) |
+| **metrics** | 指標收集 | [→](../../shared/metrics/) |
 
 ## 使用方式
 
@@ -87,6 +88,7 @@ keywords: [multi-agent, parallel, review, code-review, quality, map-reduce, pers
 │  • 識別變更的檔案                                                │
 │  • 載入 implementation-log（如有）                               │
 │  • 計算差異統計                                                  │
+│  <!-- METRICS: start_stage stage_id=review -->                  │
 └─────────────────────────────────────────────────────────────────┘
          ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -110,6 +112,7 @@ keywords: [multi-agent, parallel, review, code-review, quality, map-reduce, pers
 │  │ Task #1  │ Task #2  │ Task #3  │ Task #4  │                  │
 │  └──────────┴──────────┴──────────┴──────────┘                  │
 │  各 Agent 獨立審查，產出問題清單                                  │
+│  <!-- METRICS: record_agent 每個視角完成時記錄 -->               │
 │  詳見：shared/coordination/map-phase.md                          │
 └─────────────────────────────────────────────────────────────────┘
          ↓
@@ -125,6 +128,7 @@ keywords: [multi-agent, parallel, review, code-review, quality, map-reduce, pers
 │  • 問題去重（shared/synthesis/cross-validation.md）              │
 │  • 嚴重度分類（Critical / High / Medium / Low）                  │
 │  • 優先排序                                                      │
+│  <!-- METRICS: record_issue 每個問題記錄嚴重度 -->               │
 │  詳見：shared/coordination/reduce-phase.md                       │
 └─────────────────────────────────────────────────────────────────┘
          ↓
@@ -140,9 +144,25 @@ keywords: [multi-agent, parallel, review, code-review, quality, map-reduce, pers
 │  • 建立 reviews/[review-id]/ 目錄                                │
 │  • 存儲視角報告 + 審查摘要                                       │
 │  • 更新 index.md                                                 │
+│  <!-- METRICS: end_stage stage_id=review -->                    │
 │  詳見：shared/integration/memory-system.md                       │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## 指標收集
+
+本 skill 在執行過程中自動收集以下指標：
+
+| 收集點 | 時機 | 記錄內容 |
+|--------|------|----------|
+| `start_stage` | Phase 0 開始 | 階段開始時間、視角列表 |
+| `record_agent` | Phase 3 每個視角完成 | 視角 ID、狀態、耗時 |
+| `record_issue` | Phase 5 問題整合 | 問題 ID、嚴重度、分類 |
+| `end_stage` | Phase 7 結束 | 階段結束時間、問題總數、各嚴重度數量 |
+
+指標存儲位置：`.claude/memory/metrics/{workflow-id}/metrics.yaml`
+
+詳見：[shared/metrics/collector.md](../../shared/metrics/collector.md)
 
 ## 問題分類矩陣
 

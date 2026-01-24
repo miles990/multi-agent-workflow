@@ -1,0 +1,212 @@
+# Multi-Agent Workflow Metrics Schema v1.0.0
+# 定義三類指標，用於量化工作流執行品質
+
+# 元數據
+metadata:
+  version: "1.0.0"
+  description: "Multi-Agent Workflow 指標定義"
+  created: "2026-01-24"
+
+# ============================================================
+# 執行指標 (Execution Metrics)
+# 追蹤工作流執行的基本數據
+# ============================================================
+execution:
+  duration_sec:
+    type: number
+    unit: seconds
+    description: "階段執行時間（秒）"
+    aggregation: sum
+
+  agent_success_rate:
+    type: percentage
+    range: [0, 100]
+    description: "Agent 成功完成率"
+    formula: "(successful_agents / total_agents) * 100"
+
+  retry_count:
+    type: integer
+    min: 0
+    description: "重試次數"
+    aggregation: sum
+
+  token_usage:
+    type: object
+    description: "Token 使用量（預留）"
+    properties:
+      input_tokens:
+        type: integer
+        description: "輸入 token 數"
+      output_tokens:
+        type: integer
+        description: "輸出 token 數"
+      total_tokens:
+        type: integer
+        description: "總 token 數"
+
+# ============================================================
+# 品質指標 (Quality Metrics)
+# 追蹤審查和驗證的品質數據
+# ============================================================
+quality:
+  issues_found:
+    type: integer
+    min: 0
+    description: "發現的問題總數"
+    aggregation: sum
+
+  by_severity:
+    type: object
+    description: "按嚴重程度分類的問題數"
+    properties:
+      blocker:
+        type: integer
+        description: "阻塞級問題（必須修復才能繼續）"
+      high:
+        type: integer
+        description: "高優先級問題（應盡快修復）"
+      medium:
+        type: integer
+        description: "中優先級問題（建議修復）"
+      low:
+        type: integer
+        description: "低優先級問題（可選修復）"
+
+  false_positive_rate:
+    type: percentage
+    range: [0, 100]
+    description: "誤報率"
+    formula: "(false_positives / total_issues) * 100"
+    target: "<10%"
+
+# ============================================================
+# 效率指標 (Efficiency Metrics)
+# 追蹤工作流效率和迭代數據
+# ============================================================
+efficiency:
+  first_pass_success:
+    type: boolean
+    description: "首次執行是否成功"
+
+  rollback_count:
+    type: integer
+    min: 0
+    description: "回退次數"
+    target: 0
+
+  total_iterations:
+    type: integer
+    min: 1
+    description: "總迭代次數"
+    target: 1
+
+  pass_at_k:
+    type: object
+    description: "第 k 次通過率"
+    properties:
+      pass_at_1:
+        type: boolean
+        description: "第 1 次嘗試是否通過"
+      pass_at_2:
+        type: boolean
+        description: "第 2 次嘗試是否通過"
+      pass_at_3:
+        type: boolean
+        description: "第 3 次嘗試是否通過"
+      k:
+        type: integer
+        description: "實際通過時的嘗試次數"
+
+# ============================================================
+# 階段指標結構 (Stage Metrics Structure)
+# 每個階段（RESEARCH/PLAN/IMPLEMENT/REVIEW/VERIFY）都有這些指標
+# ============================================================
+stage_template:
+  stage_id:
+    type: string
+    enum: [research, plan, implement, review, verify]
+
+  started_at:
+    type: timestamp
+    format: "ISO8601"
+
+  ended_at:
+    type: timestamp
+    format: "ISO8601"
+
+  duration_sec:
+    type: number
+    derived: true
+    formula: "ended_at - started_at"
+
+  perspectives:
+    type: array
+    description: "各視角的執行數據"
+    items:
+      perspective_id:
+        type: string
+      status:
+        type: string
+        enum: [pending, running, completed, failed, skipped]
+      duration_sec:
+        type: number
+      output_path:
+        type: string
+
+  execution:
+    $ref: "#/execution"
+
+  quality:
+    $ref: "#/quality"
+    description: "僅 REVIEW/VERIFY 階段使用"
+
+  efficiency:
+    $ref: "#/efficiency"
+
+# ============================================================
+# 完整工作流指標結構 (Full Workflow Metrics)
+# ============================================================
+workflow_metrics:
+  workflow_id:
+    type: string
+    format: "uuid"
+    description: "工作流唯一識別碼"
+
+  task:
+    type: string
+    description: "任務描述"
+
+  started_at:
+    type: timestamp
+
+  ended_at:
+    type: timestamp
+
+  total_duration_sec:
+    type: number
+
+  status:
+    type: string
+    enum: [running, completed, failed, cancelled]
+
+  stages:
+    type: array
+    items:
+      $ref: "#/stage_template"
+
+  summary:
+    type: object
+    description: "彙總指標"
+    properties:
+      total_agents:
+        type: integer
+      successful_agents:
+        type: integer
+      total_issues:
+        type: integer
+      blockers:
+        type: integer
+      total_rollbacks:
+        type: integer
+      final_pass_at_k:
+        type: integer

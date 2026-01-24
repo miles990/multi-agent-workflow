@@ -29,6 +29,7 @@ keywords: [multi-agent, parallel, plan, design, implementation-plan, map-reduce,
 | **synthesis** | 交叉驗證 + 矛盾解決 | [→](../../shared/synthesis/) |
 | **perspectives** | 視角基礎結構 | [→](../../shared/perspectives/) |
 | **integration** | Checkpoint + Memory 整合 | [→](../../shared/integration/) |
+| **metrics** | 指標收集 | [→](../../shared/metrics/) |
 
 ## 使用方式
 
@@ -84,6 +85,7 @@ keywords: [multi-agent, parallel, plan, design, implementation-plan, map-reduce,
 │  • 從 research 報告載入上下文（如有）                            │
 │  • 確認 acceptance criteria                                      │
 │  • 定義成功指標                                                  │
+│  <!-- METRICS: start_stage stage_id=plan -->                    │
 └─────────────────────────────────────────────────────────────────┘
          ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -108,6 +110,7 @@ keywords: [multi-agent, parallel, plan, design, implementation-plan, map-reduce,
 │  │ Task #1  │ Task #2  │ Task #3  │ Task #4  │                  │
 │  └──────────┴──────────┴──────────┴──────────┘                  │
 │  各 Agent 獨立規劃，產出視角報告                                  │
+│  <!-- METRICS: record_agent 每個視角完成時記錄 -->               │
 │  詳見：shared/coordination/map-phase.md                          │
 └─────────────────────────────────────────────────────────────────┘
          ↓
@@ -140,9 +143,24 @@ keywords: [multi-agent, parallel, plan, design, implementation-plan, map-reduce,
 │  • 建立 plans/[feature-id]/ 目錄                                 │
 │  • 存儲視角報告 + 實作計劃                                       │
 │  • 更新 index.md                                                 │
+│  <!-- METRICS: end_stage stage_id=plan -->                      │
 │  詳見：shared/integration/memory-system.md                       │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## 指標收集
+
+本 skill 在執行過程中自動收集以下指標：
+
+| 收集點 | 時機 | 記錄內容 |
+|--------|------|----------|
+| `start_stage` | Phase 0 開始 | 階段開始時間、視角列表 |
+| `record_agent` | Phase 3 每個視角完成 | 視角 ID、狀態、耗時 |
+| `end_stage` | Phase 7 結束 | 階段結束時間、成功率 |
+
+指標存儲位置：`.claude/memory/metrics/{workflow-id}/metrics.yaml`
+
+詳見：[shared/metrics/collector.md](../../shared/metrics/collector.md)
 
 ## Memory 輸出結構
 

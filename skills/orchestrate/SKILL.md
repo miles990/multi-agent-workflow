@@ -20,6 +20,17 @@ keywords: [orchestration, workflow, automation, end-to-end, pipeline]
 | **03-error-handling** | 錯誤處理與回退 | [→](./03-error-handling/) |
 | **04-git-worktree** | Git Worktree 隔離 | [→](./04-git-worktree/) |
 
+### 共用模組（shared/）
+
+本 skill 使用以下共用模組：
+
+| 模組 | 用途 | 路徑 |
+|------|------|------|
+| **metrics** | 指標收集與彙總 | [→](../../shared/metrics/) |
+| **reporting** | 報告生成 | [→](../../shared/reporting/) |
+| **progress** | 進度顯示 | [→](../../shared/progress/) |
+| **errors** | 錯誤處理 | [→](../../shared/errors/) |
+
 ## 使用方式
 
 ```bash
@@ -587,3 +598,68 @@ orchestrate 是統一編排器，調用其他 5 個 skill：
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## 指標收集與報告
+
+### 工作流級指標
+
+orchestrate 負責管理整個工作流的指標生命週期：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   指標收集流程                                │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  工作流開始                                                  │
+│      ↓                                                       │
+│  <!-- METRICS: start_workflow -->                           │
+│      ↓                                                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
+│  │ RESEARCH │→ │   PLAN   │→ │IMPLEMENT │→ │  REVIEW  │→   │
+│  │start/end │  │start/end │  │start/end │  │start/end │    │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │
+│                                      ↓                       │
+│                               ┌──────────┐                   │
+│                               │  VERIFY  │                   │
+│                               │start/end │                   │
+│                               └──────────┘                   │
+│                                      ↓                       │
+│  <!-- METRICS: end_workflow -->                             │
+│      ↓                                                       │
+│  生成報告 → .claude/memory/metrics/{id}/report.md           │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 指標彙總
+
+工作流結束時，orchestrate 彙總所有階段指標：
+
+| 彙總指標 | 計算方式 | 用途 |
+|----------|----------|------|
+| `total_duration_sec` | 所有階段耗時總和 | 效率追蹤 |
+| `total_agents` | 所有視角數量總和 | 資源使用 |
+| `successful_agents` | 成功完成的視角數 | 成功率 |
+| `total_issues` | 所有發現的問題數 | 品質指標 |
+| `blockers` | BLOCKER 級問題數 | 關鍵問題 |
+| `total_rollbacks` | 回退次數 | 穩定性 |
+| `final_pass_at_k` | 最終通過時的嘗試次數 | 效率指標 |
+
+### 報告生成
+
+工作流完成後自動生成報告：
+
+```
+.claude/memory/metrics/{workflow-id}/
+├── metrics.yaml    ← 原始數據
+└── report.md       ← 可讀報告
+    ├── 執行摘要
+    ├── 階段耗時分布
+    ├── 迭代歷程
+    ├── 問題分布
+    └── 改善建議
+```
+
+詳見：
+- [shared/metrics/collector.md](../../shared/metrics/collector.md)
+- [shared/reporting/single-report.md](../../shared/reporting/single-report.md)

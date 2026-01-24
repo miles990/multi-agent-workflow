@@ -29,6 +29,7 @@ keywords: [multi-agent, parallel, implement, supervision, tdd, code-quality, map
 | **synthesis** | 交叉驗證 + 矛盾解決 | [→](../../shared/synthesis/) |
 | **perspectives** | 視角基礎結構 | [→](../../shared/perspectives/) |
 | **integration** | Checkpoint + Memory 整合 | [→](../../shared/integration/) |
+| **metrics** | 指標收集 | [→](../../shared/metrics/) |
 
 ## 使用方式
 
@@ -102,6 +103,7 @@ implement skill 與其他 skill 不同：
 │  • 從 plan skill 載入 implementation-plan.md                     │
 │  • 確認技術棧和約束                                              │
 │  • 建立任務清單                                                  │
+│  <!-- METRICS: start_stage stage_id=implement -->               │
 └─────────────────────────────────────────────────────────────────┘
          ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -120,6 +122,7 @@ implement skill 與其他 skill 不同：
 │  │   1. 主 Agent 實作程式碼                                  │   │
 │  │   2. 4 視角並行即時審查                                   │   │
 │  │   3. 收集回饋                                             │   │
+│  │   <!-- METRICS: record_agent 每個視角審查完成時記錄 -->   │   │
 │  │   4. 如有問題 → 主 Agent 修正                             │   │
 │  │   5. 如通過 → 繼續下一個任務                              │   │
 │  └──────────────────────────────────────────────────────────┘   │
@@ -138,6 +141,7 @@ implement skill 與其他 skill 不同：
 │  • 嘗試 1 → 如失敗 → 分析 → 嘗試 2                               │
 │  • pass@3 > 90% 目標                                             │
 │  • 失敗 → 觸發 CP5 驗屍                                          │
+│  <!-- METRICS: record_iteration 每次嘗試記錄結果 -->             │
 │  詳見：config/pass-at-k-retry.md                                 │
 └─────────────────────────────────────────────────────────────────┘
          ↓
@@ -153,9 +157,25 @@ implement skill 與其他 skill 不同：
 │  • 建立 implementations/[feature-id]/ 目錄                       │
 │  • 存儲視角報告 + 實作記錄                                       │
 │  • 更新 index.md                                                 │
+│  <!-- METRICS: end_stage stage_id=implement -->                 │
 │  詳見：shared/integration/memory-system.md                       │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## 指標收集
+
+本 skill 在執行過程中自動收集以下指標：
+
+| 收集點 | 時機 | 記錄內容 |
+|--------|------|----------|
+| `start_stage` | Phase 0 開始 | 階段開始時間、視角列表 |
+| `record_agent` | Phase 2 每個視角審查完成 | 視角 ID、狀態、耗時 |
+| `record_iteration` | Phase 4 每次嘗試 | 嘗試次數、結果（pass/fail）、是否回退 |
+| `end_stage` | Phase 6 結束 | 階段結束時間、成功率、總迭代次數 |
+
+指標存儲位置：`.claude/memory/metrics/{workflow-id}/metrics.yaml`
+
+詳見：[shared/metrics/collector.md](../../shared/metrics/collector.md)
 
 ## 回饋循環
 
