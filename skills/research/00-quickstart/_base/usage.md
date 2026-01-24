@@ -86,6 +86,6 @@
 
 ## 下一步
 
-- [了解預設視角](../01-perspectives/_base/default-perspectives.md)
-- [自訂視角指南](../01-perspectives/_base/custom-perspectives.md)
-- [理解 Map-Reduce 流程](../02-coordination/_base/map-phase.md)
+- [了解預設視角](../../01-perspectives/_base/default-perspectives.md)
+- [自訂視角指南](../../01-perspectives/_base/custom-perspectives.md)
+- [理解 Map-Reduce 流程](../../../../shared/coordination/map-phase.md)
