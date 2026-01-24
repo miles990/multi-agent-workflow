@@ -18,11 +18,13 @@
 ### Via Plugin Marketplace (Recommended)
 
 ```bash
-# 添加 Marketplace
+# 1. 添加 Marketplace
 /plugin marketplace add miles990/multi-agent-research-skill
 
-# 安裝 Plugin
+# 2. 安裝 Plugin
 /plugin install multi-agent-research@multi-agent-research-skill
+
+# 3. 重啟 Claude Code 載入新 Plugin
 ```
 
 ### Direct Install
@@ -34,18 +36,20 @@
 ## Quick Start
 
 ```bash
-# 基本用法
-/multi-research AI Agent 架構設計模式
+# 基本用法（使用 plugin-name:skill-name 格式）
+/multi-agent-research:multi-agent-research AI Agent 架構設計模式
 
 # 快速模式（2 視角）
-/multi-research --quick 技術選型問題
+/multi-agent-research:multi-agent-research --quick 技術選型問題
 
 # 深度模式（6 視角）
-/multi-research --deep 重大架構決策
+/multi-agent-research:multi-agent-research --deep 重大架構決策
 
 # 自訂視角
-/multi-research --custom 特定領域問題
+/multi-agent-research:multi-agent-research --custom 特定領域問題
 ```
+
+> **Note**: Claude Code Plugin 使用 `plugin-name:skill-name` 格式調用 skill
 
 ## Default Perspectives
 
@@ -59,7 +63,7 @@
 ## Execution Flow
 
 ```
-/multi-research [主題]
+/multi-agent-research:multi-agent-research [主題]
          │
          ▼
 ┌─────────────────────────────────────┐
@@ -145,6 +149,26 @@
 | Reduce Phase | 整合匯總 | [→](./skills/multi-agent-research/02-coordination/_base/reduce-phase.md) |
 | Cross Validation | 交叉驗證 | [→](./skills/multi-agent-research/03-synthesis/_base/cross-validation.md) |
 | Conflict Resolution | 矛盾解決 | [→](./skills/multi-agent-research/03-synthesis/_base/conflict-resolution.md) |
+
+## Plugin Structure
+
+```
+multi-agent-research-skill/
+├── .claude-plugin/
+│   └── marketplace.json      # Marketplace 配置
+├── plugin.json               # Plugin manifest
+├── skills/
+│   └── multi-agent-research/
+│       ├── SKILL.md          # Skill 主入口
+│       ├── 00-quickstart/
+│       ├── 01-perspectives/
+│       ├── 02-coordination/
+│       ├── 03-synthesis/
+│       ├── 04-integration/
+│       └── templates/
+├── README.md
+└── LICENSE
+```
 
 ## Related Projects
 
