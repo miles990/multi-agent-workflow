@@ -1,12 +1,12 @@
 ---
-name: multi-agent-research
-version: 1.0.0
+name: research
+version: 2.0.0
 description: 多 Agent 並行研究框架 - 多視角同時研究，智能匯總成完整報告
 triggers: [multi-research, parallel-research, 多角度研究, 研究框架]
 keywords: [multi-agent, parallel, research, synthesis, map-reduce, perspectives]
 ---
 
-# Multi-Agent Research v1.0.0
+# Multi-Agent Research v2.0.0
 
 > 多視角並行研究 → 交叉驗證 → 智能匯總 → Memory 存檔
 
@@ -16,9 +16,17 @@ keywords: [multi-agent, parallel, research, synthesis, map-reduce, perspectives]
 |------|------|------|
 | **00-quickstart** | 快速開始 | [→](./00-quickstart/) |
 | **01-perspectives** | 視角配置（預設 + 自訂） | [→](./01-perspectives/) |
-| **02-coordination** | Map-Reduce 協調機制 | [→](./02-coordination/) |
-| **03-synthesis** | 交叉驗證 + 矛盾解決 | [→](./03-synthesis/) |
-| **04-integration** | Checkpoint + Memory 整合 | [→](./04-integration/) |
+
+### 共用模組（shared/）
+
+本 skill 使用以下共用模組：
+
+| 模組 | 用途 | 路徑 |
+|------|------|------|
+| **coordination** | Map-Reduce 協調機制 | [→](../../shared/coordination/) |
+| **synthesis** | 交叉驗證 + 矛盾解決 | [→](../../shared/synthesis/) |
+| **perspectives** | 視角基礎結構 | [→](../../shared/perspectives/) |
+| **integration** | Checkpoint + Memory 整合 | [→](../../shared/integration/) |
 
 ## 使用方式
 
@@ -61,59 +69,66 @@ keywords: [multi-agent, parallel, research, synthesis, map-reduce, perspectives]
 | `workflow` | 工作流設計師 | 執行流程、整合策略、實作步驟 | 流程建模 |
 | `industry` | 業界實踐研究員 | 現有框架、案例研究、最佳實踐 | 網路搜尋 |
 
+詳見：[shared/perspectives/base-perspective.md](../../shared/perspectives/base-perspective.md)
+
 ## 執行流程
 
 ```
 /multi-research [主題]
          ↓
-┌─────────────────────────────────────────────────────────┐
-│  Phase 0: 北極星錨定                                     │
-│  • 定義研究目標                                          │
-│  • 確認成功標準                                          │
-│  • 設定研究範圍                                          │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Phase 0: 北極星錨定                                             │
+│  • 定義研究目標                                                  │
+│  • 確認成功標準                                                  │
+│  • 設定研究範圍                                                  │
+└─────────────────────────────────────────────────────────────────┘
          ↓
-┌─────────────────────────────────────────────────────────┐
-│  Phase 1: Memory 搜尋（避免重複研究）                     │
-│  • 搜尋 .claude/memory/research/                        │
-│  • 如有相關紀錄 → 詢問是否復用                           │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Phase 1: Memory 搜尋（避免重複研究）                             │
+│  • 搜尋 .claude/memory/research/                                 │
+│  • 如有相關紀錄 → 詢問是否復用                                   │
+│  詳見：shared/integration/memory-system.md                       │
+└─────────────────────────────────────────────────────────────────┘
          ↓
-┌─────────────────────────────────────────────────────────┐
-│  Phase 2: 視角分解                                       │
-│  • 根據主題調整視角重點                                  │
-│  • 為每個視角生成專屬 prompt                             │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Phase 2: 視角分解                                               │
+│  • 根據主題調整視角重點                                          │
+│  • 為每個視角生成專屬 prompt                                     │
+│  詳見：shared/perspectives/base-perspective.md                   │
+└─────────────────────────────────────────────────────────────────┘
          ↓
-┌─────────────────────────────────────────────────────────┐
-│  Phase 3: MAP（並行研究）                                │
-│  ┌──────────┬──────────┬──────────┬──────────┐         │
-│  │架構分析師│認知研究員│工作流設計│業界實踐  │         │
-│  │ Task #1  │ Task #2  │ Task #3  │ Task #4  │         │
-│  └──────────┴──────────┴──────────┴──────────┘         │
-│  各 Agent 獨立研究，產出視角報告                         │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Phase 3: MAP（並行研究）                                        │
+│  ┌──────────┬──────────┬──────────┬──────────┐                  │
+│  │架構分析師│認知研究員│工作流設計│業界實踐  │                  │
+│  │ Task #1  │ Task #2  │ Task #3  │ Task #4  │                  │
+│  └──────────┴──────────┴──────────┴──────────┘                  │
+│  各 Agent 獨立研究，產出視角報告                                  │
+│  詳見：shared/coordination/map-phase.md                          │
+└─────────────────────────────────────────────────────────────────┘
          ↓
-┌─────────────────────────────────────────────────────────┐
-│  Phase 4: 同步檢查點                                     │
-│  • S1: 研究進度確認（50%）                               │
-│  • S2: 初步發現驗證（80%）                               │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Phase 4: 同步檢查點                                             │
+│  • S1: 研究進度確認（50%）                                       │
+│  • S2: 初步發現驗證（80%）                                       │
+└─────────────────────────────────────────────────────────────────┘
          ↓
-┌─────────────────────────────────────────────────────────┐
-│  Phase 5: REDUCE（串行整合）                             │
-│  • 收集所有視角報告                                      │
-│  • 交叉驗證：識別共識點                                  │
-│  • 矛盾解決：多次比較分析                                │
-│  • 生成匯總報告                                          │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Phase 5: REDUCE（串行整合）                                     │
+│  • 收集所有視角報告                                              │
+│  • 交叉驗證：識別共識點（shared/synthesis/cross-validation.md）  │
+│  • 矛盾解決：多次比較分析（shared/synthesis/conflict-resolution.md）│
+│  • 生成匯總報告                                                  │
+│  詳見：shared/coordination/reduce-phase.md                       │
+└─────────────────────────────────────────────────────────────────┘
          ↓
-┌─────────────────────────────────────────────────────────┐
-│  Phase 6: Memory 存檔                                    │
-│  • 建立 research/[topic-id]/ 目錄                       │
-│  • 存儲視角報告 + 匯總報告                               │
-│  • 更新 index.md                                         │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Phase 6: Memory 存檔                                            │
+│  • 建立 research/[topic-id]/ 目錄                                │
+│  • 存儲視角報告 + 匯總報告                                       │
+│  • 更新 index.md                                                 │
+│  詳見：shared/integration/memory-system.md                       │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ## Memory 輸出結構
@@ -138,13 +153,17 @@ keywords: [multi-agent, parallel, research, synthesis, map-reduce, perspectives]
     └── 行動建議
 ```
 
+詳見：[shared/integration/memory-system.md](../../shared/integration/memory-system.md)
+
 ## Checkpoint 對應
 
-| Skill Checkpoint | evolve Checkpoint | 動作 |
-|------------------|-------------------|------|
+| Skill Phase | evolve Checkpoint | 動作 |
+|-------------|-------------------|------|
 | Phase 1 Memory 搜尋 | CP1 | 搜尋 .claude/memory/ |
 | Phase 5 匯總完成 | CP3 | 確認目標和方向 |
 | Phase 6 Memory 存檔 | CP3.5 | 同步 index.md |
+
+詳見：[shared/integration/evolve-checkpoints.md](../../shared/integration/evolve-checkpoints.md)
 
 ## 輸出範例
 
@@ -172,3 +191,15 @@ keywords: [multi-agent, parallel, research, synthesis, map-reduce, perspectives]
 - [快速開始](./00-quickstart/_base/usage.md)
 - [視角配置指南](./01-perspectives/_base/default-perspectives.md)
 - [自訂視角](./01-perspectives/_base/custom-perspectives.md)
+
+## 與其他 Skill 的關係
+
+本 skill 是 `multi-agent-workflow` 生態系的一部分：
+
+```
+RESEARCH → PLAN → IMPLEMENT → REVIEW → VERIFY
+   ↑
+  你在這裡
+```
+
+研究結果可被 `plan` skill 引用，作為規劃的輸入。
