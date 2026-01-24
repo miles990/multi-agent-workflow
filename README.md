@@ -36,6 +36,10 @@
 - **零依賴設計**：只使用 Claude Code 內建工具
 - **Memory 整合**：成果自動存檔，支持跨階段復用
 - **共用模組架構**：避免重複程式碼
+- **指標收集系統**：自動追蹤執行、品質、效率指標
+- **報告系統**：單次報告、週報、基準線追蹤
+- **即時進度顯示**：階段和視角狀態可視化
+- **結構化錯誤處理**：標準化錯誤碼和排除指南
 
 ## Installation
 
@@ -246,9 +250,24 @@ multi-agent-workflow/
 │   │   ├── worktree-setup.md     # Worktree 創建
 │   │   ├── worktree-completion.md # Worktree 完成
 │   │   └── path-resolution.md    # 路徑解析
-│   └── integration/
-│       ├── evolve-checkpoints.md # CP 對應
-│       └── memory-system.md      # Memory 寫入
+│   ├── integration/
+│   │   ├── evolve-checkpoints.md # CP 對應
+│   │   └── memory-system.md      # Memory 寫入
+│   ├── metrics/                  # 指標收集
+│   │   ├── schema.yaml           # 指標定義
+│   │   ├── collector.md          # 收集器
+│   │   └── memory-structure.md   # Memory 結構
+│   ├── reporting/                # 報告系統
+│   │   ├── single-report.md      # 單次報告
+│   │   ├── weekly-report.md      # 週報
+│   │   └── baseline.md           # 基準線
+│   ├── progress/                 # 進度顯示
+│   │   └── display.md            # 進度模組
+│   └── errors/                   # 錯誤處理
+│       ├── error-codes.md        # 錯誤碼定義
+│       └── formatter.md          # 錯誤格式化
+├── docs/
+│   └── troubleshooting/          # 錯誤排除指南
 ├── templates/                    # 共用模板
 ├── plugin.json                   # Plugin manifest
 ├── .claude-plugin/marketplace.json
@@ -270,6 +289,14 @@ multi-agent-workflow/
 | **Git Worktree** | Worktree 隔離 | [→](./skills/orchestrate/04-git-worktree/) |
 | **Memory System** | 存儲系統 | [→](./shared/integration/memory-system.md) |
 | **Checkpoints** | evolve 整合 | [→](./shared/integration/evolve-checkpoints.md) |
+| **Metrics Schema** | 指標定義 | [→](./shared/metrics/schema.yaml) |
+| **Metrics Collector** | 指標收集 | [→](./shared/metrics/collector.md) |
+| **Single Report** | 單次報告 | [→](./shared/reporting/single-report.md) |
+| **Weekly Report** | 週報/趨勢 | [→](./shared/reporting/weekly-report.md) |
+| **Baseline** | 基準線機制 | [→](./shared/reporting/baseline.md) |
+| **Progress Display** | 進度顯示 | [→](./shared/progress/display.md) |
+| **Error Codes** | 錯誤碼定義 | [→](./shared/errors/error-codes.md) |
+| **Troubleshooting** | 錯誤排除指南 | [→](./docs/troubleshooting/) |
 
 ## Core Design Principles
 
@@ -288,6 +315,21 @@ multi-agent-workflow/
 - [self-evolving-agent](https://github.com/miles990/self-evolving-agent) — 自我進化 Agent 框架
 
 ## Changelog
+
+### v2.1.0 (2026-01-24)
+- 新增指標收集系統（Phase 1）
+  - metrics schema 定義執行、品質、效率指標
+  - metrics collector 標準化收集 API
+  - 各 SKILL.md 嵌入指標收集點
+- 新增報告系統（Phase 2）
+  - 單次執行報告：詳細分析和改善建議
+  - 週報/趨勢報告：長期追蹤和趨勢分析
+  - 基準線機制：滾動平均和目標管理
+- 新增進度和錯誤處理（Phase 3）
+  - 即時進度顯示：階段和視角狀態可視化
+  - 標準化錯誤碼：E-AGT, E-WKF, E-MEM, E-USR, E-GIT, E-ENV
+  - 結構化錯誤訊息：可能原因 + 建議步驟
+  - Troubleshooting 文檔：詳細錯誤排除指南
 
 ### v2.0.0 (2025-01-24)
 - 重組專案為 multi-agent-workflow
