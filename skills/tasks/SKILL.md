@@ -82,10 +82,29 @@ Phase 6: 品質閘門 → 輸出 tasks.yaml
 
 → 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
 
-## 輸出格式
+## 輸出結構
+
+```
+.claude/memory/tasks/[plan-id]/
+├── meta.yaml               # 元數據
+├── perspectives/           # 完整視角分析（MAP 產出，保留）
+│   ├── dependency-analyst.md
+│   ├── task-decomposer.md
+│   ├── test-planner.md
+│   └── risk-preventor.md
+├── summaries/              # 結構化摘要（REDUCE 產出，供快速查閱）
+│   ├── dependency-analyst.yaml
+│   ├── task-decomposer.yaml
+│   ├── test-planner.yaml
+│   └── risk-preventor.yaml
+└── tasks.yaml              # 任務清單（主輸出）
+```
+
+> ⚠️ perspectives/ 保存完整分析，summaries/ 保存結構化摘要，tasks.yaml 是最終可執行任務清單。
+
+### tasks.yaml 格式
 
 ```yaml
-# .claude/memory/tasks/[plan-id]/tasks.yaml
 version: "1.0"
 plan_ref: "plans/user-auth"
 waves:
@@ -107,6 +126,8 @@ waves:
 
 | 模組 | 用途 |
 |------|------|
+| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
 | [quality/tdd-enforcement.yaml](../../shared/quality/tdd-enforcement.yaml) | TDD 強制 |
 | [tasks/dependency-detection.yaml](../../shared/tasks/dependency-detection.yaml) | 依賴偵測 |
 | [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |

@@ -75,16 +75,28 @@ Phase 5: Memory 存檔 → 品質閘門檢查 → 存儲報告
 ```
 .claude/memory/research/[topic-id]/
 ├── meta.yaml           # 元數據
-├── perspectives/       # 各視角報告
+├── perspectives/       # 完整視角報告（MAP 產出，保留）
+│   ├── architecture.md
+│   ├── cognitive.md
+│   ├── workflow.md
+│   └── industry.md
+├── summaries/          # 結構化摘要（REDUCE 產出，供快速查閱）
+│   ├── architecture.yaml
+│   ├── cognitive.yaml
+│   ├── workflow.yaml
+│   └── industry.yaml
 ├── synthesis.md        # 匯總報告（主輸出）
 └── metrics.yaml        # 階段指標
 ```
+
+> ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
 | [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
 | [synthesis/cross-validation.md](../../shared/synthesis/cross-validation.md) | 交叉驗證 |
 | [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
 | [config/model-routing.yaml](../../shared/config/model-routing.yaml) | 模型路由 |

@@ -94,16 +94,29 @@ Phase 4: 品質閘門 → 發布/回退決策
 ```
 .claude/memory/verify/[review-id]/
 ├── meta.yaml           # 元數據
-├── perspectives/       # 各視角報告
+├── perspectives/       # 完整視角報告（MAP 產出，保留）
+│   ├── functional-tester.md
+│   ├── edge-case-hunter.md
+│   ├── regression-checker.md
+│   └── acceptance-validator.md
+├── summaries/          # 結構化摘要（REDUCE 產出，供快速查閱）
+│   ├── functional-tester.yaml
+│   ├── edge-case-hunter.yaml
+│   ├── regression-checker.yaml
+│   └── acceptance-validator.yaml
 ├── test-results.yaml   # 測試結果
 ├── acceptance.yaml     # 驗收狀態
 └── verify-summary.md   # 驗證摘要（主輸出）
 ```
 
+> ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
+
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
+| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
 | [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
 | [config/early-termination.yaml](../../shared/config/early-termination.yaml) | 早期終止 |
 | [quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml) | 回退策略 |

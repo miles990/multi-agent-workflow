@@ -85,16 +85,29 @@ Phase 4: 品質閘門 → 通過/回退決策
 ```
 .claude/memory/review/[implement-id]/
 ├── meta.yaml           # 元數據
-├── perspectives/       # 各視角報告
+├── perspectives/       # 完整視角報告（MAP 產出，保留）
+│   ├── code-quality.md
+│   ├── test-coverage.md
+│   ├── documentation.md
+│   └── integration.md
+├── summaries/          # 結構化摘要（REDUCE 產出，供快速查閱）
+│   ├── code-quality.yaml
+│   ├── test-coverage.yaml
+│   ├── documentation.yaml
+│   └── integration.yaml
 ├── issues.yaml         # 問題清單
 ├── scoring.yaml        # 評分詳情
 └── review-summary.md   # 審查摘要（主輸出）
 ```
 
+> ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
+
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
+| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
 | [quality/scoring.yaml](../../shared/quality/scoring.yaml) | 品質評分 |
 | [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
 | [quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml) | 回退策略 |

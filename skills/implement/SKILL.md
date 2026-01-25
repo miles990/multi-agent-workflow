@@ -95,19 +95,28 @@ Phase 5: 品質閘門 → 整體驗證
 
 ```
 .claude/memory/implement/[tasks-id]/
-├── meta.yaml           # 元數據
-├── task-results/       # 每個任務的結果
+├── meta.yaml               # 元數據
+├── perspectives/           # 角色分析報告（並行審查產出，保留）
+│   ├── security-auditor.md     # 安全審計完整報告
+│   └── maintainer.md           # 可維護性完整報告
+├── summaries/              # 結構化摘要（供快速查閱）
+│   ├── security-auditor.yaml
+│   └── maintainer.yaml
+├── task-results/           # 每個任務的結果
 │   ├── T-F-001.yaml
 │   └── T-F-002.yaml
-├── security-report.md  # 安全審計報告
-├── coverage-report.md  # 覆蓋率報告
-└── summary.md          # 實作摘要
+├── security-report.md      # 安全審計報告（匯總）
+├── coverage-report.md      # 覆蓋率報告
+└── summary.md              # 實作摘要（主輸出）
 ```
+
+> ⚠️ perspectives/ 保存完整角色分析，summaries/ 保存結構化摘要。
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
+| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
 | [quality/tdd-enforcement.yaml](../../shared/quality/tdd-enforcement.yaml) | TDD 強制 |
 | [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
 | [perspectives/expertise-frameworks/security.yaml](../../shared/perspectives/expertise-frameworks/security.yaml) | 安全框架 |
