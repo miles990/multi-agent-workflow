@@ -4,6 +4,7 @@ DAG 驗證器 - 檢查任務依賴的正確性
 用法: python dag-validator.py <tasks_file>
 """
 
+import argparse
 import sys
 import yaml
 from collections import defaultdict
@@ -229,15 +230,126 @@ def validate_dag(tasks_file: str) -> bool:
         print("═══════════════════════════════════════════")
         return False
 
-def main():
-    if len(sys.argv) < 2:
-        print("用法: python dag-validator.py <tasks_file>")
-        print("範例: python dag-validator.py .claude/memory/tasks/001/tasks.yaml")
-        sys.exit(1)
+def generate_mermaid(tasks_file: str, output_file: str = None) -> str:
+    """
+    生成任務 DAG 的 Mermaid 圖表
 
-    tasks_file = sys.argv[1]
-    success = validate_dag(tasks_file)
-    sys.exit(0 if success else 1)
+    Args:
+        tasks_file: 任務檔案路徑
+        output_file: 輸出檔案路徑（可選）
+
+    Returns:
+        Mermaid 圖表字串
+    """
+    try:
+        tasks = load_tasks(tasks_file)
+    except Exception as e:
+        print(f"無法載入任務檔案: {e}", file=sys.stderr)
+        return ""
+
+    if not tasks:
+        print("任務列表為空", file=sys.stderr)
+        return ""
+
+    # 狀態顏色
+    STATUS_COLORS = {
+        'pending': '#9ca3af',     # gray
+        'running': '#fbbf24',     # amber
+        'in_progress': '#fbbf24',
+        'completed': '#4ade80',   # green
+        'failed': '#f87171',      # red
+    }
+
+    STATUS_ICONS = {
+        'pending': '⏳',
+        'running': '🔄',
+        'in_progress': '🔄',
+        'completed': '✅',
+        'failed': '❌',
+    }
+
+    lines = ['```mermaid', 'graph TD']
+
+    # 按 wave 分組
+    waves: Dict[int, List[Dict]] = defaultdict(list)
+    for task in tasks:
+        wave = task.get('wave', 1)
+        waves[wave].append(task)
+
+    # 生成 subgraph
+    for wave_num in sorted(waves.keys()):
+        wave_tasks = waves[wave_num]
+        lines.append(f'    subgraph Wave{wave_num}["Wave {wave_num}"]')
+        for task in wave_tasks:
+            task_id = task.get('id', 'unknown')
+            title = task.get('title', task.get('subject', task.get('name', task_id)))
+            # 截斷標題
+            title = title[:35] + '...' if len(title) > 35 else title
+            # 安全的 ID（Mermaid 不支援連字號在某些情況）
+            safe_id = task_id.replace('-', '_')
+            status = task.get('status', 'pending')
+            icon = STATUS_ICONS.get(status, '⏳')
+            lines.append(f'        {safe_id}["{icon} {task_id}<br/>{title}"]')
+        lines.append('    end')
+
+    # 生成依賴連線
+    lines.append('')
+    for task in tasks:
+        task_id = task.get('id', '').replace('-', '_')
+        deps = task.get('depends_on', []) or task.get('blockedBy', []) or []
+        if isinstance(deps, str):
+            deps = [deps]
+        for dep in deps:
+            dep_id = dep.replace('-', '_')
+            lines.append(f'    {dep_id} --> {task_id}')
+
+    # 樣式
+    lines.append('')
+    for task in tasks:
+        task_id = task.get('id', '').replace('-', '_')
+        status = task.get('status', 'pending')
+        color = STATUS_COLORS.get(status, '#9ca3af')
+        lines.append(f'    style {task_id} fill:{color}')
+
+    lines.append('```')
+
+    mermaid_output = '\n'.join(lines)
+
+    # 輸出
+    if output_file:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(mermaid_output)
+        print(f"已輸出到: {output_file}")
+    else:
+        print(mermaid_output)
+
+    return mermaid_output
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='DAG 驗證器 - 檢查任務依賴的正確性',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+範例:
+  python dag-validator.py tasks.yaml              # 驗證 DAG
+  python dag-validator.py tasks.yaml --mermaid    # 生成 Mermaid 圖
+  python dag-validator.py tasks.yaml --mermaid -o dag.md  # 輸出到檔案
+        '''
+    )
+
+    parser.add_argument('tasks_file', help='任務檔案路徑')
+    parser.add_argument('--mermaid', action='store_true', help='生成 Mermaid 圖表')
+    parser.add_argument('-o', '--output', help='輸出檔案路徑（僅 --mermaid 使用）')
+
+    args = parser.parse_args()
+
+    if args.mermaid:
+        result = generate_mermaid(args.tasks_file, args.output)
+        sys.exit(0 if result else 1)
+    else:
+        success = validate_dag(args.tasks_file)
+        sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

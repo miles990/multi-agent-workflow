@@ -322,8 +322,130 @@ rollback_progress:
 <!-- PROGRESS: stage_end stage_id={stage} -->
 ```
 
+## Mermaid 圖表格式
+
+### 階段流程圖
+
+用於展示工作流階段進度：
+
+```mermaid
+graph LR
+    RES["RESEARCH ✅"]
+    PLN["PLAN ✅"]
+    TSK["TASKS ✅"]
+    IMP["IMPLEMENT 🔄"]
+    REV["REVIEW ⏳"]
+    VER["VERIFY ⏳"]
+    RES --> PLN
+    PLN --> TSK
+    TSK --> IMP
+    IMP --> REV
+    REV --> VER
+
+    style RES fill:#4ade80
+    style PLN fill:#4ade80
+    style TSK fill:#4ade80
+    style IMP fill:#fbbf24
+    style REV fill:#9ca3af
+    style VER fill:#9ca3af
+```
+
+**節點 ID 規範**：
+- RESEARCH → RES
+- PLAN → PLN
+- TASKS → TSK
+- IMPLEMENT → IMP
+- REVIEW → REV
+- VERIFY → VER
+
+### 任務 DAG 圖
+
+用於展示任務依賴關係：
+
+```mermaid
+graph TD
+    subgraph Wave1["Wave 1"]
+        TEST_001["✅ TEST-001: 登入測試"]
+        TEST_002["✅ TEST-002: 註冊測試"]
+    end
+
+    subgraph Wave2["Wave 2"]
+        T_F_001["✅ T-F-001: 登入功能"]
+        T_F_002["🔄 T-F-002: 註冊功能"]
+    end
+
+    TEST_001 --> T_F_001
+    TEST_002 --> T_F_002
+
+    style TEST_001 fill:#4ade80
+    style TEST_002 fill:#4ade80
+    style T_F_001 fill:#4ade80
+    style T_F_002 fill:#fbbf24
+```
+
+**任務 ID 規範**：
+- 使用底線取代連字號（`TEST_001` 而非 `TEST-001`）
+- 在標籤中顯示原始 ID
+
+### 顏色規範
+
+| 狀態 | 顏色 | Hex |
+|------|------|-----|
+| completed | 綠色 | `#4ade80` |
+| running / in_progress | 琥珀色 | `#fbbf24` |
+| pending | 灰色 | `#9ca3af` |
+| failed | 紅色 | `#f87171` |
+| skipped | 藍色 | `#60a5fa` |
+
+## CLI 工具
+
+### workflow-status.py
+
+查看工作流狀態的命令列工具：
+
+```bash
+# 顯示當前工作流狀態
+python shared/tools/workflow-status.py
+
+# 顯示特定工作流
+python shared/tools/workflow-status.py --id user-auth
+
+# 列出所有工作流
+python shared/tools/workflow-status.py --list
+
+# 顯示任務 DAG（Mermaid）
+python shared/tools/workflow-status.py --dag
+
+# 輸出格式
+python shared/tools/workflow-status.py --json        # JSON
+python shared/tools/workflow-status.py --markdown   # Markdown + Mermaid
+python shared/tools/workflow-status.py --html       # HTML Dashboard
+
+# 輸出到檔案
+python shared/tools/workflow-status.py -o dashboard.md
+python shared/tools/workflow-status.py --html -o dashboard.html
+```
+
+### dag-validator.py
+
+DAG 驗證與可視化工具：
+
+```bash
+# 驗證 DAG
+python shared/tools/dag-validator.py tasks.yaml
+
+# 生成 Mermaid 圖表
+python shared/tools/dag-validator.py tasks.yaml --mermaid
+
+# 輸出到檔案
+python shared/tools/dag-validator.py tasks.yaml --mermaid -o dag.md
+```
+
 ## 相關模組
 
 - [指標收集器](../metrics/collector.md)
 - [錯誤格式化](../errors/formatter.md)
 - [orchestrate SKILL](../../skills/orchestrate/SKILL.md)
+- [status SKILL](../../skills/status/SKILL.md)
+- [workflow-status.py](../tools/workflow-status.py)
+- [dag-validator.py](../tools/dag-validator.py)
