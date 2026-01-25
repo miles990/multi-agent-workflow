@@ -18,37 +18,55 @@ or use the GrepTool to search for specific content.
 
 ## 解決方案
 
-### 1. 分層讀取策略（推薦）
+### ✅ 推薦：並行子 Agent 完整處理（確保完整性）
+
+**原理**：每個視角報告由獨立子 Agent **完整讀取**，產出結構化摘要，主 Agent 收集摘要進行最終匯總。
+
+**優點**：
+- ✅ 每個視角都被**完整處理**，不遺漏任何內容
+- ✅ 保證高品質和正確性
+- ✅ 子 Agent 各自有獨立 context，不受 25000 tokens 限制
 
 ```javascript
-// 只讀取每個報告的前 100 行（包含 Executive Summary + Core Findings）
+// 1. 並行啟動子 Agent（每個完整讀取一份報告）
+const tasks = perspectives.map(p => Task({
+  description: `提取 ${p.name} 視角摘要`,
+  prompt: `
+    完整讀取 ${p.reportPath}，產出結構化摘要（YAML 格式）：
+    - executive_summary: 2-3 句話
+    - core_findings: 列出所有核心發現 + 證據
+    - unique_insights: 此視角獨特的洞察（不可遺漏）
+    - cross_reference: 共識點、衝突點
+  `,
+  subagent_type: 'general-purpose',
+  model: 'haiku'
+}));
+
+// 2. 收集所有摘要（每份約 1000 tokens）
+const summaries = await Promise.all(tasks);
+
+// 3. 主 Agent 基於完整摘要進行交叉驗證和匯總
+```
+
+### 備選：分層讀取（僅適用於簡單場景）
+
+⚠️ **注意**：此方法可能遺漏詳細分析中的重要內容，僅適用於 `--quick` 模式。
+
+```javascript
+// 只讀取每個報告的前 100 行
 for (perspective of perspectives) {
   const summary = Read(perspectivePath, { limit: 100 });
   summaries.push(summary);
 }
-
-// 如需深入，再針對特定視角讀取更多
-const details = Read(specificPath, { offset: 100, limit: 200 });
 ```
 
-### 2. 使用 Grep 搜尋關鍵內容
+### 備選：Grep 搜尋關鍵內容
 
 ```javascript
 // 搜尋特定 section
 Grep({
   pattern: "## Executive Summary|## Core Findings|## Cross-Reference",
   path: perspectivesDir
-});
-```
-
-### 3. 啟動子 Agent 分段處理
-
-```javascript
-// 每個視角用獨立 Agent 處理，只收集匯總結果
-Task({
-  description: "匯總單一視角",
-  prompt: `讀取 ${perspectivePath} 並產出 200 字摘要`,
-  model: "haiku"
 });
 ```
 

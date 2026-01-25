@@ -67,53 +67,179 @@ Read → .claude/memory/research/user-auth/perspectives/industry.md
 
 **問題**：多個視角報告合併後可能超過 25000 tokens 限制。
 
-**解決方案**：分層讀取策略
+**核心原則**：**完整性優先** — 每個視角的完整內容都必須被處理，不可遺漏。
+
+---
+
+#### 策略選擇流程
 
 ```
-第一層：只讀摘要（每個報告前 100 行）
-────────────────────────────────────────
-Read(file, limit=100) → 獲取 Executive Summary + Core Findings
-
-第二層：按需深入
-────────────────────────────────────────
-如果某視角需要更多細節，再讀取該視角的完整內容
-
-第三層：並行處理（如仍超限）
-────────────────────────────────────────
-啟動子 Agent 分別處理每個視角，只收集匯總結果
+┌─────────────────────────────────────────────────────────────────┐
+│ Step 1: 評估總量                                                 │
+│ 檢查所有視角報告的總行數/大小                                    │
+└─────────────────────────────────────────────────────────────────┘
+         ↓
+    總量 < 500 行？
+         ↓
+    ┌────┴────┐
+    是        否
+    ↓         ↓
+┌────────┐  ┌────────────────────────────────────────────────────┐
+│ 策略 A │  │ 策略 B: 並行子 Agent 完整處理（推薦）               │
+│ 直接讀 │  │ 每個視角由獨立 Agent 完整讀取並產出結構化摘要       │
+└────────┘  └────────────────────────────────────────────────────┘
 ```
 
-**實作指引**：
+---
+
+#### 策略 A：直接讀取（小檔案，總量 < 500 行）
 
 ```javascript
-// 1. 先收集所有視角的摘要
+// 所有報告一次讀取
 for (perspective of perspectives) {
-  // 只讀前 100 行（約 2000-3000 tokens）
-  const summary = Read(perspectivePath, { limit: 100 });
-  summaries.push({ id: perspective, content: summary });
+  const content = Read(perspectivePath);
+  reports.push({ id: perspective, content });
 }
-
-// 2. 從摘要中提取關鍵資訊進行交叉驗證
-// 關鍵 sections：Executive Summary, Core Findings, Cross-Reference Notes
-
-// 3. 如需深入某視角，使用 offset 讀取
-const details = Read(specificPath, { offset: 100, limit: 200 });
+// 直接進行交叉驗證和匯總
 ```
 
-**Token 預算分配**（總預算 20000 tokens）：
+---
 
-| 用途 | 配額 | 說明 |
+#### 策略 B：並行子 Agent 完整處理（推薦，確保完整性）
+
+**原理**：每個視角報告由獨立子 Agent **完整讀取**，產出結構化摘要，主 Agent 收集摘要進行最終匯總。
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 並行啟動 4 個子 Agent                                            │
+│                                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │ Agent A  │  │ Agent B  │  │ Agent C  │  │ Agent D  │        │
+│  │ 架構視角 │  │ 認知視角 │  │ 工作流   │  │ 業界實踐 │        │
+│  │          │  │          │  │          │  │          │        │
+│  │ 完整讀取 │  │ 完整讀取 │  │ 完整讀取 │  │ 完整讀取 │        │
+│  │ 報告     │  │ 報告     │  │ 報告     │  │ 報告     │        │
+│  │    ↓     │  │    ↓     │  │    ↓     │  │    ↓     │        │
+│  │ 產出結構 │  │ 產出結構 │  │ 產出結構 │  │ 產出結構 │        │
+│  │ 化摘要   │  │ 化摘要   │  │ 化摘要   │  │ 化摘要   │        │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘        │
+│       └──────────────┴──────────────┴──────────────┘            │
+│                              ↓                                   │
+│                    收集 4 份結構化摘要                           │
+│                              ↓                                   │
+│                    主 Agent 進行匯總                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**子 Agent Prompt 模板**：
+
+```markdown
+## 任務：視角報告摘要提取
+
+請完整讀取以下視角報告，並產出**結構化摘要**。
+
+### 報告路徑
+{perspective_report_path}
+
+### 輸出格式（必須遵循）
+
+```yaml
+perspective_id: {id}
+confidence: high | medium | low
+
+executive_summary: |
+  {2-3 句話總結此視角的核心觀點}
+
+core_findings:
+  - finding: {發現 1}
+    evidence: {關鍵證據}
+    confidence: {★★★★ | ★★★ | ★★ | ★}
+  - finding: {發現 2}
+    evidence: {關鍵證據}
+    confidence: {★★★★ | ★★★ | ★★ | ★}
+  - finding: {發現 3}
+    evidence: {關鍵證據}
+    confidence: {★★★★ | ★★★ | ★★ | ★}
+
+key_recommendations:
+  - {建議 1}
+  - {建議 2}
+
+risks:
+  - {風險 1}
+  - {風險 2}
+
+cross_reference:
+  consensus_points:
+    - {可能與其他視角一致的點}
+  potential_conflicts:
+    - {可能與其他視角衝突的點}
+  unique_insights:
+    - {此視角獨特的洞察，不可遺漏}
+```
+
+### 重要
+- 必須**完整閱讀**報告後再摘要
+- 不可遺漏任何**核心發現**或**獨特洞察**
+- unique_insights 特別重要，這些是其他視角可能沒有的觀點
+```
+
+**主 Agent 匯總流程**：
+
+```javascript
+// 1. 並行啟動子 Agent
+const extractionTasks = perspectives.map(p => Task({
+  description: `提取 ${p.name} 視角摘要`,
+  prompt: generateExtractionPrompt(p.reportPath),
+  subagent_type: 'general-purpose',
+  model: 'haiku'  // 摘要提取用快速模型
+}));
+
+// 2. 收集結構化摘要
+const summaries = await Promise.all(extractionTasks);
+
+// 3. 解析 YAML 摘要
+const parsedSummaries = summaries.map(parseYAML);
+
+// 4. 進行交叉驗證（基於完整摘要）
+const crossValidation = analyzeCrossReferences(parsedSummaries);
+
+// 5. 產出最終匯總報告
+generateSynthesisReport(parsedSummaries, crossValidation);
+```
+
+---
+
+#### 品質保證機制
+
+| 檢查點 | 驗證內容 | 失敗處理 |
+|-------|---------|---------|
+| 摘要完整性 | 每個摘要都有 core_findings 和 unique_insights | 重新執行該視角的提取 |
+| 交叉引用 | consensus_points 和 potential_conflicts 已標記 | 手動檢查視角間關係 |
+| 信心度一致性 | 高信心度發現有足夠證據 | 降級或標記待確認 |
+
+---
+
+#### Token 預算分配（策略 B）
+
+| 階段 | 用途 | 說明 |
 |-----|------|------|
-| 視角摘要 | 12000 | 4 視角 × 3000 tokens |
-| 交叉驗證分析 | 4000 | 識別共識/矛盾 |
-| 匯總報告生成 | 4000 | 產出最終報告 |
+| 子 Agent（×4） | 各自獨立 context | 每個 Agent 完整讀取一份報告 |
+| 主 Agent | 收集 4 份摘要 | 約 4000 tokens（4 × 1000） |
+| 主 Agent | 交叉驗證 + 匯總 | 約 6000 tokens |
 
-**降級策略**：
+**優勢**：每個視角都被**完整處理**，不會因為 token 限制而遺漏重要內容。
 
-如果視角報告總量仍超過預算：
-1. 只使用 Executive Summary 和 Core Findings
-2. 使用 Grep 搜尋特定關鍵字而非完整讀取
-3. 啟動獨立 Agent 進行分段匯總
+---
+
+#### 何時使用哪個策略
+
+| 情況 | 策略 | 原因 |
+|-----|------|------|
+| 4 個視角，每個 < 150 行 | A | 總量小，直接讀取 |
+| 4 個視角，每個 > 150 行 | B | 超限風險，用子 Agent |
+| 深度研究（--deep） | B | 報告通常較長 |
+| 快速研究（--quick） | A | 報告較短 |
 
 ### 報告格式標準化
 
