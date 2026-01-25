@@ -49,6 +49,20 @@ Phase 4: REDUCE（交叉驗證 + 匯總）
 Phase 5: Memory 存檔 → 品質閘門檢查 → 存儲報告
 ```
 
+## CP4: Task Commit
+
+Memory 存檔完成後，**必須執行 CP4 Task Commit**。
+
+```
+Phase 5: Memory 存檔
+    ↓
+CP4: Task Commit
+    ├── git add .claude/memory/research/{topic-id}/
+    └── git commit -m "docs(research): complete {topic} research"
+```
+
+→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+
 ## 品質閘門
 
 通過條件（RESEARCH 階段）：

@@ -72,6 +72,20 @@ Phase 6: 品質閘門 → 輸出 tasks.yaml
 
 → 配置：[shared/tasks/dependency-detection.yaml](../../shared/tasks/dependency-detection.yaml)
 
+## CP4: Task Commit
+
+品質閘門通過後，**必須執行 CP4 Task Commit**。
+
+```
+Phase 6: 品質閘門 → 輸出 tasks.yaml
+    ↓
+CP4: Task Commit
+    ├── git add .claude/memory/tasks/{plan-id}/
+    └── git commit -m "feat(tasks): decompose {plan} into executable tasks"
+```
+
+→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+
 ## 品質閘門
 
 通過條件（TASKS 階段）：

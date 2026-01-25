@@ -67,6 +67,20 @@ Phase 4: 品質閘門 → 通過/回退決策
 
 → 評分配置：[shared/quality/scoring.yaml](../../shared/quality/scoring.yaml)
 
+## CP4: Task Commit
+
+品質閘門檢查完成後，**必須執行 CP4 Task Commit**。
+
+```
+Phase 4: 品質閘門 → 通過/回退決策
+    ↓
+CP4: Task Commit
+    ├── git add .claude/memory/review/{implement-id}/
+    └── git commit -m "docs(review): complete {feature} code review"
+```
+
+→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+
 ## 品質閘門
 
 通過條件（REVIEW 階段）：

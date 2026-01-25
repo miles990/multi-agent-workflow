@@ -15,19 +15,26 @@ Multi-Agent Workflow 的執行流程與 evolve Checkpoint 對應，確保在關�
 | **research** | Phase 1: Memory 搜尋 | CP1 | 搜尋 .claude/memory/ |
 | **research** | Phase 5: 匯總完成 | CP3 | 確認目標達成 |
 | **research** | Phase 6: Memory 存檔 | CP3.5 | 同步 index.md |
+| **research** | Phase 6 後 | **CP4** | Task Commit |
 | **plan** | Phase 1: Memory 搜尋 | CP1 | 搜尋相關計劃 |
 | **plan** | Phase 3: 共識設計 | CP1.5 | 設計一致性檢查 |
 | **plan** | Phase 4: 存檔 | CP3.5 | 同步 index.md |
+| **plan** | Phase 4 後 | **CP4** | Task Commit |
+| **tasks** | Phase 5: Memory 存檔 | CP3.5 | 同步 index.md |
+| **tasks** | Phase 5 後 | **CP4** | Task Commit |
 | **orchestrate** | PLAN 完成後 | **CP0.5** | 創建 Worktree |
 | **implement** | Phase 1: 環境檢查 | CP1 | 搜尋相關實作 |
 | **implement** | Phase 3: 整合驗證 | CP2 | Build + Test |
 | **implement** | Phase 4: 存檔 | CP3.5 | 同步 index.md |
+| **implement** | 每個 task 完成後 | **CP4** | Task Commit |
 | **review** | Phase 0: 變更載入 | CP1 | 搜尋相關審查 |
 | **review** | Phase 2: 問題整合 | CP3 | 審查共識達成 |
 | **review** | Phase 3: 存檔 | CP3.5 | 同步 index.md |
+| **review** | Phase 3 後 | **CP4** | Task Commit |
 | **verify** | Phase 0: 驗收準備 | CP1 | 載入相關記錄 |
 | **verify** | Phase 2: 結果整合 | CP2 | 測試執行 |
 | **verify** | Phase 3: 發布許可 | CP6 | 發布驗證 |
+| **verify** | Phase 3 後 | **CP4** | Task Commit |
 | **orchestrate** | VERIFY 完成後 | **CP6.5** | Worktree 完成處理 |
 
 ## CP0.5: Worktree Setup（Git Worktree 模式）
@@ -273,6 +280,91 @@ research 或 review 完成主要工作後
 |----|------|------|------|
 | {topic-id} | {topic} | {date} | completed |
 ```
+
+## CP4: Task Commit
+
+### 時機
+
+每個 skill 的主要產出完成並執行 CP3.5 Memory 存檔後
+
+### 動作
+
+```yaml
+cp4_task_commit:
+  trigger: "skill 主要產出完成後"
+  prerequisite: "CP3.5 Memory 存檔完成"
+
+  steps:
+    1. check_changes:
+        command: "git status --porcelain"
+        if_no_changes: "skip commit, continue"
+
+    2. stage_changes:
+        primary: ".claude/memory/{type}/{id}/"
+        secondary: "相關程式碼變更（如果有）"
+
+    3. generate_commit_message:
+        format: "{type}({skill}): {description}"
+        include:
+          - 變更摘要
+          - Memory 路徑
+          - Co-Author
+
+    4. execute_commit:
+        command: "git commit -m '{message}'"
+
+    5. verify_success:
+        check: "git log -1 --oneline"
+        record: "commit_hash"
+
+  on_failure:
+    action: warn_and_continue
+    message: "Commit 未能完成，請手動處理"
+    continue: true
+```
+
+### Commit Message 格式
+
+```
+{type}({skill}): {brief_description}
+
+{details}
+
+Memory: .claude/memory/{type}/{id}/
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+```
+
+### 範例
+
+```
+docs(research): complete user-auth research
+
+- 4 perspectives analyzed
+- Synthesis report generated
+- Quality score: 85
+
+Memory: .claude/memory/research/user-auth/
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+```
+
+### 失敗處理
+
+```yaml
+on_failure:
+  no_changes:
+    action: skip
+    continue: true
+
+  commit_error:
+    action: warn
+    message: "Commit 失敗: {error}"
+    continue: true  # 不阻塞主流程
+    reminder: "提醒用戶稍後手動處理"
+```
+
+詳見：[../git/commit-protocol.md](../git/commit-protocol.md)
+
+---
 
 ## CP5: 失敗驗屍
 

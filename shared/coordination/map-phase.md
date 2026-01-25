@@ -335,6 +335,24 @@ map_config:
 3. **復用**：其他工作流可以引用特定視角的報告
 4. **透明度**：使用者可以看到完整的分析過程
 
+## CP4: Task Commit
+
+Map Phase 完成並保存視角報告後，視情況觸發 CP4 Task Commit。
+
+**注意**：通常 CP4 在 Reduce Phase 完成後觸發（整個 skill 階段完成時）。Map Phase 只負責保存視角報告，不單獨觸發 commit。
+
+如需在 Map Phase 後立即 commit（例如中斷恢復需求），可選擇性執行：
+
+```yaml
+optional_intermediate_commit:
+  condition: "需要中間保存點"
+  action:
+    - stage: ".claude/memory/{type}/{id}/perspectives/"
+    - message: "wip({skill}): save perspectives for {topic}"
+```
+
+詳見：[../git/commit-protocol.md](../git/commit-protocol.md)
+
 ## 下一步
 
 Map Phase 完成後，進入 [Reduce Phase](./reduce-phase.md) 進行整合。

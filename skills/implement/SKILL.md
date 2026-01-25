@@ -81,6 +81,23 @@ Phase 5: 品質閘門 → 整體驗證
 
 → 框架：[shared/perspectives/expertise-frameworks/security.yaml](../../shared/perspectives/expertise-frameworks/security.yaml)
 
+## CP4: Task Commit
+
+**每個 task 完成後**必須執行 CP4 Task Commit（增量 commit）。
+
+```
+Phase 4: 自我審查 + 提交
+    ↓
+CP4: Task Commit（每個 task）
+    ├── git add {changed_files}
+    ├── git add .claude/memory/implement/{id}/task-results/{task-id}.yaml
+    └── git commit -m "feat(implement): complete {task-id} - {description}"
+```
+
+**注意**：implement skill 的 CP4 是增量觸發，每個 task 完成後都會 commit，確保進度不會丟失。
+
+→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+
 ## 品質閘門
 
 通過條件（IMPLEMENT 階段）：

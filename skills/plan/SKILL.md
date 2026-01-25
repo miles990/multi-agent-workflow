@@ -66,6 +66,20 @@ Phase 6: Memory 存檔
 
 → 配置：[shared/quality/early-detection.yaml](../../shared/quality/early-detection.yaml)
 
+## CP4: Task Commit
+
+Memory 存檔完成後，**必須執行 CP4 Task Commit**。
+
+```
+Phase 6: Memory 存檔
+    ↓
+CP4: Task Commit
+    ├── git add .claude/memory/plans/{feature-id}/
+    └── git commit -m "feat(plan): design {feature} implementation plan"
+```
+
+→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+
 ## 品質閘門
 
 通過條件（PLAN 階段）：

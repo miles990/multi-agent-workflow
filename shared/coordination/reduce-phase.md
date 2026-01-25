@@ -463,6 +463,61 @@ reduce_config:
     enabled: true
 ```
 
+## CP4: Task Commit
+
+Reduce Phase 完成後，**必須**觸發 CP4 Task Commit，將工作成果持久化。
+
+### 觸發時機
+
+```
+報告生成完成
+    ↓
+CP3.5: Memory 存檔（寫入 synthesis.md 等）
+    ↓
+CP4: Task Commit（本節）
+```
+
+### 執行步驟
+
+```yaml
+cp4_after_reduce:
+  steps:
+    1. check_changes:
+        command: "git status --porcelain .claude/memory/{type}/{id}/"
+
+    2. stage_changes:
+        command: |
+          git add .claude/memory/{type}/{id}/
+
+    3. commit:
+        message: |
+          {type}({skill}): complete {topic} {skill}
+
+          - {perspective_count} perspectives analyzed
+          - Synthesis report generated
+          - Quality score: {score}
+
+          Memory: .claude/memory/{type}/{id}/
+          Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+    4. verify:
+        command: "git log -1 --oneline"
+```
+
+### 失敗處理
+
+```yaml
+on_failure:
+  action: warn_and_continue
+  message: |
+    ⚠️ CP4 Commit 未能完成
+    請稍後手動執行：
+    git add .claude/memory/{type}/{id}/
+    git commit -m "{suggested_message}"
+```
+
+詳見：[../git/commit-protocol.md](../git/commit-protocol.md)
+
 ## 相關模組
 
 - [cross-validation.md](../synthesis/cross-validation.md) - 交叉驗證邏輯

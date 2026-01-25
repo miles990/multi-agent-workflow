@@ -64,6 +64,20 @@ Phase 4: 品質閘門 → 發布/回退決策
 
 → 配置：[shared/config/early-termination.yaml](../../shared/config/early-termination.yaml)
 
+## CP4: Task Commit
+
+品質閘門檢查完成後，**必須執行 CP4 Task Commit**。
+
+```
+Phase 4: 品質閘門 → 發布/回退決策
+    ↓
+CP4: Task Commit
+    ├── git add .claude/memory/verify/{review-id}/
+    └── git commit -m "test(verify): complete {feature} verification"
+```
+
+→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+
 ## 品質閘門
 
 通過條件（VERIFY 階段）：
