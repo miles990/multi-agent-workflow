@@ -111,6 +111,10 @@ keywords: [multi-agent, parallel, verify, testing, release, pass-at-k, map-reduc
 │  │ Task #1  │ Task #2  │ Task #3  │ Task #4  │                  │
 │  └──────────┴──────────┴──────────┴──────────┘                  │
 │  各 Agent 獨立執行測試，產出測試報告                              │
+│                                                                  │
+│  ⚠️ 重要：每個 Agent 完成後立即保存報告：                        │
+│     Write → perspectives/{perspective_id}.md                    │
+│                                                                  │
 │  <!-- METRICS: record_agent 每個視角完成時記錄 -->               │
 │  詳見：shared/coordination/map-phase.md                          │
 └─────────────────────────────────────────────────────────────────┘

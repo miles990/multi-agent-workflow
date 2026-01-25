@@ -112,6 +112,10 @@ keywords: [multi-agent, parallel, review, code-review, quality, map-reduce, pers
 │  │ Task #1  │ Task #2  │ Task #3  │ Task #4  │                  │
 │  └──────────┴──────────┴──────────┴──────────┘                  │
 │  各 Agent 獨立審查，產出問題清單                                  │
+│                                                                  │
+│  ⚠️ 重要：每個 Agent 完成後立即保存報告：                        │
+│     Write → perspectives/{perspective_id}.md                    │
+│                                                                  │
 │  <!-- METRICS: record_agent 每個視角完成時記錄 -->               │
 │  詳見：shared/coordination/map-phase.md                          │
 └─────────────────────────────────────────────────────────────────┘

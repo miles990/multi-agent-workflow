@@ -46,6 +46,23 @@ Reduce Phase 負責：
 
 ## 收集階段
 
+### 從檔案讀取視角報告
+
+**重要**：視角報告應已保存在檔案中（由 Map Phase 負責）。
+
+```
+讀取路徑：
+.claude/memory/{type}/{id}/perspectives/*.md
+
+範例：
+Read → .claude/memory/research/user-auth/perspectives/architecture.md
+Read → .claude/memory/research/user-auth/perspectives/cognitive.md
+Read → .claude/memory/research/user-auth/perspectives/workflow.md
+Read → .claude/memory/research/user-auth/perspectives/industry.md
+```
+
+如果視角報告檔案不存在，表示 Map Phase 未正確保存，應該報錯。
+
 ### 報告格式標準化
 
 每份視角報告應包含：
