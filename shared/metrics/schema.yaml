@@ -210,3 +210,214 @@ workflow_metrics:
         type: integer
       final_pass_at_k:
         type: integer
+
+# ============================================================
+# 行動日誌指標 (Action Log Metrics)
+# 追蹤工具調用層級的詳細數據
+# ============================================================
+action_logs:
+  # 單一行動記錄結構
+  action_entry:
+    id:
+      type: string
+      format: "act_{timestamp}_{random}"
+      description: "唯一識別碼"
+
+    timestamp:
+      type: string
+      format: "ISO8601"
+      description: "執行時間"
+
+    workflow_id:
+      type: string
+      description: "工作流 ID"
+
+    agent_id:
+      type: string
+      description: "執行的 Agent"
+
+    stage:
+      type: string
+      enum: [RESEARCH, PLAN, TASKS, IMPLEMENT, REVIEW, VERIFY]
+      description: "當前階段"
+
+    tool:
+      type: string
+      enum: [Read, Edit, Write, Bash, Task, Glob, Grep, WebFetch, WebSearch]
+      description: "工具名稱"
+
+    status:
+      type: string
+      enum: [success, failed, timeout, skipped]
+      description: "執行狀態"
+
+    input:
+      type: object
+      description: "工具輸入參數（依工具類型不同）"
+
+    output_preview:
+      type: string
+      max_length: 500
+      description: "輸出預覽（截斷至 500 字元）"
+
+    output_size:
+      type: integer
+      unit: bytes
+      description: "完整輸出大小"
+
+    error:
+      type: string
+      description: "錯誤訊息"
+
+    stderr:
+      type: string
+      max_length: 1000
+      description: "標準錯誤輸出（Bash 專用）"
+
+    exit_code:
+      type: integer
+      description: "退出碼（Bash 專用）"
+
+    duration_ms:
+      type: integer
+      unit: milliseconds
+      description: "執行時間"
+
+  # 各工具的 input 結構
+  tool_input_schemas:
+    Read:
+      file_path:
+        type: string
+        description: "讀取的檔案路徑"
+
+    Edit:
+      file_path:
+        type: string
+      old_string:
+        type: string
+        max_length: 200
+        description: "被替換的字串（截斷）"
+      new_string:
+        type: string
+        max_length: 200
+        description: "新字串（截斷）"
+
+    Write:
+      file_path:
+        type: string
+      content_size:
+        type: integer
+        description: "寫入內容大小"
+
+    Bash:
+      command:
+        type: string
+        max_length: 500
+        description: "執行的命令"
+      timeout:
+        type: integer
+        description: "超時設定（毫秒）"
+
+    Task:
+      subagent_type:
+        type: string
+        description: "子 Agent 類型"
+      prompt:
+        type: string
+        max_length: 300
+        description: "任務提示（截斷）"
+
+    Glob:
+      pattern:
+        type: string
+      path:
+        type: string
+
+    Grep:
+      pattern:
+        type: string
+      path:
+        type: string
+      glob:
+        type: string
+
+    WebFetch:
+      url:
+        type: string
+
+  # 彙總統計
+  aggregated_stats:
+    total_actions:
+      type: integer
+      description: "總行動數"
+
+    by_tool:
+      type: object
+      description: "各工具的統計"
+      properties:
+        tool_name:
+          type: string
+        count:
+          type: integer
+        success_count:
+          type: integer
+        failed_count:
+          type: integer
+        avg_duration_ms:
+          type: number
+        total_duration_ms:
+          type: integer
+
+    by_status:
+      type: object
+      properties:
+        success:
+          type: integer
+        failed:
+          type: integer
+        timeout:
+          type: integer
+        skipped:
+          type: integer
+
+    by_stage:
+      type: object
+      description: "各階段的行動統計"
+      properties:
+        stage_name:
+          type: string
+        action_count:
+          type: integer
+        failed_count:
+          type: integer
+
+    slowest_actions:
+      type: array
+      max_items: 10
+      description: "最慢的 10 個行動"
+      items:
+        $ref: "#/action_logs/action_entry"
+
+    recent_failures:
+      type: array
+      max_items: 20
+      description: "最近 20 個失敗的行動"
+      items:
+        $ref: "#/action_logs/action_entry"
+
+  # 日誌保留策略
+  retention_policy:
+    success_logs_days:
+      type: integer
+      default: 7
+      description: "成功日誌保留天數"
+
+    failed_logs_days:
+      type: integer
+      default: 30
+      description: "失敗日誌保留天數"
+
+    max_file_size_mb:
+      type: integer
+      default: 100
+      description: "單個日誌檔案上限（MB）"

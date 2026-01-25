@@ -116,6 +116,33 @@ CP4: Task Commit
 
 > ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
 
+## 行動日誌
+
+每個工具調用完成後，記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。
+
+**記錄時機**：
+- 成功：記錄 `tool`、`input`、`output_preview`、`duration_ms`、`status: success`
+- 失敗：記錄 `tool`、`input`、`error`、`stderr`（如有）、`status: failed`
+
+**關鍵行動（REVIEW 階段）**：
+| 行動 | 記錄重點 |
+|------|----------|
+| Read（讀取程式碼） | `file_path`、`output_size` |
+| Task（啟動審查 Agent） | `subagent_type`、`prompt` (truncated)、`agent_id` |
+| Grep（搜尋問題模式） | `pattern`、`match_count` |
+| Write（寫入審查報告） | `file_path`、`content_size` |
+
+**排查問題**：
+```bash
+# 查看 REVIEW 階段所有失敗行動
+jq 'select(.stage == "REVIEW" and .status == "failed")' actions.jsonl
+
+# 查看特定審查視角的行動
+jq 'select(.agent_id == "agent_code-quality")' actions.jsonl
+```
+
+→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+
 ## 共用模組
 
 | 模組 | 用途 |

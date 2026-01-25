@@ -534,8 +534,305 @@ execution_logs:
     archive_retention_days: 30
 ```
 
+## 行動級日誌（Action Logs）
+
+### 概述
+
+行動級日誌記錄每個工具調用的詳細資訊，用於：
+- **精確定位**：知道具體哪個操作失敗
+- **參數追蹤**：查看失敗時的輸入參數
+- **錯誤診斷**：獲取完整的錯誤訊息
+- **效能分析**：找出執行時間過長的操作
+
+### 日誌位置
+
+```
+.claude/workflow/{workflow-id}/logs/
+├── events.jsonl      # 現有事件日誌
+└── actions.jsonl     # 行動級日誌（新增）
+```
+
+### Action Log Schema
+
+```yaml
+action_log_schema:
+  # === 必填欄位 ===
+  required:
+    id:
+      type: string
+      format: "act_{timestamp}_{random}"
+      description: "唯一識別碼"
+      example: "act_20260126_100000_a1b2c3"
+
+    timestamp:
+      type: string
+      format: "ISO8601"
+      description: "執行時間"
+      example: "2026-01-26T10:00:00.123Z"
+
+    workflow_id:
+      type: string
+      description: "工作流 ID"
+      example: "research_user-auth"
+
+    agent_id:
+      type: string
+      description: "執行的 Agent"
+      example: "agent_architecture"
+
+    stage:
+      type: string
+      enum: [RESEARCH, PLAN, TASKS, IMPLEMENT, REVIEW, VERIFY]
+      description: "當前階段"
+
+    tool:
+      type: string
+      description: "工具名稱"
+      example: "Bash"
+
+    status:
+      type: string
+      enum: [success, failed, timeout, skipped]
+      description: "執行狀態"
+
+  # === 選填欄位 ===
+  optional:
+    input:
+      type: object
+      description: "工具輸入參數"
+
+    output_preview:
+      type: string
+      max_length: 500
+      description: "輸出預覽（截斷）"
+
+    output_size:
+      type: integer
+      unit: bytes
+      description: "完整輸出大小"
+
+    error:
+      type: string
+      description: "錯誤訊息"
+
+    stderr:
+      type: string
+      max_length: 1000
+      description: "標準錯誤輸出"
+
+    exit_code:
+      type: integer
+      description: "退出碼（Bash 專用）"
+
+    duration_ms:
+      type: integer
+      unit: milliseconds
+      description: "執行時間"
+```
+
+### 各工具的記錄內容
+
+| 工具 | input 記錄 | output 記錄 | 特殊欄位 |
+|------|-----------|-------------|----------|
+| **Read** | `file_path` | `output_size`, `output_preview` | - |
+| **Edit** | `file_path`, `old_string` (truncated), `new_string` (truncated) | - | - |
+| **Write** | `file_path`, `content_size` | - | - |
+| **Bash** | `command` | `stdout` (truncated), `stderr` | `exit_code` |
+| **Task** | `subagent_type`, `prompt` (truncated) | `agent_id` | - |
+| **Glob** | `pattern`, `path` | `match_count` | - |
+| **Grep** | `pattern`, `path`, `glob` | `match_count` | - |
+| **WebFetch** | `url` | `status_code`, `response_size` | - |
+
+### 日誌格式範例
+
+**成功的 Read 操作**：
+```jsonl
+{"id":"act_20260126_100000_a1b2c3","timestamp":"2026-01-26T10:00:00.123Z","workflow_id":"research_user-auth","agent_id":"agent_architecture","stage":"RESEARCH","tool":"Read","input":{"file_path":"/src/auth/login.ts"},"output_preview":"export function login(username: string, password: string)...","output_size":2048,"duration_ms":45,"status":"success"}
+```
+
+**成功的 Bash 操作**：
+```jsonl
+{"id":"act_20260126_100001_d4e5f6","timestamp":"2026-01-26T10:00:01.456Z","workflow_id":"research_user-auth","agent_id":"agent_architecture","stage":"IMPLEMENT","tool":"Bash","input":{"command":"npm test"},"output_preview":"PASS src/auth/login.test.ts\n  ✓ should validate credentials...","output_size":1024,"exit_code":0,"duration_ms":3500,"status":"success"}
+```
+
+**失敗的 Bash 操作**：
+```jsonl
+{"id":"act_20260126_100002_g7h8i9","timestamp":"2026-01-26T10:00:02.789Z","workflow_id":"research_user-auth","agent_id":"agent_architecture","stage":"IMPLEMENT","tool":"Bash","input":{"command":"npm test"},"error":"Command failed with exit code 1","stderr":"Error: Cannot find module '@/auth/utils'\n    at Object.<anonymous> (/src/auth/login.test.ts:2:1)","exit_code":1,"duration_ms":2100,"status":"failed"}
+```
+
+**成功的 Task 操作**：
+```jsonl
+{"id":"act_20260126_100003_j0k1l2","timestamp":"2026-01-26T10:00:03.012Z","workflow_id":"research_user-auth","agent_id":"orchestrator","stage":"RESEARCH","tool":"Task","input":{"subagent_type":"Explore","prompt":"分析 /src/auth 目錄的認證實作模式..."},"output_preview":"Found 5 authentication patterns...","duration_ms":15000,"status":"success"}
+```
+
+**失敗的 Edit 操作**：
+```jsonl
+{"id":"act_20260126_100004_m3n4o5","timestamp":"2026-01-26T10:00:04.345Z","workflow_id":"implement_user-auth","agent_id":"main_agent","stage":"IMPLEMENT","tool":"Edit","input":{"file_path":"/src/auth/login.ts","old_string":"function validateUser(","new_string":"async function validateUser("},"error":"old_string not found in file - the content may have changed","duration_ms":12,"status":"failed"}
+```
+
+### 日誌寫入腳本
+
+**log-action.sh**（通用行動記錄）：
+
+```bash
+#!/bin/bash
+# 位置: ~/.claude/hooks/log-action.sh
+# 用途: 記錄工具調用到 actions.jsonl
+
+set -euo pipefail
+
+# 配置
+WORKFLOW_DIR="${CLAUDE_PROJECT_DIR:-.}/.claude/workflow"
+ACTION_LOG="${WORKFLOW_DIR}/logs/actions.jsonl"
+
+# 確保目錄存在
+mkdir -p "$(dirname "$ACTION_LOG")"
+
+# 生成 ID
+ACTION_ID="act_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 3)"
+
+# 讀取工作流狀態
+WORKFLOW_ID=""
+STAGE=""
+AGENT_ID=""
+if [ -f "${WORKFLOW_DIR}/current.json" ]; then
+    WORKFLOW_ID=$(jq -r '.workflow_id // ""' "${WORKFLOW_DIR}/current.json" 2>/dev/null || echo "")
+    STAGE=$(jq -r '.stage // ""' "${WORKFLOW_DIR}/current.json" 2>/dev/null || echo "")
+    AGENT_ID=$(jq -r '.agent_id // ""' "${WORKFLOW_DIR}/current.json" 2>/dev/null || echo "")
+fi
+
+# 截斷輸出
+truncate_output() {
+    local text="$1"
+    local max_len="${2:-500}"
+    if [ ${#text} -gt $max_len ]; then
+        echo "${text:0:$max_len}..."
+    else
+        echo "$text"
+    fi
+}
+
+# 構建 JSON
+TOOL_NAME="${CLAUDE_TOOL_NAME:-unknown}"
+TOOL_INPUT="${CLAUDE_TOOL_INPUT:-null}"
+TOOL_OUTPUT="${CLAUDE_TOOL_OUTPUT:-}"
+EXIT_CODE="${CLAUDE_TOOL_EXIT_CODE:-0}"
+DURATION_MS="${CLAUDE_TOOL_DURATION_MS:-0}"
+
+# 判斷狀態
+STATUS="success"
+ERROR=""
+if [ "$EXIT_CODE" != "0" ]; then
+    STATUS="failed"
+    ERROR=$(truncate_output "${CLAUDE_TOOL_STDERR:-Command failed}" 1000)
+fi
+
+# 輸出預覽
+OUTPUT_PREVIEW=""
+OUTPUT_SIZE=0
+if [ -n "$TOOL_OUTPUT" ]; then
+    OUTPUT_SIZE=${#TOOL_OUTPUT}
+    OUTPUT_PREVIEW=$(truncate_output "$TOOL_OUTPUT" 500)
+fi
+
+# 寫入日誌（使用 jq 確保 JSON 格式正確）
+jq -n \
+    --arg id "$ACTION_ID" \
+    --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
+    --arg wf_id "$WORKFLOW_ID" \
+    --arg agent "$AGENT_ID" \
+    --arg stage "$STAGE" \
+    --arg tool "$TOOL_NAME" \
+    --argjson input "$TOOL_INPUT" \
+    --arg output_preview "$OUTPUT_PREVIEW" \
+    --argjson output_size "$OUTPUT_SIZE" \
+    --arg error "$ERROR" \
+    --argjson exit_code "$EXIT_CODE" \
+    --argjson duration_ms "$DURATION_MS" \
+    --arg status "$STATUS" \
+    '{
+        id: $id,
+        timestamp: $ts,
+        workflow_id: $wf_id,
+        agent_id: $agent,
+        stage: $stage,
+        tool: $tool,
+        input: $input,
+        output_preview: (if $output_preview == "" then null else $output_preview end),
+        output_size: (if $output_size == 0 then null else $output_size end),
+        error: (if $error == "" then null else $error end),
+        exit_code: (if $tool == "Bash" then $exit_code else null end),
+        duration_ms: $duration_ms,
+        status: $status
+    } | with_entries(select(.value != null))' >> "$ACTION_LOG"
+
+exit 0
+```
+
+### 日誌保留策略
+
+```yaml
+retention:
+  # 成功的行動
+  success_logs:
+    keep_days: 7
+    compress_after_days: 3
+
+  # 失敗的行動
+  failed_logs:
+    keep_days: 30
+    compress_after_days: 7
+
+  # 檔案大小限制
+  max_file_size_mb: 100
+
+  # 輪換策略
+  rotation:
+    trigger: "size > 50MB"
+    action: "gzip and archive"
+    keep_recent: 5
+```
+
+### 排查問題的常用查詢
+
+**場景 1：找出所有失敗的行動**
+```bash
+jq 'select(.status == "failed")' .claude/workflow/*/logs/actions.jsonl
+```
+
+**場景 2：追蹤特定 Agent 的所有行動**
+```bash
+jq 'select(.agent_id == "agent_architecture")' actions.jsonl
+```
+
+**場景 3：找出執行時間超過 5 秒的行動**
+```bash
+jq 'select(.duration_ms > 5000)' actions.jsonl
+```
+
+**場景 4：查看某個 Bash 命令的完整錯誤**
+```bash
+grep '"npm test"' actions.jsonl | jq '{command: .input.command, error: .error, stderr: .stderr}'
+```
+
+**場景 5：統計各工具的失敗率**
+```bash
+jq -s 'group_by(.tool) | map({
+    tool: .[0].tool,
+    total: length,
+    failed: [.[] | select(.status == "failed")] | length,
+    fail_rate: (([.[] | select(.status == "failed")] | length) / length * 100 | floor)
+})' actions.jsonl
+```
+
+**場景 6：找出特定階段的所有行動**
+```bash
+jq 'select(.stage == "IMPLEMENT")' actions.jsonl | jq -s 'sort_by(.timestamp)'
+```
+
 ## 相關模組
 
 - [Agent 通訊協定](./agent-protocol.md)
 - [Memory System](../integration/memory-system.md)
 - [Error Codes](../errors/error-codes.md)
+- [Action Log Viewer](../tools/action-log-viewer.py)

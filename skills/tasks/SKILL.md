@@ -136,6 +136,33 @@ waves:
         files: [src/auth/login.ts]
 ```
 
+## 行動日誌
+
+每個工具調用完成後，記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。
+
+**記錄時機**：
+- 成功：記錄 `tool`、`input`、`output_preview`、`duration_ms`、`status: success`
+- 失敗：記錄 `tool`、`input`、`error`、`stderr`（如有）、`status: failed`
+
+**關鍵行動（TASKS 階段）**：
+| 行動 | 記錄重點 |
+|------|----------|
+| Read（讀取計劃） | `file_path`、`output_size` |
+| Task（啟動 Agent） | `subagent_type`、`prompt` (truncated)、`agent_id` |
+| Bash（執行 DAG 驗證） | `command`、`exit_code`、`stderr` |
+| Write（寫入 tasks.yaml） | `file_path`、`content_size` |
+
+**排查問題**：
+```bash
+# 查看 TASKS 階段所有失敗行動
+jq 'select(.stage == "TASKS" and .status == "failed")' actions.jsonl
+
+# 查看 DAG 驗證失敗的詳情
+jq 'select(.tool == "Bash" and .status == "failed")' actions.jsonl | jq '{command: .input.command, error: .error, stderr: .stderr}'
+```
+
+→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+
 ## 共用模組
 
 | 模組 | 用途 |

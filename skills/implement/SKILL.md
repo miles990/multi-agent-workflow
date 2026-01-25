@@ -129,6 +129,37 @@ CP4: Task Commit（每個 task）
 
 > ⚠️ perspectives/ 保存完整角色分析，summaries/ 保存結構化摘要。
 
+## 行動日誌
+
+每個工具調用完成後，記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。
+
+**記錄時機**：
+- 成功：記錄 `tool`、`input`、`output_preview`、`duration_ms`、`status: success`
+- 失敗：記錄 `tool`、`input`、`error`、`stderr`（如有）、`status: failed`
+
+**關鍵行動（IMPLEMENT 階段）**：
+| 行動 | 記錄重點 |
+|------|----------|
+| Read（讀取現有程式碼） | `file_path`、`output_size` |
+| Edit（修改程式碼） | `file_path`、`old_string` (truncated)、`new_string` (truncated) |
+| Write（建立新檔案） | `file_path`、`content_size` |
+| Bash（執行測試） | `command`、`exit_code`、`stdout`、`stderr` |
+| Task（啟動審查 Agent） | `subagent_type`、`prompt` (truncated)、`agent_id` |
+
+**排查問題**：
+```bash
+# 查看 IMPLEMENT 階段所有失敗行動
+jq 'select(.stage == "IMPLEMENT" and .status == "failed")' actions.jsonl
+
+# 查看測試失敗的詳情
+jq 'select(.tool == "Bash" and .input.command | contains("test"))' actions.jsonl | jq '{command: .input.command, exit_code: .exit_code, stderr: .stderr}'
+
+# 查看 Edit 操作失敗（找不到 old_string）
+jq 'select(.tool == "Edit" and .status == "failed")' actions.jsonl
+```
+
+→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+
 ## 共用模組
 
 | 模組 | 用途 |

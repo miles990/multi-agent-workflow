@@ -125,6 +125,36 @@ CP4: Task Commit
 
 > ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
 
+## 行動日誌
+
+每個工具調用完成後，記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。
+
+**記錄時機**：
+- 成功：記錄 `tool`、`input`、`output_preview`、`duration_ms`、`status: success`
+- 失敗：記錄 `tool`、`input`、`error`、`stderr`（如有）、`status: failed`
+
+**關鍵行動（VERIFY 階段）**：
+| 行動 | 記錄重點 |
+|------|----------|
+| Read（讀取測試結果） | `file_path`、`output_size` |
+| Bash（執行測試） | `command`、`exit_code`、`stdout`、`stderr` |
+| Task（啟動驗證 Agent） | `subagent_type`、`prompt` (truncated)、`agent_id` |
+| Write（寫入驗證報告） | `file_path`、`content_size` |
+
+**排查問題**：
+```bash
+# 查看 VERIFY 階段所有失敗行動
+jq 'select(.stage == "VERIFY" and .status == "failed")' actions.jsonl
+
+# 查看測試執行失敗的詳情
+jq 'select(.tool == "Bash" and .status == "failed" and .stage == "VERIFY")' actions.jsonl | jq '{command: .input.command, exit_code: .exit_code, stderr: .stderr}'
+
+# 查看執行時間超過 10 秒的行動
+jq 'select(.stage == "VERIFY" and .duration_ms > 10000)' actions.jsonl
+```
+
+→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+
 ## 共用模組
 
 | 模組 | 用途 |
