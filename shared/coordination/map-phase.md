@@ -13,6 +13,37 @@ Map Phase 是多 Agent 工作流的核心階段，透過 Task API 啟動多個�
 - `skills/review/` - 多視角審查
 - `skills/verify/` - 多視角驗證
 
+## 模型路由
+
+每個視角根據任務複雜度使用不同的模型，最大化效率和品質。
+
+### 模型配置
+
+```yaml
+# 配置來源：shared/config/model-routing.yaml
+視角類型          模型      原因
+───────────────  ────────  ─────────────────────
+深度分析類       sonnet    需要複雜推理與洞察
+流程整理類       haiku     較機械性任務/快速反應
+關鍵決策類       opus      最高品質要求/複雜決策
+```
+
+### 在 Task 中指定模型
+
+```javascript
+// 使用模型路由
+const modelConfig = loadConfig('shared/config/model-routing.yaml');
+const model = modelConfig.routing[STAGE][perspective] || 'sonnet';
+
+Task({
+  description: `${perspective} 視角分析`,
+  model: model,  // 指定模型
+  prompt: perspectivePrompt
+});
+```
+
+→ 完整配置：[../config/model-routing.yaml](../config/model-routing.yaml)
+
 ## 執行流程
 
 ```
@@ -60,12 +91,33 @@ Map Phase 是多 Agent 工作流的核心階段，透過 Task API 啟動多個�
 const tasks = perspectives.map(perspective => ({
   description: `${perspective.name} 處理 ${topic}`,
   prompt: generatePrompt(perspective, topic, config),
-  subagent_type: selectAgentType(perspective)
+  subagent_type: selectAgentType(perspective),
+  model: selectModelForPerspective(perspective)  // 根據視角選擇模型
 }))
 
 // 並行執行所有 Task
 await Promise.all(tasks.map(task => executeTask(task)))
 ```
+
+### 模型選擇流程
+
+```
+1. 讀取 shared/config/model-routing.yaml
+   ↓
+2. 根據 STAGE + perspective 類型查找推薦模型
+   ↓
+3. 如未找到配置，使用預設 sonnet
+   ↓
+4. 如遇錯誤 2 次以上（timeout、rate-limit），
+   自動升級到更強模型（sonnet → opus）
+   ↓
+5. 將選定的模型傳入 Task
+```
+
+**自動升級邏輯**：
+- 第 1 次失敗：重試相同模型
+- 第 2 次失敗：升級到更強模型 + 重試
+- 第 3 次失敗：升級至 opus（最高層）或標記失敗
 
 ### Agent 類型選擇
 

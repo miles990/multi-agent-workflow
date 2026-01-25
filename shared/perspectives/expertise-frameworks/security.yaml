@@ -1,0 +1,182 @@
+# Security Expertise Framework
+# 安全專業知識框架，基於 OWASP 和 CWE
+
+version: "1.0"
+
+# OWASP Top 10 2024
+owasp_top_10:
+  - id: "A01"
+    name: "Broken Access Control"
+    description: "存取控制失效"
+    checks:
+      - "驗證所有端點都有適當的授權檢查"
+      - "確認 CORS 配置正確"
+      - "檢查是否有 IDOR 漏洞"
+      - "驗證 JWT/Session 正確實作"
+    severity: CRITICAL
+
+  - id: "A02"
+    name: "Cryptographic Failures"
+    description: "加密失敗"
+    checks:
+      - "確認敏感資料加密存儲"
+      - "驗證使用強加密演算法"
+      - "檢查密鑰管理實踐"
+      - "確認 HTTPS 正確配置"
+    severity: CRITICAL
+
+  - id: "A03"
+    name: "Injection"
+    description: "注入攻擊"
+    checks:
+      - "SQL 注入防護"
+      - "NoSQL 注入防護"
+      - "OS Command 注入防護"
+      - "LDAP 注入防護"
+      - "XPath 注入防護"
+    severity: CRITICAL
+
+  - id: "A04"
+    name: "Insecure Design"
+    description: "不安全設計"
+    checks:
+      - "威脅建模已完成"
+      - "安全需求已定義"
+      - "遵循安全設計原則"
+    severity: HIGH
+
+  - id: "A05"
+    name: "Security Misconfiguration"
+    description: "安全配置錯誤"
+    checks:
+      - "移除不需要的功能"
+      - "錯誤訊息不洩露敏感資訊"
+      - "安全標頭正確配置"
+      - "預設帳號密碼已更改"
+    severity: HIGH
+
+  - id: "A06"
+    name: "Vulnerable and Outdated Components"
+    description: "脆弱和過時的組件"
+    checks:
+      - "依賴版本已更新"
+      - "無已知漏洞的組件"
+      - "定期掃描依賴"
+    severity: HIGH
+
+  - id: "A07"
+    name: "Identification and Authentication Failures"
+    description: "身份驗證失敗"
+    checks:
+      - "密碼強度要求"
+      - "多因素認證支援"
+      - "防止暴力破解"
+      - "Session 管理正確"
+    severity: HIGH
+
+  - id: "A08"
+    name: "Software and Data Integrity Failures"
+    description: "軟體和資料完整性失敗"
+    checks:
+      - "CI/CD 管道安全"
+      - "依賴完整性驗證"
+      - "資料完整性檢查"
+    severity: HIGH
+
+  - id: "A09"
+    name: "Security Logging and Monitoring Failures"
+    description: "安全日誌和監控失敗"
+    checks:
+      - "關鍵操作有日誌"
+      - "日誌包含足夠資訊"
+      - "監控和告警機制"
+    severity: MEDIUM
+
+  - id: "A10"
+    name: "Server-Side Request Forgery (SSRF)"
+    description: "伺服器端請求偽造"
+    checks:
+      - "驗證外部 URL 輸入"
+      - "限制出站請求"
+      - "使用白名單"
+    severity: HIGH
+
+# CWE Top 25
+cwe_top_25:
+  - id: "CWE-79"
+    name: "Cross-site Scripting (XSS)"
+    mitigation: "輸出編碼、CSP、輸入驗證"
+
+  - id: "CWE-89"
+    name: "SQL Injection"
+    mitigation: "參數化查詢、ORM、輸入驗證"
+
+  - id: "CWE-22"
+    name: "Path Traversal"
+    mitigation: "路徑規範化、白名單"
+
+  - id: "CWE-352"
+    name: "Cross-Site Request Forgery (CSRF)"
+    mitigation: "CSRF Token、SameSite Cookie"
+
+  - id: "CWE-434"
+    name: "Unrestricted File Upload"
+    mitigation: "檔案類型驗證、隔離儲存"
+
+  - id: "CWE-306"
+    name: "Missing Authentication"
+    mitigation: "強制認證、閘道驗證"
+
+  - id: "CWE-502"
+    name: "Deserialization of Untrusted Data"
+    mitigation: "避免反序列化、使用安全格式"
+
+  - id: "CWE-798"
+    name: "Hard-coded Credentials"
+    mitigation: "環境變數、密鑰管理服務"
+
+  - id: "CWE-862"
+    name: "Missing Authorization"
+    mitigation: "RBAC、Policy-based 授權"
+
+  - id: "CWE-918"
+    name: "Server-Side Request Forgery"
+    mitigation: "URL 白名單、網路隔離"
+
+# 嚴重度閾值
+thresholds:
+  critical:
+    description: "任何 OWASP Top 3 問題"
+    action: "BLOCKER"
+
+  high:
+    description: "任何 CWE Top 10 問題"
+    action: "require_fix_before_merge"
+
+  medium:
+    description: "其他已知漏洞模式"
+    action: "warn_and_track"
+
+# 安全檢查清單
+security_checklist:
+  authentication:
+    - "密碼使用 bcrypt/scrypt/argon2 雜湊"
+    - "實作帳號鎖定機制"
+    - "Session ID 足夠隨機"
+    - "登出時正確清除 Session"
+
+  authorization:
+    - "最小權限原則"
+    - "權限檢查在伺服器端"
+    - "敏感操作需重新驗證"
+
+  data_protection:
+    - "傳輸中加密 (TLS)"
+    - "靜態資料加密"
+    - "PII 資料適當處理"
+    - "日誌不包含敏感資料"
+
+  input_validation:
+    - "所有輸入都有驗證"
+    - "白名單優於黑名單"
+    - "驗證發生在伺服器端"

@@ -1,0 +1,91 @@
+# TDD Enforcement Configuration
+# 確保測試驅動開發流程被嚴格遵守
+
+version: "1.0"
+
+# TASKS 階段驗證
+tasks_stage:
+  validation:
+    - check: "all_T-F_tasks_have_corresponding_TEST_tasks"
+      description: "所有 T-F-* 任務必須有對應的 TEST-* 任務"
+      severity: BLOCKER
+      auto_fix: false
+
+    - check: "TEST_tasks_block_their_T-F_counterparts"
+      description: "TEST-* 任務必須阻擋對應的 T-F-* 任務"
+      severity: BLOCKER
+      auto_fix: true
+      fix_action: "add_dependency"
+
+  naming_convention:
+    feature_task: "T-F-{number}"
+    test_task: "TEST-{number}"
+    mapping: "TEST-001 -> T-F-001"
+
+# IMPLEMENT 階段驗證
+implement_stage:
+  pre_task_gate:
+    - check: "test_file_exists_before_implementation"
+      description: "實作前測試檔案必須存在"
+      severity: BLOCKER
+
+    - check: "test_is_runnable"
+      description: "測試必須可執行（即使失敗）"
+      severity: HIGH
+
+    - check: "test_defines_expected_behavior"
+      description: "測試必須定義預期行為"
+      severity: MEDIUM
+
+  post_task_gate:
+    - check: "tests_pass_after_implementation"
+      description: "實作後測試必須通過"
+      severity: BLOCKER
+
+    - check: "no_skipped_tests"
+      description: "不允許跳過測試"
+      severity: HIGH
+
+    - check: "coverage_meets_threshold"
+      description: "覆蓋率必須達標"
+      severity: MEDIUM
+      threshold: 80
+
+# 測試檔案命名規則
+test_file_patterns:
+  typescript:
+    source: "src/**/*.ts"
+    test: "tests/**/*.test.ts"
+    alternative: "src/**/*.spec.ts"
+
+  javascript:
+    source: "src/**/*.js"
+    test: "tests/**/*.test.js"
+
+  python:
+    source: "**/*.py"
+    test: "**/test_*.py"
+    alternative: "**/*_test.py"
+
+# 違規處理
+violations:
+  BLOCKER:
+    action: "halt_execution"
+    message: "TDD 違規：無法繼續"
+
+  HIGH:
+    action: "warn_and_require_fix"
+    message: "TDD 警告：需要修復才能繼續"
+
+  MEDIUM:
+    action: "log_and_continue"
+    message: "TDD 提醒：建議改善"
+
+# 豁免條件（極少數情況）
+exemptions:
+  allowed_patterns:
+    - "infrastructure_only_changes"
+    - "documentation_only_changes"
+    - "config_file_changes"
+  requires_explicit_flag: true
+  flag_name: "--skip-tdd-check"

@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-workflow",
   "description": "Multi-Agent Workflow - 多視角並行工作流生態系（研究、規劃、任務分解、實作、審查、驗證）",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "author": {
     "name": "miles990"
   },
@@ -16,7 +16,32 @@
     "implement",
     "review",
     "verify",
-    "orchestrate"
+    "orchestrate",
+    "communication",
+    "execution-logs"
   ],
-  "repository": "https://github.com/miles990/multi-agent-workflow"
+  "repository": "https://github.com/miles990/multi-agent-workflow",
+  "tools": {
+    "workflow-init": {
+      "path": "shared/tools/workflow-init.sh",
+      "description": "初始化 workflow 通訊環境"
+    },
+    "message-queue": {
+      "path": "shared/communication/message-queue.js",
+      "description": "檔案型訊息佇列"
+    }
+  },
+  "hooks": {
+    "install": "shared/tools/hooks/install-hooks.sh",
+    "scripts": {
+      "log-tool-pre": "shared/tools/hooks/log-tool-pre.sh",
+      "log-tool-post": "shared/tools/hooks/log-tool-post.sh",
+      "log-agent-lifecycle": "shared/tools/hooks/log-agent-lifecycle.sh"
+    }
+  },
+  "communication": {
+    "protocol": "shared/communication/agent-protocol.md",
+    "logs": "shared/communication/execution-logs.md",
+    "settings_example": "shared/communication/hooks-settings.json"
+  }
 }

@@ -1,0 +1,41 @@
+# Result Compression Configuration
+# Subagent 結果壓縮規則
+
+version: "1.0"
+
+compression_rules:
+  perspective_report:
+    description: "視角報告壓縮"
+    max_length: 500  # 字元
+    structure:
+      - "核心發現（3-5 點）"
+      - "關鍵建議（2-3 點）"
+      - "信心度評分"
+    exclude:
+      - "完整分析過程"
+      - "所有參考資料"
+      - "詳細推理步驟"
+    full_report_action: "save_to_file"
+
+  stage_output:
+    description: "階段輸出壓縮"
+    max_length: 1000  # 字元
+    structure:
+      - "階段結論"
+      - "關鍵決策"
+      - "下階段輸入"
+      - "阻塞問題（如有）"
+    full_report_path: ".claude/memory/{stage}/{id}/"
+
+  error_report:
+    description: "錯誤報告壓縮"
+    max_length: 200
+    structure:
+      - "錯誤類型"
+      - "影響範圍"
+      - "建議動作"
+
+  decision_record:
+    description: "決策記錄格式"
+    format: "D-{number}: {decision} ({reason})"
+    max_per_stage: 10

@@ -1,0 +1,183 @@
+# Quality Gates Configuration
+# 6 階段完整品質閘門定義
+
+version: "1.0"
+
+# 閘門定義
+gates:
+  RESEARCH:
+    description: "研究階段閘門"
+    pass_criteria:
+      mandatory:
+        - id: "minimum_consensus"
+          check: "至少 2 視角達成共識"
+          validation: "count_consensus_points >= 2"
+
+        - id: "no_critical_conflicts"
+          check: "無未解決的關鍵矛盾"
+          validation: "critical_conflicts == 0"
+
+      recommended:
+        - id: "all_perspectives_complete"
+          check: "所有視角報告完成"
+
+        - id: "synthesis_generated"
+          check: "匯總報告已生成"
+
+    quality_score_threshold: 70
+    on_fail: "request_additional_research"
+
+  PLAN:
+    description: "計劃階段閘門"
+    pass_criteria:
+      mandatory:
+        - id: "components_designed"
+          check: "所有必要組件有設計"
+          validation: "all_components_have_design"
+
+        - id: "risk_assessment_complete"
+          check: "風險評估完成"
+          validation: "risk_assessment_exists"
+
+        - id: "milestones_defined"
+          check: "里程碑定義清晰"
+          validation: "milestones_count >= 1"
+
+      recommended:
+        - id: "alternatives_considered"
+          check: "替代方案有考慮"
+
+        - id: "dependencies_mapped"
+          check: "依賴關係已映射"
+
+    quality_score_threshold: 75
+    on_fail: "request_plan_revision"
+
+  TASKS:
+    description: "任務分解階段閘門"
+    pass_criteria:
+      mandatory:
+        - id: "dag_valid"
+          check: "DAG 驗證通過"
+          validation: "run_dag_validator"
+
+        - id: "tdd_complete"
+          check: "TDD 對應完整"
+          validation: "all_features_have_tests"
+
+        - id: "estimates_present"
+          check: "所有任務有估算"
+          validation: "all_tasks_have_estimate"
+
+      recommended:
+        - id: "estimates_reasonable"
+          check: "估算在合理範圍"
+          validation: "estimates_in_range(10, 60)"
+
+        - id: "files_specified"
+          check: "files 欄位完整"
+
+    quality_score_threshold: 80
+    on_fail: "request_task_revision"
+
+  IMPLEMENT:
+    description: "實作階段閘門"
+    pass_criteria:
+      mandatory:
+        - id: "all_tasks_complete"
+          check: "所有任務完成"
+          validation: "completed_tasks == total_tasks"
+
+        - id: "tests_pass"
+          check: "測試通過"
+          validation: "test_pass_rate == 100"
+
+        - id: "no_blockers"
+          check: "無 BLOCKER 問題"
+          validation: "blocker_count == 0"
+
+      recommended:
+        - id: "coverage_threshold"
+          check: "測試覆蓋率達標"
+          validation: "coverage >= 80"
+
+        - id: "no_todos"
+          check: "無 TODO 遺留"
+
+    quality_score_threshold: 80
+    on_fail: "trigger_fix_cycle"
+
+  REVIEW:
+    description: "審查階段閘門"
+    pass_criteria:
+      mandatory:
+        - id: "no_blockers"
+          check: "無 BLOCKER"
+          validation: "blocker_count == 0"
+
+        - id: "limited_high_issues"
+          check: "HIGH 問題 <= 2"
+          validation: "high_issue_count <= 2"
+
+      recommended:
+        - id: "all_issues_actionable"
+          check: "所有問題有具體修復建議"
+
+        - id: "security_review_pass"
+          check: "安全審查通過"
+
+    quality_score_threshold: 75
+    on_fail: "trigger_review_fix_cycle"
+
+  VERIFY:
+    description: "驗證階段閘門"
+    pass_criteria:
+      mandatory:
+        - id: "functional_tests_pass"
+          check: "功能測試 100% 通過"
+          validation: "functional_test_pass_rate == 100"
+
+        - id: "regression_tests_pass"
+          check: "回歸測試通過"
+          validation: "regression_test_pass_rate == 100"
+
+        - id: "acceptance_verified"
+          check: "驗收標準滿足"
+          validation: "acceptance_criteria_met"
+
+      recommended:
+        - id: "edge_cases_tested"
+          check: "邊界案例測試"
+
+        - id: "performance_baseline_met"
+          check: "效能基準達標"
+
+    quality_score_threshold: 85
+    on_fail: "trigger_verify_fix_cycle"
+
+# 閘門行為配置
+gate_behavior:
+  on_mandatory_fail:
+    action: "halt"
+    notification: true
+    log_level: "error"
+
+  on_recommended_fail:
+    action: "warn"
+    notification: true
+    log_level: "warning"
+
+  on_score_below_threshold:
+    action: "request_improvement"
+    max_retries: 3
+
+# 閘門報告
+reporting:
+  format: "markdown"
+  include:
+    - "gate_name"
+    - "pass_status"
+    - "criteria_results"
+    - "quality_score"
+    - "recommendations"
+  output_path: ".claude/memory/gates/"

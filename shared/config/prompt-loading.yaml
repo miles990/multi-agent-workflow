@@ -1,0 +1,55 @@
+# Prompt Loading Configuration
+# 分層載入機制，控制 Prompt 大小
+
+version: "1.0"
+
+# 載入策略
+loading_strategy:
+  level_0:
+    description: "核心定義（必載入）"
+    content:
+      - "角色定義"
+      - "任務目標"
+      - "輸出格式"
+    size_estimate: "~50 tokens"
+    always_load: true
+
+  level_1:
+    description: "執行指引（按需載入）"
+    content:
+      - "執行步驟"
+      - "品質標準"
+      - "閘門條件"
+    size_estimate: "~100 tokens"
+    load_when:
+      - "first_execution"
+      - "after_error"
+
+  level_2:
+    description: "詳細說明（按需載入）"
+    content:
+      - "完整範例"
+      - "邊界案例"
+      - "常見錯誤"
+    size_estimate: "~500 tokens"
+    load_when:
+      - "explicit_request"
+      - "error_occurred"
+      - "quality_below_threshold"
+
+  level_3:
+    description: "完整文檔（極少載入）"
+    content:
+      - "完整指南"
+      - "所有範例"
+      - "背景知識"
+    size_estimate: "~2000 tokens"
+    load_when:
+      - "user_request"
+      - "training_mode"
+
+# 載入優化
+optimization:
+  cache_frequently_used: true
+  preload_next_stage: true
+  compress_on_threshold: 80000  # tokens

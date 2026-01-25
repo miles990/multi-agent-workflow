@@ -1,0 +1,83 @@
+# Model Routing Configuration
+# 根據任務複雜度選擇最適合的模型
+
+version: "1.0"
+
+# 模型定義
+models:
+  opus:
+    description: "最強模型，用於複雜決策"
+    cost_tier: high
+    use_for: "架構決策、安全判定、衝突解決"
+  sonnet:
+    description: "標準分析模型"
+    cost_tier: medium
+    use_for: "深度分析、技術評估"
+  haiku:
+    description: "快速執行模型"
+    cost_tier: low
+    use_for: "簡單任務、格式檢查"
+
+# 各階段路由配置
+routing:
+  RESEARCH:
+    architecture: sonnet    # 需要深度分析
+    cognitive: sonnet       # 需要抽象思考
+    workflow: haiku         # 流程整理較簡單
+    industry: haiku         # 搜尋整理較簡單
+    _synthesis: sonnet      # 匯總需要分析
+
+  PLAN:
+    architect: sonnet       # 技術決策
+    risk-analyst: sonnet    # 風險評估
+    estimator: haiku        # 數字估算
+    ux-advocate: haiku      # UX 建議
+    _synthesis: sonnet      # 最終方案整合
+
+  TASKS:
+    dependency-analyst: sonnet  # 複雜依賴分析
+    task-decomposer: haiku      # 分解較機械
+    test-planner: haiku         # 測試規劃
+    risk-preventor: haiku       # 風險檢查
+    _validation: sonnet         # DAG 驗證
+
+  IMPLEMENT:
+    main_agent: sonnet      # 主要實作
+    tdd-enforcer: haiku     # 檢查點
+    performance-optimizer: haiku
+    security-auditor: sonnet    # 安全需深度
+    maintainer: haiku
+    _self_review: sonnet    # 自我審查
+
+  REVIEW:
+    code-quality: haiku     # 風格檢查
+    test-coverage: haiku    # 覆蓋率計算
+    documentation: haiku    # 文檔檢查
+    integration: sonnet     # 整合分析
+    _synthesis: sonnet      # 最終判定
+
+  VERIFY:
+    functional-tester: haiku    # 功能測試
+    edge-case-hunter: sonnet    # 邊界需深度
+    regression-checker: haiku   # 回歸檢查
+    acceptance-validator: sonnet # 驗收判定
+    _final_report: sonnet       # 最終報告
+
+# 升級規則：何時自動升級到更強模型
+upgrade_rules:
+  - condition: "error_count >= 2"
+    action: "upgrade_one_tier"
+
+  - condition: "complexity_score >= 0.8"
+    action: "use_sonnet_minimum"
+
+  - condition: "security_sensitive == true"
+    action: "use_sonnet_minimum"
+
+# 關鍵決策總是使用 Opus
+critical_decisions:
+  always_opus:
+    - "architecture_final_decision"
+    - "security_judgment"
+    - "conflict_resolution"
+    - "quality_final_judgment"

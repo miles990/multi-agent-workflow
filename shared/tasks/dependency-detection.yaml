@@ -1,0 +1,134 @@
+# Dependency Detection Configuration
+# 多層依賴分析，偵測顯式和隱含依賴
+
+version: "1.0"
+
+# 偵測層級
+detection_layers:
+  L1_explicit:
+    description: "顯式聲明的依賴"
+    method: "read_declared_dependencies"
+    source: "depends_on field"
+    priority: 1
+    always_run: true
+
+  L2_file_overlap:
+    description: "偵測修改相同檔案的任務"
+    method: "detect_tasks_modifying_same_files"
+    action: "auto_add_dependency_or_warn"
+    priority: 2
+    enabled: true
+    rules:
+      - condition: "same_file_write"
+        action: "add_sequential_dependency"
+        severity: HIGH
+
+      - condition: "file_read_after_write"
+        action: "add_dependency"
+        severity: MEDIUM
+
+      - condition: "same_directory_multiple_writes"
+        action: "warn_potential_conflict"
+        severity: LOW
+
+  L3_semantic:
+    description: "語意層面的資料流依賴"
+    method: "nlp_detect_data_flow_dependencies"
+    examples:
+      - "Task A creates token, Task C uses token"
+      - "Task B generates config, Task D reads config"
+      - "Task E exports API, Task F imports API"
+    priority: 3
+    enabled: true
+    keywords:
+      produces:
+        - "creates"
+        - "generates"
+        - "exports"
+        - "outputs"
+        - "returns"
+        - "saves"
+      consumes:
+        - "uses"
+        - "requires"
+        - "imports"
+        - "reads"
+        - "loads"
+        - "depends on"
+
+  L4_environment:
+    description: "運行時環境依賴"
+    method: "detect_runtime_dependencies"
+    examples:
+      - "Task needs Redis running"
+      - "Task requires database migration completed"
+      - "Task needs API server started"
+    priority: 4
+    enabled: true
+    common_dependencies:
+      - type: "database"
+        indicators: ["db", "database", "postgres", "mysql", "mongo"]
+        setup_task_pattern: "setup-*-db"
+
+      - type: "cache"
+        indicators: ["redis", "memcached", "cache"]
+        setup_task_pattern: "setup-*-cache"
+
+      - type: "queue"
+        indicators: ["rabbitmq", "kafka", "queue", "message"]
+        setup_task_pattern: "setup-*-queue"
+
+      - type: "api"
+        indicators: ["api", "server", "endpoint"]
+        setup_task_pattern: "start-*-server"
+
+# 衝突偵測
+conflict_detection:
+  enabled: true
+  types:
+    - type: "circular_dependency"
+      action: "block_and_report"
+      severity: BLOCKER
+
+    - type: "parallel_same_file_modification"
+      action: "warn_and_suggest_serialization"
+      severity: HIGH
+
+    - type: "resource_contention"
+      action: "warn"
+      severity: MEDIUM
+
+# 自動修復
+auto_fix:
+  enabled: true
+  actions:
+    add_missing_dependency:
+      enabled: true
+      require_confirmation: false
+      log: true
+
+    reorder_parallel_to_sequential:
+      enabled: true
+      require_confirmation: true
+      log: true
+
+    split_conflicting_task:
+      enabled: false
+      require_confirmation: true
+
+# 報告
+reporting:
+  format: "markdown"
+  include:
+    - "detected_dependencies"
+    - "conflict_warnings"
+    - "auto_fix_actions"
+    - "suggestions"
+  output_path: ".claude/memory/dependencies/"
+
+# 驗證
+validation:
+  on_detection_complete:
+    - "verify_no_cycles"
+    - "verify_all_dependencies_resolvable"
+    - "generate_dependency_graph"

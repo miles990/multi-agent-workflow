@@ -1,0 +1,44 @@
+# Stage Handoff Configuration
+# 跨階段傳遞協議
+
+version: "1.0"
+
+handoff_protocol:
+  include:
+    stage_summary:
+      description: "1-2 句話結論"
+      max_length: 100
+
+    key_decisions:
+      description: "關鍵決策清單"
+      format: "D-{id}: {decision}"
+      max_items: 10
+
+    blockers:
+      description: "阻塞問題"
+      include_if: "exists"
+
+    artifacts_paths:
+      description: "完整報告的檔案路徑"
+      format: ".claude/memory/{stage}/{id}/"
+
+    quality_score:
+      description: "階段品質分數"
+
+    next_stage_hints:
+      description: "給下階段的提示"
+      max_length: 200
+
+  exclude:
+    - "full_analysis"
+    - "all_perspectives"
+    - "reasoning_steps"
+    - "intermediate_results"
+
+  lazy_load:
+    description: "需要時再讀取完整內容"
+    trigger:
+      - "explicit_reference"
+      - "error_debugging"
+      - "quality_review"
+    method: "Read tool"

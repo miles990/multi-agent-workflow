@@ -1,0 +1,118 @@
+# Early Detection Configuration
+# 在早期階段攔截潛在問題，避免在後期才發現
+
+version: "1.0"
+
+# PLAN 階段檢查
+plan_stage_checks:
+  security:
+    required:
+      - check: "authentication_mechanism_defined"
+        description: "認證機制已定義"
+        severity: BLOCKER
+
+      - check: "authorization_model_specified"
+        description: "授權模型已指定"
+        severity: BLOCKER
+
+      - check: "data_validation_strategy"
+        description: "資料驗證策略已定義"
+        severity: HIGH
+
+      - check: "sensitive_data_handling"
+        description: "敏感資料處理方式已定義"
+        severity: HIGH
+
+      - check: "api_security_considered"
+        description: "API 安全已考慮"
+        severity: MEDIUM
+
+  architecture:
+    required:
+      - check: "no_circular_dependencies"
+        description: "無循環依賴"
+        severity: BLOCKER
+
+      - check: "clear_module_boundaries"
+        description: "模組邊界清晰"
+        severity: HIGH
+
+      - check: "scalability_considered"
+        description: "可擴展性已考慮"
+        severity: MEDIUM
+
+      - check: "error_handling_strategy"
+        description: "錯誤處理策略已定義"
+        severity: HIGH
+
+  maintainability:
+    required:
+      - check: "logging_strategy"
+        description: "日誌策略已定義"
+        severity: MEDIUM
+
+      - check: "configuration_management"
+        description: "配置管理方式已定義"
+        severity: MEDIUM
+
+# TASKS 階段自動生成
+tasks_stage_auto_generate:
+  for_each_feature_task:
+    - type: "security_check_task"
+      template: "SEC-{feature_number}"
+      description: "為 {feature_name} 添加安全檢查任務"
+      conditions:
+        - "feature_handles_user_input"
+        - "feature_handles_authentication"
+        - "feature_handles_sensitive_data"
+
+    - type: "edge_case_task"
+      template: "EDGE-{feature_number}"
+      description: "為 {feature_name} 添加邊界案例測試"
+      conditions:
+        - "feature_has_numeric_inputs"
+        - "feature_has_list_operations"
+        - "feature_has_string_processing"
+
+    - type: "error_handling_task"
+      template: "ERR-{feature_number}"
+      description: "為 {feature_name} 添加錯誤處理"
+      conditions:
+        - "feature_has_external_dependencies"
+        - "feature_has_async_operations"
+
+# 偵測關鍵字
+detection_keywords:
+  security_sensitive:
+    - "password"
+    - "token"
+    - "auth"
+    - "credential"
+    - "secret"
+    - "api_key"
+    - "encryption"
+
+  data_handling:
+    - "database"
+    - "storage"
+    - "cache"
+    - "persist"
+    - "save"
+    - "load"
+
+  external_integration:
+    - "api"
+    - "http"
+    - "webhook"
+    - "third-party"
+    - "external"
+
+# 報告格式
+reporting:
+  format: "markdown"
+  include:
+    - "check_name"
+    - "status"
+    - "severity"
+    - "recommendation"
+  output_path: ".claude/memory/early-detection/"

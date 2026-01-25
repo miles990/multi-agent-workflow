@@ -1,0 +1,116 @@
+# Performance Expertise Framework
+# 效能專業知識框架
+
+version: "1.0"
+
+# 效能指標
+metrics:
+  response_time:
+    p50: "50th percentile 回應時間"
+    p95: "95th percentile 回應時間"
+    p99: "99th percentile 回應時間"
+    targets:
+      api: "< 200ms (P95)"
+      page_load: "< 3s"
+
+  throughput:
+    rps: "Requests per second"
+    tps: "Transactions per second"
+
+  resource_utilization:
+    cpu: "CPU 使用率 < 70%"
+    memory: "記憶體使用率 < 80%"
+    disk_io: "磁碟 I/O 監控"
+    network: "網路頻寬監控"
+
+# 優化策略
+optimization_strategies:
+  caching:
+    levels:
+      - name: "Browser Cache"
+        use_for: "靜態資源"
+
+      - name: "CDN"
+        use_for: "靜態資源、API 回應"
+
+      - name: "Application Cache"
+        use_for: "頻繁讀取資料"
+        tools: ["Redis", "Memcached"]
+
+      - name: "Database Cache"
+        use_for: "查詢結果"
+
+    patterns:
+      - "Cache-Aside"
+      - "Write-Through"
+      - "Write-Behind"
+
+  database:
+    - "適當索引"
+    - "查詢優化"
+    - "連線池"
+    - "讀寫分離"
+    - "分區/分片"
+
+  code:
+    - "避免 N+1 查詢"
+    - "批次處理"
+    - "非同步處理"
+    - "延遲載入"
+
+  frontend:
+    - "程式碼分割"
+    - "圖片優化"
+    - "資源壓縮"
+    - "預載入關鍵資源"
+
+# 效能測試類型
+testing_types:
+  load_test:
+    description: "正常負載下的效能"
+    tools: ["k6", "JMeter", "Locust"]
+
+  stress_test:
+    description: "超過正常負載的行為"
+
+  spike_test:
+    description: "突發流量的處理"
+
+  soak_test:
+    description: "長時間運行的穩定性"
+
+  scalability_test:
+    description: "擴展能力測試"
+
+# 效能檢查清單
+checklist:
+  development:
+    - "避免同步阻塞操作"
+    - "使用適當的資料結構"
+    - "減少不必要的計算"
+    - "優化迴圈和遞迴"
+
+  deployment:
+    - "配置 CDN"
+    - "啟用壓縮"
+    - "配置連線池"
+    - "設定適當的超時"
+
+  monitoring:
+    - "設定效能告警"
+    - "收集關鍵指標"
+    - "定期效能審查"
+
+# 效能反模式
+anti_patterns:
+  - name: "Premature Optimization"
+    description: "過早優化"
+    alternative: "先測量再優化"
+
+  - name: "N+1 Query"
+    description: "迴圈中的資料庫查詢"
+    alternative: "批次查詢或 JOIN"
+
+  - name: "Synchronous I/O in Hot Path"
+    description: "熱路徑中的同步 I/O"
+    alternative: "非同步處理"

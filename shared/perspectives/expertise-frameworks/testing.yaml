@@ -1,0 +1,128 @@
+# Testing Expertise Framework
+# 測試專業知識框架
+
+version: "1.0"
+
+# 測試金字塔
+testing_pyramid:
+  unit:
+    ratio: 70%
+    description: "單元測試"
+    characteristics:
+      - "快速執行"
+      - "隔離依賴"
+      - "高覆蓋率"
+    tools:
+      javascript: ["Jest", "Vitest", "Mocha"]
+      python: ["pytest", "unittest"]
+
+  integration:
+    ratio: 20%
+    description: "整合測試"
+    characteristics:
+      - "測試組件互動"
+      - "可能需要外部服務"
+    tools:
+      api: ["Supertest", "requests"]
+
+  e2e:
+    ratio: 10%
+    description: "端對端測試"
+    characteristics:
+      - "完整流程測試"
+      - "較慢但真實"
+    tools: ["Playwright", "Cypress", "Selenium"]
+
+# TDD 流程
+tdd_process:
+  red:
+    description: "寫一個失敗的測試"
+    rules:
+      - "測試應該描述預期行為"
+      - "測試應該明確失敗"
+
+  green:
+    description: "寫最少的程式碼讓測試通過"
+    rules:
+      - "不要過度設計"
+      - "只寫足以通過測試的程式碼"
+
+  refactor:
+    description: "重構程式碼"
+    rules:
+      - "保持測試通過"
+      - "改善程式碼品質"
+
+# 測試覆蓋率
+coverage:
+  thresholds:
+    minimum: 80%
+    target: 90%
+    critical_paths: 100%
+
+  metrics:
+    - "Line Coverage"
+    - "Branch Coverage"
+    - "Function Coverage"
+
+  exclusions:
+    - "配置檔案"
+    - "類型定義"
+    - "生成的程式碼"
+
+# 測試最佳實踐
+best_practices:
+  naming:
+    - "describe: 被測試的單元"
+    - "it/test: 預期行為"
+    - "given_when_then 格式"
+
+  structure:
+    - "Arrange: 準備測試資料"
+    - "Act: 執行被測試行為"
+    - "Assert: 驗證結果"
+
+  isolation:
+    - "每個測試獨立"
+    - "不依賴執行順序"
+    - "適當使用 mock/stub"
+
+  maintenance:
+    - "避免過度 mock"
+    - "測試程式碼也是程式碼"
+    - "定期清理過時測試"
+
+# 測試類型檢查清單
+checklist:
+  unit_test:
+    - "所有公開函數有測試"
+    - "邊界條件有測試"
+    - "錯誤處理有測試"
+
+  integration_test:
+    - "API 端點有測試"
+    - "資料庫操作有測試"
+    - "外部服務互動有測試"
+
+  e2e_test:
+    - "關鍵使用者流程有測試"
+    - "跨瀏覽器測試"
+    - "回歸測試套件"
+
+# 測試反模式
+anti_patterns:
+  - name: "Test After"
+    description: "實作後才寫測試"
+    alternative: "TDD"
+
+  - name: "Flaky Tests"
+    description: "不穩定的測試"
+    alternative: "確保確定性"
+
+  - name: "Testing Implementation"
+    description: "測試實作細節"
+    alternative: "測試行為"
+
+  - name: "God Test"
+    description: "一個測試做太多事"
+    alternative: "每個測試一個斷言"
