@@ -1,0 +1,55 @@
+id: tasks-stage-design
+topic: "TASKS 階段設計 - 在 PLAN 與 IMPLEMENT 之間的任務分解與依賴分析階段"
+skill: research
+date: "2026-01-25"
+mode: deep
+
+perspectives:
+  - id: architecture
+    name: 架構分析師
+    focus: "TASKS 在生態系中的定位、與 PLAN/IMPLEMENT 的邊界"
+    status: completed
+
+  - id: methodology
+    name: 方法論專家
+    focus: "任務分解理論、WBS、敏捷分解、INVEST 原則"
+    status: completed
+
+  - id: dependency
+    name: 依賴分析專家
+    focus: "DAG、拓撲排序、並行化策略、Wave 分組"
+    status: completed
+
+  - id: integration
+    name: 整合設計師
+    focus: "與現有 6 個 skill 的接口設計、Memory 整合"
+    status: completed
+
+  - id: perspectives
+    name: 視角設計師
+    focus: "TASKS 階段應有哪些視角、協作模式、REDUCE 策略"
+    status: completed
+
+  - id: industry
+    name: 業界實踐研究員
+    focus: "現有工具和框架的做法（Jira、Linear、LangGraph、CrewAI）"
+    status: completed
+
+results:
+  consensus_points: 4
+  conflicts_resolved: 2
+  conflicts_pending: 0
+  total_tasks_proposed: 15
+  recommended_perspectives: 4
+  recommended_format: "YAML"
+
+key_findings:
+  - "TASKS 階段應作為獨立 Skill，位於 PLAN 和 IMPLEMENT 之間"
+  - "採用 4 視角：dependency-analyst, task-decomposer, test-planner, risk-preventor"
+  - "使用 DAG + Wave 分組實現依賴管理和並行執行"
+  - "tasks.yaml 作為標準輸出格式，包含任務定義、依賴、執行計劃"
+  - "協作模式：依賴分析先行，其他視角並行分解，REDUCE 彙整"
+
+related:
+  plan: null
+  implementation: null

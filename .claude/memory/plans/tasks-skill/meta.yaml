@@ -1,0 +1,43 @@
+id: tasks-skill
+topic: "TASKS Skill 實作計劃 - 在 PLAN 與 IMPLEMENT 之間的任務分解階段"
+skill: plan
+date: "2026-01-25"
+
+perspectives:
+  - id: architect
+    name: 系統架構師
+    focus: "技術可行性、組件設計、擴展性"
+    status: completed
+
+  - id: risk-analyst
+    name: 風險分析師
+    focus: "潛在風險、依賴問題、失敗場景"
+    status: completed
+
+  - id: estimator
+    name: 估算專家
+    focus: "工作量評估、優先順序、時程規劃"
+    status: completed
+
+  - id: ux-advocate
+    name: UX 倡導者
+    focus: "使用者體驗、CLI 設計、開發者體驗"
+    status: completed
+
+results:
+  consensus_points: 8
+  conflicts_resolved: 2
+  conflicts_pending: 0
+  milestones: 3
+  total_tasks: 22
+
+key_decisions:
+  - "採用現有 skill 目錄結構，與 research/plan/implement 一致"
+  - "4 視角設計：dependency-analyst, task-decomposer, test-planner, risk-preventor"
+  - "協作模式：依賴分析先行，其他視角並行"
+  - "tasks.yaml 作為主要輸出格式"
+  - "3 個里程碑：基礎結構 → 視角與模板 → 整合"
+
+related:
+  research: tasks-stage-design
+  implementation: null

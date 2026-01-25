@@ -1,12 +1,12 @@
 ---
 name: orchestrate
-version: 2.0.0
-description: 端到端工作流編排器 - 串聯 RESEARCH → PLAN → IMPLEMENT → REVIEW → VERIFY
+version: 2.1.0
+description: 端到端工作流編排器 - 串聯 RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 triggers: [multi-orchestrate, workflow, 編排, 自動化工作流]
-keywords: [orchestration, workflow, automation, end-to-end, pipeline]
+keywords: [orchestration, workflow, automation, end-to-end, pipeline, tasks]
 ---
 
-# Multi-Agent Orchestrator v2.0.0
+# Multi-Agent Orchestrator v2.1.0
 
 > 自動判斷起點 → 串聯階段 → 智能回退 → 完整工作流
 
@@ -84,16 +84,16 @@ keywords: [orchestration, workflow, automation, end-to-end, pipeline]
 │  │                     階段判斷（自動識別起點）                        │ │
 │  └────────────────────────────────────────────────────────────────────┘ │
 │     ↓                                                                    │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐ │
-│  │ RESEARCH │ → │  PLAN    │ → │IMPLEMENT │ → │  REVIEW  │ → │  VERIFY  │ │
-│  │          │    │          │    │          │    │          │    │          │ │
-│  │ 多視角   │    │ 多視角   │    │ 監督式   │    │ 多視角   │    │ 多視角   │ │
-│  │ 研究     │    │ 規劃     │    │ 實作     │    │ 審查     │    │ 驗證     │ │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘ │
-│       │               │               │               │               │      │
-│       ↓               ↓               ↓               ↓               ↓      │
-│  research-      implementation-  code +         review-        release-      │
-│  report.md      plan.md          impl-log.md    summary.md     decision.md   │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+│  │ RESEARCH │→ │  PLAN    │→ │  TASKS   │→ │IMPLEMENT │→ │  REVIEW  │→ │  VERIFY  │ │
+│  │          │  │          │  │          │  │          │  │          │  │          │ │
+│  │ 多視角   │  │ 多視角   │  │ 多視角   │  │ 監督式   │  │ 多視角   │  │ 多視角   │ │
+│  │ 研究     │  │ 規劃     │  │ 分解     │  │ 實作     │  │ 審查     │  │ 驗證     │ │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘ │
+│       │             │             │             │             │             │      │
+│       ↓             ↓             ↓             ↓             ↓             ↓      │
+│  research-    implement-    tasks.yaml    code +        review-       release-     │
+│  report.md    plan.md                     impl-log.md   summary.md    decision.md  │
 │                                                                              │
 │  ┌────────────────────────────────────────────────────────────────────────┐ │
 │  │                           智能回退                                      │ │
@@ -149,16 +149,43 @@ plan:
 
 **指令**：`/multi-plan`
 
-### Stage 3: IMPLEMENT
+### Stage 3: TASKS（v2.1 新增）
 
-**觸發條件**：有實作計劃
+**觸發條件**：有實作計劃，需要任務分解
+
+```yaml
+tasks:
+  trigger_if:
+    - plan_complete
+    - complex_implementation
+
+  input:
+    - implementation-plan.md
+    - milestones.md
+    - risk-mitigation.md (optional)
+
+  output:
+    - tasks.yaml
+    - dependency-graph.md
+    - execution-plan.md
+
+  next_stage: IMPLEMENT
+```
+
+**指令**：`/multi-tasks`
+
+### Stage 4: IMPLEMENT
+
+**觸發條件**：有任務分解（或實作計劃）
 
 ```yaml
 implement:
   trigger_if:
-    - plan_complete
+    - tasks_complete
+    - plan_complete  # 向後相容
 
   input:
+    - tasks.yaml (preferred)
     - implementation-plan.md
 
   output:
@@ -171,7 +198,7 @@ implement:
 
 **指令**：`/multi-implement`
 
-### Stage 4: REVIEW
+### Stage 5: REVIEW
 
 **觸發條件**：有程式碼變更
 
@@ -193,7 +220,7 @@ review:
 
 **指令**：`/multi-review`
 
-### Stage 5: VERIFY
+### Stage 6: VERIFY
 
 **觸發條件**：審查通過
 
@@ -245,9 +272,15 @@ verify:
 │  └──────────────────────────────────────────┘               │
 │      ↓ 不存在                                                │
 │  ┌──────────────────────────────────────────┐               │
+│  │ tasks/{id}/tasks.yaml                    │               │
+│  │    存在且有 pending 任務？                │               │
+│  │    → 從 IMPLEMENT 開始                    │               │
+│  └──────────────────────────────────────────┘               │
+│      ↓ 不存在                                                │
+│  ┌──────────────────────────────────────────┐               │
 │  │ plans/{id}/implementation-plan.md        │               │
 │  │    存在？                                 │               │
-│  │    → 從 IMPLEMENT 開始                    │               │
+│  │    → 從 TASKS 開始（任務分解）            │               │
 │  └──────────────────────────────────────────┘               │
 │      ↓ 不存在                                                │
 │  ┌──────────────────────────────────────────┐               │
@@ -273,9 +306,15 @@ verify:
 RESEARCH output          → PLAN input
   research-report.md        (載入研究報告)
 
-PLAN output              → IMPLEMENT input
+PLAN output              → TASKS input
   implementation-plan.md    (載入實作計劃)
   milestones.md
+  risk-mitigation.md        (可選)
+
+TASKS output             → IMPLEMENT input
+  tasks.yaml                (任務清單)
+  dependency-graph.md       (依賴圖)
+  execution-plan.md         (執行計劃)
 
 IMPLEMENT output         → REVIEW input
   code changes              (git diff)
@@ -398,6 +437,11 @@ rollback_rules:
 │   └── user-auth/
 │       ├── implementation-plan.md
 │       └── milestones.md
+├── tasks/
+│   └── user-auth/
+│       ├── tasks.yaml
+│       ├── dependency-graph.md
+│       └── execution-plan.md
 ├── implementations/
 │   └── user-auth/
 │       ├── implementation-log.md
@@ -457,6 +501,7 @@ workflow:
 | 開始 | CP1 | 搜尋 Memory |
 | RESEARCH 完成 | CP3.5 | 更新 index.md |
 | PLAN 完成 | CP3.5 | 更新 index.md |
+| TASKS 完成 | CP3.5 | 更新 index.md |
 | IMPLEMENT | CP2 | Build + Test |
 | REVIEW 完成 | CP3.5 | 更新 index.md |
 | VERIFY 完成 | CP6 | 發布驗證 |
@@ -574,7 +619,7 @@ workflow:
 
 ## 與其他 Skill 的關係
 
-orchestrate 是統一編排器，調用其他 5 個 skill：
+orchestrate 是統一編排器，調用其他 6 個 skill：
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -585,14 +630,15 @@ orchestrate 是統一編排器，調用其他 5 個 skill：
 │                                                              │
 │  1. /multi-research (可選)                                   │
 │  2. /multi-plan                                              │
-│  3. /multi-implement                                         │
-│  4. /multi-review                                            │
-│  5. /multi-verify                                            │
+│  3. /multi-tasks (v2.1 新增)                                 │
+│  4. /multi-implement                                         │
+│  5. /multi-review                                            │
+│  6. /multi-verify                                            │
 │                                                              │
 │  每個 skill 都是獨立可用的，orchestrate 負責串聯。          │
 │                                                              │
 │  在 Worktree 模式下：                                        │
-│  - RESEARCH/PLAN 在 main 目錄執行                            │
+│  - RESEARCH/PLAN/TASKS 在 main 目錄執行                      │
 │  - IMPLEMENT/REVIEW/VERIFY 在 worktree 目錄執行              │
 │  - Memory 始終寫入 main 目錄                                 │
 │                                                              │
