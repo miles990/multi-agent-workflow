@@ -71,6 +71,46 @@ Read → .claude/memory/research/user-auth/perspectives/industry.md
 
 ---
 
+#### 📁 檔案保存結構（重要！）
+
+**完整視角報告必須保留**，最終 Memory 結構如下：
+
+```
+.claude/memory/{type}/{id}/
+├── meta.yaml                    # 元數據
+├── perspectives/                # ⭐ 完整視角報告（Map Phase 已保存）
+│   ├── architecture.md          # 完整報告 - 保留
+│   ├── cognitive.md             # 完整報告 - 保留
+│   ├── workflow.md              # 完整報告 - 保留
+│   └── industry.md              # 完整報告 - 保留
+├── summaries/                   # 結構化摘要（Reduce Phase 產出）
+│   ├── architecture.yaml        # 摘要 - 供快速查閱
+│   ├── cognitive.yaml           # 摘要 - 供快速查閱
+│   ├── workflow.yaml            # 摘要 - 供快速查閱
+│   └── industry.yaml            # 摘要 - 供快速查閱
+├── synthesis.md                 # 匯總報告（主輸出）
+└── metrics.yaml                 # 階段指標
+```
+
+**流程說明**：
+
+```
+Map Phase                          Reduce Phase
+───────────                        ────────────
+
+Agent A ─→ perspectives/arch.md    ┌─ 讀取 arch.md ─→ summaries/arch.yaml
+Agent B ─→ perspectives/cog.md     ├─ 讀取 cog.md ─→ summaries/cog.yaml
+Agent C ─→ perspectives/wf.md      ├─ 讀取 wf.md ─→ summaries/wf.yaml
+Agent D ─→ perspectives/ind.md     └─ 讀取 ind.md ─→ summaries/ind.yaml
+                                              ↓
+                                   收集 4 份摘要 → synthesis.md
+
+⚠️ perspectives/*.md 是完整報告，必須保留！
+⚠️ summaries/*.yaml 是摘要，供快速查閱和後續引用
+```
+
+---
+
 #### 策略選擇流程
 
 ```
@@ -134,17 +174,31 @@ for (perspective of perspectives) {
 **子 Agent Prompt 模板**：
 
 ```markdown
-## 任務：視角報告摘要提取
+## 任務：視角報告摘要提取與保存
 
-請完整讀取以下視角報告，並產出**結構化摘要**。
+請完整讀取以下視角報告，產出**結構化摘要**，並**保存到檔案**。
 
-### 報告路徑
+### 報告路徑（輸入）
 {perspective_report_path}
+例如：.claude/memory/research/user-auth/perspectives/architecture.md
+
+### 摘要路徑（輸出）
+{summary_output_path}
+例如：.claude/memory/research/user-auth/summaries/architecture.yaml
+
+### 步驟
+
+1. **完整讀取**視角報告
+2. **分析**並提取關鍵資訊
+3. **產出**結構化摘要（YAML 格式）
+4. **保存**摘要到指定路徑
 
 ### 輸出格式（必須遵循）
 
 ```yaml
 perspective_id: {id}
+source_file: {perspective_report_path}
+extracted_at: {timestamp}
 confidence: high | medium | low
 
 executive_summary: |
@@ -182,21 +236,33 @@ cross_reference:
 - 必須**完整閱讀**報告後再摘要
 - 不可遺漏任何**核心發現**或**獨特洞察**
 - unique_insights 特別重要，這些是其他視角可能沒有的觀點
+- **必須將摘要寫入檔案**，供後續查閱
 ```
 
 **主 Agent 匯總流程**：
 
 ```javascript
-// 1. 並行啟動子 Agent
+// 0. 確保 summaries 目錄存在
+mkdir -p .claude/memory/{type}/{id}/summaries/
+
+// 1. 並行啟動子 Agent（每個負責一個視角）
 const extractionTasks = perspectives.map(p => Task({
-  description: `提取 ${p.name} 視角摘要`,
-  prompt: generateExtractionPrompt(p.reportPath),
+  description: `提取並保存 ${p.name} 視角摘要`,
+  prompt: generateExtractionPrompt({
+    reportPath: `.claude/memory/{type}/{id}/perspectives/${p.id}.md`,
+    summaryPath: `.claude/memory/{type}/{id}/summaries/${p.id}.yaml`
+  }),
   subagent_type: 'general-purpose',
   model: 'haiku'  // 摘要提取用快速模型
 }));
 
-// 2. 收集結構化摘要
-const summaries = await Promise.all(extractionTasks);
+// 2. 等待所有子 Agent 完成（摘要已保存到檔案）
+await Promise.all(extractionTasks);
+
+// 3. 讀取所有摘要檔案（每個約 1000 tokens，4 個共 4000 tokens）
+const summaries = perspectives.map(p =>
+  Read(`.claude/memory/{type}/{id}/summaries/${p.id}.yaml`)
+);
 
 // 3. 解析 YAML 摘要
 const parsedSummaries = summaries.map(parseYAML);

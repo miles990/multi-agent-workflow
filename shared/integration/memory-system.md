@@ -38,12 +38,19 @@
 [record-id]/
 ├── meta.yaml                 # 元數據
 ├── overview.md               # 一頁概述
-├── perspectives/             # 各視角報告
-│   ├── {perspective-1}.md
+├── perspectives/             # 完整視角報告（Map Phase 產出）
+│   ├── {perspective-1}.md    #   完整分析內容
 │   ├── {perspective-2}.md
+│   └── ...
+├── summaries/                # 結構化摘要（Reduce Phase 產出）
+│   ├── {perspective-1}.yaml  #   供快速查閱和交叉驗證
+│   ├── {perspective-2}.yaml
 │   └── ...
 └── {primary-output}.md       # 主輸出（因 skill 而異）
 ```
+
+> **注意**：`perspectives/` 保存完整報告，`summaries/` 保存結構化摘要。
+> 兩者都必須保留，完整報告用於追溯，摘要用於快速查閱。
 
 ### 主輸出對應
 
