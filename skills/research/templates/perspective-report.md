@@ -1,6 +1,8 @@
 # {PERSPECTIVE_NAME} Perspective Report
 
 > Template for individual perspective research output
+>
+> ⚠️ **長度限制**：總報告 ≤ 300 行（約 5000 tokens），確保 REDUCE 階段可正常讀取
 
 ## Metadata
 
@@ -16,7 +18,14 @@ confidence: {high|medium|low}
 
 ## Executive Summary
 
-{One paragraph summarizing the key findings from this perspective}
+<!-- ⚠️ 此 section 必須在前 50 行內，供 REDUCE 階段快速讀取 -->
+
+{One paragraph (3-5 sentences) summarizing the key findings from this perspective}
+
+**Key Takeaways**:
+1. {Most important finding}
+2. {Second important finding}
+3. {Third important finding}
 
 ---
 
@@ -67,6 +76,26 @@ This perspective examined the topic through the lens of:
 {Same structure as above}
 
 ---
+
+## Cross-Reference Notes
+
+<!-- ⚠️ 此 section 在前 100 行內，供 REDUCE 階段交叉驗證使用 -->
+
+### Potential Consensus Points
+
+- {Point that may align with other perspectives}
+
+### Potential Conflicts
+
+- {Point that may conflict with other perspectives}
+
+### Unique Insights
+
+- {Insights unique to this perspective that should not be lost in synthesis}
+
+---
+
+<!-- ===== 以下為詳細內容，REDUCE 可選擇性讀取 ===== -->
 
 ## Detailed Analysis
 
@@ -125,24 +154,6 @@ This perspective examined the topic through the lens of:
 
 - {Recommended resource 1}
 - {Recommended resource 2}
-
----
-
-## Cross-Reference Notes
-
-{Notes for synthesis phase - potential connections with other perspectives}
-
-### Potential Consensus Points
-
-- {Point that may align with other perspectives}
-
-### Potential Conflicts
-
-- {Point that may conflict with other perspectives}
-
-### Unique Insights
-
-- {Insights unique to this perspective that should not be lost in synthesis}
 
 ---
 

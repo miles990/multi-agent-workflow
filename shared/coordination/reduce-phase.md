@@ -63,6 +63,58 @@ Read → .claude/memory/research/user-auth/perspectives/industry.md
 
 如果視角報告檔案不存在，表示 Map Phase 未正確保存，應該報錯。
 
+### ⚠️ 大檔案處理策略
+
+**問題**：多個視角報告合併後可能超過 25000 tokens 限制。
+
+**解決方案**：分層讀取策略
+
+```
+第一層：只讀摘要（每個報告前 100 行）
+────────────────────────────────────────
+Read(file, limit=100) → 獲取 Executive Summary + Core Findings
+
+第二層：按需深入
+────────────────────────────────────────
+如果某視角需要更多細節，再讀取該視角的完整內容
+
+第三層：並行處理（如仍超限）
+────────────────────────────────────────
+啟動子 Agent 分別處理每個視角，只收集匯總結果
+```
+
+**實作指引**：
+
+```javascript
+// 1. 先收集所有視角的摘要
+for (perspective of perspectives) {
+  // 只讀前 100 行（約 2000-3000 tokens）
+  const summary = Read(perspectivePath, { limit: 100 });
+  summaries.push({ id: perspective, content: summary });
+}
+
+// 2. 從摘要中提取關鍵資訊進行交叉驗證
+// 關鍵 sections：Executive Summary, Core Findings, Cross-Reference Notes
+
+// 3. 如需深入某視角，使用 offset 讀取
+const details = Read(specificPath, { offset: 100, limit: 200 });
+```
+
+**Token 預算分配**（總預算 20000 tokens）：
+
+| 用途 | 配額 | 說明 |
+|-----|------|------|
+| 視角摘要 | 12000 | 4 視角 × 3000 tokens |
+| 交叉驗證分析 | 4000 | 識別共識/矛盾 |
+| 匯總報告生成 | 4000 | 產出最終報告 |
+
+**降級策略**：
+
+如果視角報告總量仍超過預算：
+1. 只使用 Executive Summary 和 Core Findings
+2. 使用 Grep 搜尋特定關鍵字而非完整讀取
+3. 啟動獨立 Agent 進行分段匯總
+
 ### 報告格式標準化
 
 每份視角報告應包含：
