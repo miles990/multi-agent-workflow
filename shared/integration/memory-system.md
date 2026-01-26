@@ -30,13 +30,13 @@
     └── [feature-id]/
 ```
 
-## 單一記錄結構
+## 單一記錄結構（統一目錄）
 
 每個記錄目錄的標準結構：
 
 ```
 [record-id]/
-├── meta.yaml                 # 元數據
+├── meta.yaml                 # 元數據（workflow 資訊）
 ├── overview.md               # 一頁概述
 ├── perspectives/             # 完整視角報告（Map Phase 產出）
 │   ├── {perspective-1}.md    #   完整分析內容
@@ -46,11 +46,39 @@
 │   ├── {perspective-1}.yaml  #   供快速查閱和交叉驗證
 │   ├── {perspective-2}.yaml
 │   └── ...
-└── {primary-output}.md       # 主輸出（因 skill 而異）
+├── {primary-output}.md       # 主輸出（因 skill 而異）
+├── metrics.yaml              # 執行指標
+└── logs/                     # 日誌（也在這裡！）
+    ├── events.jsonl          # 事件日誌（所有工具調用）
+    ├── actions.jsonl         # 行動日誌（詳細參數）
+    └── errors.jsonl          # 錯誤日誌（失敗的操作）
 ```
 
 > **注意**：`perspectives/` 保存完整報告，`summaries/` 保存結構化摘要。
 > 兩者都必須保留，完整報告用於追溯，摘要用於快速查閱。
+>
+> **重要改進**：`logs/` 目錄也放在 memory 下，確保所有相關資料都在同一位置。
+
+### 日誌檔案說明
+
+| 檔案 | 用途 | 寫入來源 |
+|------|------|----------|
+| `events.jsonl` | 所有工具調用記錄 | Hook 自動記錄 |
+| `actions.jsonl` | 應用層事件記錄 | CLI 主動記錄 |
+| `errors.jsonl` | 失敗的操作記錄 | Hook 自動記錄 |
+
+### 查詢日誌範例
+
+```bash
+# 查看執行流程
+jq -s '.' logs/actions.jsonl
+
+# 查看底層工具調用
+jq 'select(.tool_name == "Task")' logs/events.jsonl
+
+# 查看所有錯誤
+cat logs/errors.jsonl | jq .
+```
 
 ### 主輸出對應
 

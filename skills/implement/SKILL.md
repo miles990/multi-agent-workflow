@@ -129,6 +129,18 @@ CP4: Task Commit（每個 task）
 
 > ⚠️ perspectives/ 保存完整角色分析，summaries/ 保存結構化摘要。
 
+## Agent 能力限制
+
+**審查 Agent 不應該開啟 Task**：
+
+| 允許的操作 | 說明 |
+|-----------|------|
+| ✅ Read | 讀取程式碼 |
+| ✅ Glob/Grep | 搜尋檔案和內容 |
+| ✅ Bash | 執行測試 |
+| ✅ Write | 寫入報告 |
+| ❌ Task | 開子 Agent |
+
 ## 行動日誌
 
 每個工具調用完成後，記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。

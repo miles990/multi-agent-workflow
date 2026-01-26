@@ -42,7 +42,10 @@ Phase 3: MAP（並行研究）
     ┌──────────┬──────────┬──────────┬──────────┐
     │架構分析師│認知研究員│工作流設計│業界實踐  │
     └──────────┴──────────┴──────────┴──────────┘
-    ⚠️ 每個 Agent 完成後立即 Write → perspectives/{id}.md
+    ⚠️ **強制**：每個 Agent 必須在完成前執行：
+       1. mkdir -p .claude/memory/research/{topic-id}/perspectives/
+       2. Write → .claude/memory/research/{topic-id}/perspectives/{perspective_id}.md
+       未執行 Write = 任務失敗，工作流中止
     ↓
 Phase 4: REDUCE（交叉驗證 + 匯總）
     ↓
@@ -104,6 +107,33 @@ CP4: Task Commit
 ```
 
 > ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
+
+## Agent 能力限制
+
+**視角 Agent 不應該開啟 Task**：
+
+| 允許的操作 | 說明 |
+|-----------|------|
+| ✅ Read | 讀取檔案 |
+| ✅ Glob/Grep | 搜尋檔案和內容 |
+| ✅ Explore agent | 輕量級探索 |
+| ✅ Bash | 執行命令 |
+| ✅ WebFetch | 抓取網頁 |
+| ✅ Write | 寫入報告 |
+| ❌ Task | 開子 Agent |
+
+## 網頁抓取策略
+
+當需要抓取網頁時，使用以下順序：
+
+1. **優先使用 WebFetch** - 快速、輕量
+2. **如果 WebFetch 失敗**，使用 Chrome：
+   ```
+   a. mcp__claude-in-chrome__tabs_create_mcp → 建立新分頁
+   b. mcp__claude-in-chrome__navigate → 導航到 URL
+   c. mcp__claude-in-chrome__get_page_text → 讀取內容
+   ```
+3. **如果仍然失敗**，記錄 URL 供人工處理
 
 ## 行動日誌
 

@@ -42,7 +42,10 @@ Phase 3: MAP（並行規劃）
     ┌──────────┬──────────┬──────────┬──────────┐
     │ 架構師   │ 風險分析 │ 估算專家 │ UX 倡導  │
     └──────────┴──────────┴──────────┴──────────┘
-    ⚠️ 每個 Agent 完成後立即 Write → perspectives/{id}.md
+    ⚠️ **強制**：每個 Agent 必須在完成前執行：
+       1. mkdir -p .claude/memory/plans/{feature-id}/perspectives/
+       2. Write → .claude/memory/plans/{feature-id}/perspectives/{perspective_id}.md
+       未執行 Write = 任務失敗，工作流中止
     ↓
 Phase 4: REDUCE（共識設計 + 風險緩解）
     ↓
@@ -112,6 +115,20 @@ CP4: Task Commit
 ```
 
 > ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
+
+## Agent 能力限制
+
+**視角 Agent 不應該開啟 Task**：
+
+| 允許的操作 | 說明 |
+|-----------|------|
+| ✅ Read | 讀取檔案 |
+| ✅ Glob/Grep | 搜尋檔案和內容 |
+| ✅ Explore agent | 輕量級探索 |
+| ✅ Bash | 執行命令 |
+| ✅ WebFetch | 抓取網頁 |
+| ✅ Write | 寫入報告 |
+| ❌ Task | 開子 Agent |
 
 ## 行動日誌
 

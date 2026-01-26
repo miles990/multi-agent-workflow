@@ -116,6 +116,19 @@ CP4: Task Commit
 
 > ⚠️ perspectives/ 保存完整分析，summaries/ 保存結構化摘要，tasks.yaml 是最終可執行任務清單。
 
+## Agent 能力限制
+
+**視角 Agent 不應該開啟 Task**：
+
+| 允許的操作 | 說明 |
+|-----------|------|
+| ✅ Read | 讀取檔案 |
+| ✅ Glob/Grep | 搜尋檔案和內容 |
+| ✅ Explore agent | 輕量級探索 |
+| ✅ Bash | 執行命令 |
+| ✅ Write | 寫入報告 |
+| ❌ Task | 開子 Agent |
+
 ### tasks.yaml 格式
 
 ```yaml
