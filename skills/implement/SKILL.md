@@ -1,8 +1,12 @@
 ---
 name: implement
-version: 3.0.0
+version: 3.1.0
 description: 多 Agent 監督式實作框架 - TDD 驅動、即時審查、品質守護
 triggers: [multi-implement, parallel-implement, 監督實作]
+context: fork
+agent: general-purpose
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
+model: sonnet
 ---
 
 # Multi-Agent Implement v3.0.0

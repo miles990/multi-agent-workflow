@@ -1,8 +1,12 @@
 ---
 name: verify
-version: 3.0.0
+version: 3.1.0
 description: 多 Agent 並行驗證框架 - 多視角測試驗證，驗收標準確認
 triggers: [multi-verify, verification, 驗證測試]
+context: fork
+agent: general-purpose
+allowed-tools: [Read, Bash, Grep, Glob, Write]
+model: sonnet
 ---
 
 # Multi-Agent Verify v3.0.0

@@ -1,8 +1,12 @@
 ---
 name: plan
-version: 3.1.0
+version: 3.2.0
 description: 多 Agent 並行規劃框架 - 多視角同時設計，共識驅動實作計劃
 triggers: [multi-plan, parallel-plan, 多角度規劃]
+context: fork
+agent: Plan
+allowed-tools: [Read, Grep, Glob, Write, Bash]
+model: sonnet
 ---
 
 # Multi-Agent Plan v3.1.0

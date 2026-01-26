@@ -1,8 +1,9 @@
 ---
 name: status
-version: 1.0.0
+version: 1.1.0
 description: 工作流狀態查看器 - 顯示執行進度、任務列表、DAG 可視化
 triggers: [status, 狀態, 進度, progress]
+allowed-tools: [Read, Bash, Glob, Grep, TaskList, TaskGet]
 ---
 
 # Multi-Agent Status v1.0.0

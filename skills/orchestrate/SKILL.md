@@ -1,8 +1,9 @@
 ---
 name: orchestrate
-version: 3.0.0
+version: 3.1.0
 description: 端到端工作流編排器 - 串聯 RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 triggers: [orchestrate, workflow, 全流程, e2e]
+allowed-tools: [Read, Write, Bash, Glob, Grep, Skill, Task, TaskCreate, TaskUpdate, TaskList, TaskGet]
 ---
 
 # Multi-Agent Orchestrate v3.0.0

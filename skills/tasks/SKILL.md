@@ -1,13 +1,46 @@
 ---
 name: tasks
-version: 3.0.0
+version: 3.2.0
 description: 多 Agent 任務分解框架 - 將計劃轉化為可執行的 DAG 任務清單
 triggers: [multi-tasks, task-decomposition, 任務分解]
+context: fork
+agent: general-purpose
+allowed-tools: [Read, Grep, Glob, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet]
+model: sonnet
 ---
 
-# Multi-Agent Tasks v3.0.0
+# Multi-Agent Tasks v3.2.0
 
 > 計劃分解 → DAG 驗證 → TDD 對應 → 可執行任務清單
+
+## Claude Code Tasks 整合
+
+> v3.2.0 支援原生 Tasks API，實現跨 session 任務協作
+
+本 Skill 可使用 Claude Code 原生 Tasks 系統：
+
+```bash
+# 建立任務（自動生成 taskId）
+TaskCreate({ subject: "實作登入功能", description: "..." })
+
+# 設定依賴關係
+TaskUpdate({ taskId: "2", addBlockedBy: ["1"] })
+
+# 跨 session 共享
+export CLAUDE_CODE_TASK_LIST_ID=my-workflow
+```
+
+| API | 用途 |
+|-----|------|
+| `TaskCreate` | 建立任務 |
+| `TaskUpdate` | 更新狀態、設定依賴（addBlockedBy） |
+| `TaskList` | 列出所有任務 |
+| `TaskGet` | 取得任務詳情 |
+
+**優勢**：
+- 跨 session 持久化
+- 多 Agent 協作同一任務清單
+- 自動依賴解除（完成時自動 unblock 下游任務）
 
 ## 使用方式
 
