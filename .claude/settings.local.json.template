@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/hooks/post_write.py \"$TOOL_INPUT\""
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/hooks/post_task.py \"$TOOL_INPUT\" \"$TOOL_OUTPUT\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/hooks/pre_task.py \"$TOOL_INPUT\""
+          }
+        ]
+      }
+    ]
+  }
+}

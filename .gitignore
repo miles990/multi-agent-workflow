@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# Local settings (use .template for version control)
+.claude/settings.local.json
+.claude/workflow/
