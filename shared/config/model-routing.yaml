@@ -3,6 +3,13 @@
 
 version: "1.0"
 
+# Profile Override 說明
+# 當使用 --profile 指定執行模式時，會覆蓋此檔案的配置：
+# - express: 全部使用 haiku
+# - default: 使用此檔案的配置
+# - quality: 全部使用 opus
+# 詳見：execution-profiles.yaml
+
 # 模型定義
 models:
   opus:

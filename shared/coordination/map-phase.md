@@ -13,6 +13,28 @@ Map Phase 是多 Agent 工作流的核心階段，透過 Task API 啟動多個�
 - `skills/review/` - 多視角審查
 - `skills/verify/` - 多視角驗證
 
+## 執行模式（Profile）
+
+根據需求選擇不同執行模式，平衡速度與品質。
+
+### 模式比較
+
+| 模式 | 並行 Agent 數 | 模型 | 適用場景 |
+|------|--------------|------|---------|
+| `express` | 1 | haiku | 快速實驗、原型開發 |
+| `default` | 4 | 混合 | 標準開發流程（預設） |
+| `quality` | 4 | opus | 關鍵功能、安全敏感 |
+
+### 模式載入
+
+```javascript
+// 載入執行模式配置
+const profiles = loadConfig('shared/config/execution-profiles.yaml');
+const profile = profiles.profiles[profileMode] || profiles.profiles.default;
+```
+
+→ 完整配置：[../config/execution-profiles.yaml](../config/execution-profiles.yaml)
+
 ## 模型路由
 
 每個視角根據任務複雜度使用不同的模型，最大化效率和品質。
@@ -28,12 +50,35 @@ Map Phase 是多 Agent 工作流的核心階段，透過 Task API 啟動多個�
 關鍵決策類       opus      最高品質要求/複雜決策
 ```
 
+### 模型選擇流程（含 Profile 覆蓋）
+
+```
+1. 檢查是否有 profile 的 model_override
+   ↓
+2. 如有 override → 使用指定模型（忽略 model-routing.yaml）
+   ↓
+3. 如無 override（null）→ 讀取 model-routing.yaml
+   ↓
+4. 根據 STAGE + perspective 類型查找推薦模型
+   ↓
+5. 如未找到配置，使用預設 sonnet
+   ↓
+6. 如遇錯誤 2 次以上（timeout、rate-limit），
+   自動升級到更強模型（sonnet → opus）
+```
+
 ### 在 Task 中指定模型
 
 ```javascript
-// 使用模型路由
-const modelConfig = loadConfig('shared/config/model-routing.yaml');
-const model = modelConfig.routing[STAGE][perspective] || 'sonnet';
+// 載入配置
+const profiles = loadConfig('shared/config/execution-profiles.yaml');
+const modelRouting = loadConfig('shared/config/model-routing.yaml');
+const profile = profiles.profiles[profileMode];
+
+// 決定模型：profile override > routing > default
+const model = profile.model_override
+  || modelRouting.routing[STAGE][perspective]
+  || 'sonnet';
 
 Task({
   description: `${perspective} 視角分析`,
@@ -50,8 +95,11 @@ Task({
 ┌─────────────────────────────────────────────────────────────────┐
 │  準備階段                                                        │
 │  1. 載入視角配置（由各 skill 提供）                              │
-│  2. 為每個視角生成專屬 prompt                                    │
-│  3. 準備 Task API 呼叫                                           │
+│  2. 載入執行模式（express/default/quality）                      │
+│  3. 生成上下文快照（新鮮上下文機制）                             │
+│     └─ 參考 shared/config/context-freshness.yaml                │
+│  4. 為每個視角生成專屬 prompt（含快照）                          │
+│  5. 準備 Task API 呼叫                                           │
 └─────────────────────────────────────────────────────────────────┘
          ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -130,6 +178,10 @@ await Promise.all(tasks.map(task => executeTask(task)))
 ### 通用 Prompt 結構
 
 ```markdown
+## 上下文快照
+
+{snapshot_yaml}
+
 ## 任務
 
 你是一位 {角色描述}。
@@ -139,6 +191,9 @@ await Promise.all(tasks.map(task => executeTask(task)))
 
 ### 你的聚焦領域
 {focus_points}
+
+### 相關檔案（如需讀取內容，請使用 Read 工具）
+{relevant_file_paths}
 
 ### 輸出要求
 請產出一份結構化報告：
@@ -151,6 +206,8 @@ await Promise.all(tasks.map(task => executeTask(task)))
 ### 格式
 使用 Markdown 格式，清晰分段
 ```
+
+**注意**：Agent 收到的是精簡的上下文快照，如需完整的視角報告或程式碼內容，請使用 Read 工具讀取。
 
 ## 同步檢查點
 
@@ -205,12 +262,86 @@ await Promise.all(tasks.map(task => executeTask(task)))
 | normal | 4 | 標準處理 |
 | deep | 6 | 深度處理 |
 
+### 執行模式對應
+
+| Profile | 視角數 | 模型 | 並行度 |
+|---------|--------|------|--------|
+| express | 1/階段 | haiku | 1 |
+| default | 4/階段 | 混合 | 4 |
+| quality | 4/階段 | opus | 4 |
+
 ### 記憶體考量
 
 每個 Agent 獨立運作，不共享上下文。這確保：
 - 視角獨立性（不互相影響）
 - 資源隔離（一個失敗不影響其他）
 - 可擴展性（可輕易增加視角數）
+
+## 上下文新鮮機制
+
+### 目的
+
+避免上下文累積導致效能下降。每個 Wave 開始前重置上下文，只保留關鍵資訊。
+
+### 上下文快照生成
+
+**時機**：每個 Wave 開始前
+
+**步驟**：
+
+1. **收集關鍵狀態**
+   ```yaml
+   snapshot:
+     workflow_id: "{id}"
+     stage: "IMPLEMENT"
+     wave: 2
+     profile: "default"
+
+     completed_tasks: ["T-001", "T-002"]  # 只保留 ID
+     pending_tasks: ["T-003", "T-004"]
+     blocking_issues: []
+
+     previous_stage_summary: |
+       PLAN 階段完成，確定使用 JWT 認證，
+       12 個任務分 4 個 Wave 執行
+
+     critical_decisions:
+       - "D-001: JWT over sessions"
+       - "D-002: PostgreSQL over MongoDB"
+   ```
+
+2. **保存快照**
+   ```
+   Write → .claude/memory/workflows/{id}/snapshots/wave-{n}-snapshot.yaml
+   ```
+
+3. **Agent 啟動時注入**
+   - Agent 只收到：快照 + 任務定義 + 檔案路徑
+   - 需要完整報告時，Agent 自己用 Read 讀取
+
+### 快照內容規範
+
+| 包含 | 不包含 |
+|------|--------|
+| workflow_id, stage, wave | 完整視角報告 |
+| completed_tasks IDs | 完整對話歷史 |
+| pending_tasks IDs | 詳細分析內容 |
+| blocking_issues | 檔案內容（自己讀） |
+| previous_stage_summary | - |
+| critical_decisions | - |
+
+### 快照大小限制
+
+最多 **2000 tokens**，超過時壓縮摘要。
+
+### 優勢
+
+- 每個 Agent 都有「新鮮」的上下文
+- 避免累積無關資訊
+- Token 使用量更可控
+- 長工作流後期效能穩定
+
+→ 完整配置：[../config/context-freshness.yaml](../config/context-freshness.yaml)
 
 ## 配置參數
 

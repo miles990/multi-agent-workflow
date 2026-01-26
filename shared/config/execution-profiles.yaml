@@ -1,0 +1,75 @@
+# Execution Profiles Configuration
+# 執行模式配置：express（快速）/ default（標準）/ quality（品質）
+
+version: "1.0"
+
+profiles:
+  # 預設模式（標準）
+  default:
+    description: "標準模式，4 視角，sonnet/haiku 混合"
+    perspectives_per_stage: 4
+    model_override: null  # 使用 model-routing.yaml 配置
+    skip_stages: []
+    extra_validation: false
+
+  # 快速模式
+  express:
+    description: "最快執行，1 視角，haiku 模型"
+    perspectives_per_stage: 1
+    model_override: "haiku"  # 全部使用 haiku
+    skip_stages: []  # 可配置跳過某些階段
+    extra_validation: false
+    perspective_selection:
+      # 每階段只保留最關鍵的 1 個視角
+      RESEARCH: [architecture]
+      PLAN: [architect]
+      TASKS: [dependency-analyst]
+      IMPLEMENT: [main_agent]
+      REVIEW: [integration]
+      VERIFY: [acceptance-validator]
+
+  # 品質模式
+  quality:
+    description: "最高品質，4 視角，opus 模型"
+    perspectives_per_stage: 4
+    model_override: "opus"  # 全部使用 opus
+    skip_stages: []
+    extra_validation: true  # 啟用額外驗證
+
+# 模式比較
+comparison:
+  express:
+    perspectives: 1
+    model: haiku
+    use_case: "快速實驗、原型開發、概念驗證"
+    token_cost: "低"
+    execution_speed: "最快"
+  default:
+    perspectives: 4
+    model: "混合 (sonnet/haiku)"
+    use_case: "標準開發流程"
+    token_cost: "中"
+    execution_speed: "標準"
+  quality:
+    perspectives: 4
+    model: opus
+    use_case: "關鍵功能、安全敏感、生產環境"
+    token_cost: "高"
+    execution_speed: "較慢"
+
+# CLI 使用方式
+usage:
+  flag: "--profile <mode>"
+  examples:
+    - "/orchestrate 需求描述 --profile express"
+    - "/orchestrate 需求描述 --profile quality"
+    - "/multi-research 主題 --profile express"
+    - "/multi-plan 功能 --profile quality"
+
+# 模型覆蓋邏輯
+model_override_logic: |
+  選擇模型的優先順序：
+  1. 檢查 profile 是否有 model_override
+  2. 如有 override → 使用指定模型（忽略 model-routing.yaml）
+  3. 如無 override（null）→ 讀取 model-routing.yaml 配置
+  4. 如 model-routing.yaml 也無配置 → 預設使用 sonnet

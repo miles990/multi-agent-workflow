@@ -31,6 +31,25 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 | `/multi-verify [review-path]` | 驗證測試 | VERIFY |
 | `/status` | 工作流狀態 | - |
 
+### 執行模式
+
+根據需求選擇不同執行模式：
+
+| 模式 | 視角數 | 模型 | 適用場景 |
+|------|--------|------|---------|
+| `express` | 1/階段 | haiku | 快速實驗、原型開發 |
+| `default` | 4/階段 | 混合 | 標準開發（預設） |
+| `quality` | 4/階段 | opus | 關鍵功能、安全敏感 |
+
+使用方式：
+```bash
+/orchestrate 需求 --profile express   # 快速模式
+/orchestrate 需求 --profile quality   # 品質模式
+/multi-research 主題 --profile express
+```
+
+配置：[shared/config/execution-profiles.yaml](./shared/config/execution-profiles.yaml)
+
 ### 擴展思考
 
 在複雜分析階段（RESEARCH / PLAN）建議啟用擴展思考：
@@ -203,4 +222,6 @@ IMPLEMENT/REVIEW/VERIFY 階段在 `.worktrees/{feature-id}/` 執行。
 | 並行執行 | [shared/coordination/map-phase.md](./shared/coordination/map-phase.md) |
 | 整合匯總 | [shared/coordination/reduce-phase.md](./shared/coordination/reduce-phase.md) |
 | 品質閘門 | [shared/quality/gates.yaml](./shared/quality/gates.yaml) |
+| 執行模式 | [shared/config/execution-profiles.yaml](./shared/config/execution-profiles.yaml) |
+| 上下文新鮮 | [shared/config/context-freshness.yaml](./shared/config/context-freshness.yaml) |
 | 錯誤碼 | [shared/errors/error-codes.md](./shared/errors/error-codes.md) |

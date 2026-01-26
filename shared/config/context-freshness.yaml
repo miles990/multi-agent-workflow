@@ -1,0 +1,85 @@
+# Context Freshness Configuration
+# 上下文新鮮機制：避免上下文累積導致效能下降
+
+version: "1.0"
+
+# 上下文策略
+strategy:
+  mode: "fresh_per_wave"  # 每個 Wave 使用新鮮上下文
+  enabled: true
+
+# 上下文快照配置
+snapshot:
+  # 快照中包含的資訊（傳給新 Agent）
+  include:
+    essential:
+      - workflow_id
+      - current_stage
+      - current_wave
+      - profile_mode  # express/default/quality
+
+    state:
+      - completed_tasks_ids  # 只保留 ID，不保留完整內容
+      - pending_tasks_ids
+      - blocking_issues
+      - critical_decisions
+
+    summaries:
+      - previous_stage_summary  # 上一階段的摘要（壓縮版）
+      - key_findings  # 關鍵發現（列表形式）
+
+  # 不包含在快照中（從磁碟讀取）
+  exclude:
+    - full_perspective_reports
+    - complete_conversation_history
+    - detailed_analysis_content
+    - file_contents  # Agent 自己用 Read 讀取
+
+  # 快照大小限制
+  max_tokens: 2000  # 快照最多 2000 tokens
+
+# 快照保存位置
+storage:
+  path: ".claude/memory/workflows/{workflow_id}/snapshots/"
+  naming: "wave-{wave_number}-snapshot.yaml"
+  retention: "until_workflow_complete"
+
+# Agent 啟動時的上下文組成
+agent_context:
+  components:
+    1: "system_prompt"           # 系統提示
+    2: "snapshot"                # 上下文快照（精簡）
+    3: "task_definition"         # 當前任務定義（完整）
+    4: "relevant_file_paths"     # 相關檔案路徑（不是內容）
+
+  # Agent 需要時自己讀取
+  read_on_demand:
+    - "previous_reports"         # 用 Read 讀取
+    - "source_code"              # 用 Read 讀取
+    - "test_files"               # 用 Read 讀取
+
+# 快照範本
+snapshot_template: |
+  snapshot:
+    workflow_id: "{workflow_id}"
+    stage: "{current_stage}"
+    wave: {wave_number}
+    profile: "{profile_mode}"
+
+    completed_tasks: [{completed_task_ids}]
+    pending_tasks: [{pending_task_ids}]
+    blocking_issues: [{blocking_issues}]
+
+    previous_stage_summary: |
+      {previous_summary}
+
+    critical_decisions:
+      {decisions_list}
+
+# 優勢說明
+benefits:
+  - "每個 Agent 都有「新鮮」的上下文"
+  - "避免累積無關資訊"
+  - "Token 使用量更可控"
+  - "長工作流後期效能穩定"
+  - "Agent 只收到必要的資訊"

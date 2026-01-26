@@ -16,7 +16,12 @@ triggers: [orchestrate, workflow, 全流程, e2e]
 /orchestrate 建立用戶認證系統，支援 JWT 和 OAuth2
 ```
 
-**Flags**: `--start-from STAGE` | `--skip STAGE` | `--quick` | `--deep`
+**Flags**:
+- `--profile <mode>` - 執行模式：`default`（預設）| `express`（快速）| `quality`（最高品質）
+- `--start-from STAGE` - 從指定階段開始
+- `--skip STAGE` - 跳過指定階段
+- `--quick` - 快速模式（等同 `--profile express`）
+- `--deep` - 深度模式（等同 `--profile quality`）
 
 ## 工作流階段
 
@@ -40,6 +45,9 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 ```
 Phase 0: 初始化工作流
     ├── 生成 workflow-id
+    ├── 載入執行模式配置
+    │   └── 讀取 shared/config/execution-profiles.yaml
+    │   └── 套用視角數和模型配置
     ├── 建立報告目錄
     └── 記錄開始時間
     ↓
@@ -123,4 +131,6 @@ Phase 4: 完成
 | [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
 | [quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml) | 智慧回退 |
 | [config/early-termination.yaml](../../shared/config/early-termination.yaml) | 早期終止 |
+| [config/execution-profiles.yaml](../../shared/config/execution-profiles.yaml) | 執行模式 |
+| [config/context-freshness.yaml](../../shared/config/context-freshness.yaml) | 上下文新鮮 |
 | [tools/generate-report.sh](../../shared/tools/generate-report.sh) | 報告生成 |
