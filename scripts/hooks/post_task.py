@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Post-Task Hook - 在 Agent 完成後更新狀態和記錄
+Post-Task Hook - 在 Agent 完成後更新狀態
 
 由 Claude Code Hook 自動觸發
+注意：git commit 由 SubagentStop hook 處理
 """
 
 import json
@@ -17,25 +18,24 @@ from log_action import log_action
 
 
 def main():
-    if len(sys.argv) < 2:
+    # 從 stdin 讀取 JSON 輸入
+    try:
+        input_data = json.load(sys.stdin)
+    except (json.JSONDecodeError, EOFError):
         return
 
-    try:
-        tool_input = json.loads(sys.argv[1])
-    except (json.JSONDecodeError, IndexError):
-        tool_input = {}
+    tool_input = input_data.get("tool_input", {})
+    tool_response = input_data.get("tool_response", {})
 
-    tool_output = sys.argv[2] if len(sys.argv) > 2 else ""
-
-    # 解析
     description = tool_input.get("description", "")
     agent_id = description.lower().replace(" ", "-")[:30]
 
     # 判斷成功或失敗
+    tool_output = str(tool_response)
     success = "error" not in tool_output.lower() and "failed" not in tool_output.lower()
     status = "completed" if success else "failed"
 
-    project_dir = os.getcwd()
+    project_dir = input_data.get("cwd", os.getcwd())
     workflow_id = _get_current_workflow_id(project_dir)
 
     if not workflow_id:

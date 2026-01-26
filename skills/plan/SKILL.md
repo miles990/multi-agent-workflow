@@ -1,13 +1,20 @@
 ---
 name: plan
-version: 3.0.0
+version: 3.1.0
 description: 多 Agent 並行規劃框架 - 多視角同時設計，共識驅動實作計劃
 triggers: [multi-plan, parallel-plan, 多角度規劃]
 ---
 
-# Multi-Agent Plan v3.0.0
+# Multi-Agent Plan v3.1.0
 
-> 多視角並行規劃 → 風險評估 → 共識設計 → 實作計劃
+> 多視角並行規劃 → 風險評估 → 共識設計 → 實作計劃（自動 commit）
+
+## 自動化機制
+
+> ⚡ **本 skill 已整合 Claude Code Hooks**
+>
+> - Action logging、state tracking、git commit 均由 hooks 自動處理
+> - 只需執行 CP1 初始化，其餘檢查點自動執行
 
 ## 使用方式
 
@@ -32,16 +39,21 @@ triggers: [multi-plan, parallel-plan, 多角度規劃]
 ## 執行流程
 
 ```
+CP1: 工作流初始化 ⚡ 手動執行
+    python scripts/hooks/init_workflow.py --topic "{feature}" --stage PLAN
+    ↓
 Phase 0: 需求錨定 → 載入 research 上下文、確認驗收標準
     ↓
 Phase 1: Memory 搜尋 → 識別可重用的設計決策
     ↓
 Phase 2: 視角分解 → 早期安全/架構檢查
     ↓
-Phase 3: MAP（並行規劃）
+Phase 3: MAP（並行規劃）✅ 自動追蹤
     ┌──────────┬──────────┬──────────┬──────────┐
     │ 架構師   │ 風險分析 │ 估算專家 │ UX 倡導  │
     └──────────┴──────────┴──────────┴──────────┘
+    [CP2/CP3 由 hooks 自動處理 Agent 狀態追蹤]
+
     ⚠️ **強制**：每個 Agent 必須在完成前執行：
        1. mkdir -p .claude/memory/plans/{feature-id}/perspectives/
        2. Write → .claude/memory/plans/{feature-id}/perspectives/{perspective_id}.md
@@ -52,6 +64,9 @@ Phase 4: REDUCE（共識設計 + 風險緩解）
 Phase 5: 產出實作計劃 → 品質閘門檢查
     ↓
 Phase 6: Memory 存檔
+    ↓
+CP4: Task Commit ✅ 自動執行
+    [寫入 .claude/memory/ 時自動 git commit]
 ```
 
 ## 早期錯誤攔截

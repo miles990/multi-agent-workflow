@@ -1,12 +1,23 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/pre_task.py"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write",
         "hooks": [
           {
             "type": "command",
-            "command": "python scripts/hooks/post_write.py \"$TOOL_INPUT\""
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/post_write.py"
           }
         ]
       },
@@ -15,18 +26,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python scripts/hooks/post_task.py \"$TOOL_INPUT\" \"$TOOL_OUTPUT\""
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/post_task.py"
           }
         ]
       }
     ],
-    "PreToolUse": [
+    "SubagentStop": [
       {
-        "matcher": "Task",
         "hooks": [
           {
             "type": "command",
-            "command": "python scripts/hooks/pre_task.py \"$TOOL_INPUT\""
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/subagent_stop.py"
           }
         ]
       }

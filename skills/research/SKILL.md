@@ -1,13 +1,20 @@
 ---
 name: research
-version: 3.0.0
+version: 3.1.0
 description: 多 Agent 並行研究框架 - 多視角同時研究，智能匯總成完整報告
 triggers: [multi-research, parallel-research, 多角度研究]
 ---
 
-# Multi-Agent Research v3.0.0
+# Multi-Agent Research v3.1.0
 
-> 多視角並行研究 → 交叉驗證 → 智能匯總 → Memory 存檔
+> 多視角並行研究 → 交叉驗證 → 智能匯總 → Memory 存檔（自動 commit）
+
+## 自動化機制
+
+> ⚡ **本 skill 已整合 Claude Code Hooks**
+>
+> - Action logging、state tracking、git commit 均由 hooks 自動處理
+> - 只需執行 CP1 初始化，其餘檢查點自動執行
 
 ## 使用方式
 
@@ -32,16 +39,21 @@ triggers: [multi-research, parallel-research, 多角度研究]
 ## 執行流程
 
 ```
+CP1: 工作流初始化 ⚡ 手動執行
+    python scripts/hooks/init_workflow.py --topic "{topic}" --stage RESEARCH
+    ↓
 Phase 0: 北極星錨定 → 定義研究目標、成功標準
     ↓
 Phase 1: Memory 搜尋 → 避免重複研究
     ↓
 Phase 2: 視角分解 → 為每視角生成專屬 prompt
     ↓
-Phase 3: MAP（並行研究）
+Phase 3: MAP（並行研究）✅ 自動追蹤
     ┌──────────┬──────────┬──────────┬──────────┐
     │架構分析師│認知研究員│工作流設計│業界實踐  │
     └──────────┴──────────┴──────────┴──────────┘
+    [CP2/CP3 由 hooks 自動處理 Agent 狀態追蹤]
+
     ⚠️ **強制**：每個 Agent 必須在完成前執行：
        1. mkdir -p .claude/memory/research/{topic-id}/perspectives/
        2. Write → .claude/memory/research/{topic-id}/perspectives/{perspective_id}.md
@@ -50,21 +62,22 @@ Phase 3: MAP（並行研究）
 Phase 4: REDUCE（交叉驗證 + 匯總）
     ↓
 Phase 5: Memory 存檔 → 品質閘門檢查 → 存儲報告
-```
-
-## CP4: Task Commit
-
-Memory 存檔完成後，**必須執行 CP4 Task Commit**。
-
-```
-Phase 5: Memory 存檔
     ↓
-CP4: Task Commit
-    ├── git add .claude/memory/research/{topic-id}/
-    └── git commit -m "docs(research): complete {topic} research"
+CP4: Task Commit ✅ 自動執行
+    [寫入 .claude/memory/ 時自動 git commit]
 ```
 
-→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+## CP4: Task Commit ✅ 自動
+
+> **由 `post_write.py` hook 自動處理**
+
+當 Write 工具寫入 `.claude/memory/` 目錄時，hook 會自動：
+1. `git add .claude/memory/research/{topic-id}/`
+2. `git commit -m "docs(research): complete {topic} research"`
+3. 記錄 action 到 `actions.jsonl`
+
+→ Hook 設定：[.claude/settings.local.json.template](../../.claude/settings.local.json.template)
+→ 協議：[shared/checkpoints/mandatory-checkpoints.md](../../shared/checkpoints/mandatory-checkpoints.md)
 
 ## 品質閘門
 
@@ -135,32 +148,33 @@ CP4: Task Commit
    ```
 3. **如果仍然失敗**，記錄 URL 供人工處理
 
-## 行動日誌
+## 行動日誌 ✅ 自動
 
-每個工具調用完成後，記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。
+> **由 Claude Code Hooks 自動處理**
 
-**記錄時機**：
-- 成功：記錄 `tool`、`input`、`output_preview`、`duration_ms`、`status: success`
-- 失敗：記錄 `tool`、`input`、`error`、`stderr`（如有）、`status: failed`
+工具調用自動記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。
 
-**關鍵行動（RESEARCH 階段）**：
-| 行動 | 記錄重點 |
-|------|----------|
-| Read（讀取檔案） | `file_path`、`output_size` |
-| Glob（搜尋檔案） | `pattern`、`match_count` |
-| Grep（搜尋內容） | `pattern`、`match_count` |
-| Task（啟動 Agent） | `subagent_type`、`prompt` (truncated)、`agent_id` |
-| WebFetch（抓取網頁） | `url`、`status_code` |
+**自動記錄的工具**：
+| 工具 | 觸發 Hook | 記錄內容 |
+|------|-----------|----------|
+| Task | pre_task.py / post_task.py | Agent 啟動/完成狀態 |
+| Write | post_write.py | 檔案路徑、Memory commit |
 
 **排查問題**：
 ```bash
 # 查看 RESEARCH 階段所有失敗行動
-jq 'select(.stage == "RESEARCH" and .status == "failed")' actions.jsonl
+jq 'select(.stage == "RESEARCH" and .status == "failed")' \
+  .claude/workflow/{workflow-id}/logs/actions.jsonl
 
 # 查看特定視角 Agent 的行動
-jq 'select(.agent_id == "agent_architecture")' actions.jsonl
+jq 'select(.agent_id == "architecture")' \
+  .claude/workflow/{workflow-id}/logs/actions.jsonl
+
+# 查看即時狀態
+cat .claude/workflow/{workflow-id}/current.json | jq .
 ```
 
+→ Hook 腳本：[scripts/hooks/](../../scripts/hooks/)
 → 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
 
 ## 共用模組

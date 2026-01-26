@@ -8,9 +8,12 @@
 
 | 操作 | 觸發時機 | 處理方式 |
 |------|---------|---------|
-| Action Logging | 每個工具調用 | PostToolUse Hook |
-| Agent 狀態追蹤 | Task 啟動/完成 | Pre/PostToolUse Hook |
-| Memory Commit | 寫入 .claude/memory/ | PostToolUse Hook (post_write.py) |
+| Action Logging | Write/Task 工具調用 | PostToolUse Hook |
+| Agent 狀態追蹤 | Task 啟動/完成 | PreToolUse + PostToolUse Hook |
+| Memory Commit | **子代理完成時** | **SubagentStop Hook** |
+
+> ⚠️ **注意**: git commit 在 SubagentStop 時執行，而非每次 Write。
+> 這避免了多次小 commit，確保每個 Task 完成時有一個完整的 commit。
 
 ## 檢查點清單
 
@@ -59,13 +62,15 @@ python scripts/hooks/init_workflow.py \
 
 ### CP4: Task Commit ✅ 自動
 
-**由 `post_write.py` 自動處理**
+**由 `subagent_stop.py` 自動處理**
 
-當 Write 工具寫入 `.claude/memory/` 目錄時，Hook 會自動：
-1. 檢查是否有變更
+當子代理（Task）完成時（SubagentStop 事件），Hook 會自動：
+1. 檢查 `.claude/memory/` 是否有變更
 2. `git add .claude/memory/{type}/{id}/`
 3. `git commit` with appropriate message
 4. 記錄 `git_commit` action
+
+> 這確保每個 Task 完成時才 commit，避免多次小 commit。
 
 ## Commit Message 格式
 
@@ -109,20 +114,31 @@ git log --oneline -5
 
 ## 設定檔位置
 
-`.claude/settings.local.json`:
+複製 `.claude/settings.local.json.template` 到 `.claude/settings.local.json`：
+
+```bash
+cp .claude/settings.local.json.template .claude/settings.local.json
+```
+
+設定內容：
 ```json
 {
   "hooks": {
-    "PostToolUse": [
-      { "matcher": "Write", "hooks": [{"type": "command", "command": "python scripts/hooks/post_write.py \"$TOOL_INPUT\""}] },
-      { "matcher": "Task", "hooks": [{"type": "command", "command": "python scripts/hooks/post_task.py \"$TOOL_INPUT\" \"$TOOL_OUTPUT\""}] }
-    ],
     "PreToolUse": [
-      { "matcher": "Task", "hooks": [{"type": "command", "command": "python scripts/hooks/pre_task.py \"$TOOL_INPUT\""}] }
+      { "matcher": "Task", "hooks": [{"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/pre_task.py"}] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Write", "hooks": [{"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/post_write.py"}] },
+      { "matcher": "Task", "hooks": [{"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/post_task.py"}] }
+    ],
+    "SubagentStop": [
+      { "hooks": [{"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/subagent_stop.py"}] }
     ]
   }
 }
 ```
+
+> ⚠️ Hook 腳本從 stdin 讀取 JSON，使用 `$CLAUDE_PROJECT_DIR` 確保路徑正確。
 
 ## 故障排除
 
@@ -134,9 +150,13 @@ git log --oneline -5
 
 ### 沒有 commit
 
-1. 確認寫入路徑是 `.claude/memory/` 開頭
-2. 檢查 git status
-3. 手動測試: `python scripts/hooks/post_write.py '{"file_path": ".claude/memory/test/test/test.md"}'`
+1. 確認 SubagentStop hook 已配置
+2. 確認寫入路徑是 `.claude/memory/` 開頭
+3. 檢查 git status
+4. 手動測試:
+   ```bash
+   echo '{"session_id": "test", "cwd": "'$(pwd)'"}' | python scripts/hooks/subagent_stop.py
+   ```
 
 ### Dashboard 沒更新
 

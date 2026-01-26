@@ -10,7 +10,6 @@ import os
 import sys
 from pathlib import Path
 
-# 加入 scripts/hooks 到 path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from update_state import update_state
@@ -18,15 +17,13 @@ from log_action import log_action
 
 
 def main():
-    if len(sys.argv) < 2:
-        return
-
+    # 從 stdin 讀取 JSON 輸入
     try:
-        tool_input = json.loads(sys.argv[1])
-    except (json.JSONDecodeError, IndexError):
+        input_data = json.load(sys.stdin)
+    except (json.JSONDecodeError, EOFError):
         return
 
-    # 解析 Task 輸入
+    tool_input = input_data.get("tool_input", {})
     description = tool_input.get("description", "")
     subagent_type = tool_input.get("subagent_type", "")
     prompt = tool_input.get("prompt", "")[:100]
@@ -34,8 +31,7 @@ def main():
     # 從 description 推斷 agent_id
     agent_id = description.lower().replace(" ", "-")[:30]
 
-    # 取得當前 workflow_id
-    project_dir = os.getcwd()
+    project_dir = input_data.get("cwd", os.getcwd())
     workflow_id = _get_current_workflow_id(project_dir)
 
     if not workflow_id:
@@ -66,11 +62,8 @@ def main():
 
 
 def _get_current_workflow_id(project_dir: str) -> str:
-    """從 current.json 取得 workflow_id"""
-    # 先檢查是否有活躍的 workflow
+    """從最近的 workflow 目錄取得 ID"""
     workflow_dir = Path(project_dir) / ".claude" / "workflow"
-
-    # 找最近的 workflow
     if workflow_dir.exists():
         for d in sorted(workflow_dir.iterdir(), reverse=True):
             if d.is_dir() and (d / "current.json").exists():
