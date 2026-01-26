@@ -31,6 +31,16 @@
         ]
       }
     ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/subagent_start.py"
+          }
+        ]
+      }
+    ],
     "SubagentStop": [
       {
         "hooks": [
