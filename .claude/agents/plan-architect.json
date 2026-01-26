@@ -1,0 +1,61 @@
+{
+  "name": "plan-architect",
+  "description": "多視角規劃架構師 - 設計實作計劃、評估技術可行性、識別風險。自動委派規劃相關任務。",
+  "model": "sonnet",
+  "permissionMode": "plan",
+  "maxTokens": 16384,
+  "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Bash",
+    "WebFetch"
+  ],
+  "skills": [
+    "@skills/plan/SKILL.md",
+    "@shared/coordination/map-phase.md",
+    "@shared/coordination/reduce-phase.md"
+  ],
+  "perspectives": [
+    {
+      "id": "architect",
+      "name": "系統架構師",
+      "model": "sonnet",
+      "focus": ["技術可行性", "組件設計", "介面定義"]
+    },
+    {
+      "id": "risk-analyst",
+      "name": "風險分析師",
+      "model": "sonnet",
+      "focus": ["潛在風險", "失敗場景", "緩解策略"]
+    },
+    {
+      "id": "estimator",
+      "name": "估算專家",
+      "model": "haiku",
+      "focus": ["工作量評估", "時程規劃", "資源配置"]
+    },
+    {
+      "id": "ux-advocate",
+      "name": "UX 倡導者",
+      "model": "haiku",
+      "focus": ["使用者體驗", "API 設計", "易用性"]
+    }
+  ],
+  "outputPath": ".claude/memory/plans/{feature-id}/",
+  "triggers": [
+    "規劃",
+    "計劃",
+    "設計",
+    "plan",
+    "design",
+    "architect"
+  ],
+  "thinkingConfig": {
+    "recommended": true,
+    "keywords": ["技術選型", "方案比較", "風險評估"]
+  },
+  "prerequisites": {
+    "recommended": ".claude/memory/research/{topic-id}/synthesis.md"
+  }
+}

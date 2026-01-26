@@ -1,0 +1,126 @@
+# Thinking Triggers Configuration
+# 定義各階段擴展思考觸發條件
+
+version: "1.0"
+
+# 階段思考配置
+stage_thinking:
+  RESEARCH:
+    recommended: true
+    perspectives:
+      - architecture
+      - cognitive
+    keywords:
+      - "架構設計"
+      - "系統分析"
+      - "權衡分析"
+      - "技術選型"
+      - "設計模式"
+    trigger_conditions:
+      - "複雜度高的系統分析"
+      - "多方案比較"
+      - "長期架構影響"
+
+  PLAN:
+    recommended: true
+    perspectives:
+      - architect
+      - risk-analyst
+    keywords:
+      - "技術選型"
+      - "方案比較"
+      - "風險評估"
+      - "架構決策"
+    trigger_conditions:
+      - "關鍵技術決策"
+      - "高風險功能規劃"
+      - "跨系統整合"
+
+  TASKS:
+    recommended: false
+    perspectives: []
+    keywords: []
+    trigger_conditions:
+      - "複雜依賴分析"
+
+  IMPLEMENT:
+    recommended: false
+    perspectives: []
+    keywords: []
+    trigger_conditions:
+      - "複雜算法實作"
+      - "安全敏感功能"
+
+  REVIEW:
+    recommended: true
+    perspectives:
+      - integration
+    keywords:
+      - "架構影響"
+      - "深度審查"
+      - "安全審計"
+    trigger_conditions:
+      - "跨模組變更"
+      - "安全相關程式碼"
+
+  VERIFY:
+    recommended: false
+    perspectives: []
+    keywords: []
+    trigger_conditions:
+      - "邊界條件測試設計"
+
+# 使用說明
+usage:
+  enable_methods:
+    - method: "keyword"
+      description: "在提示中加入 `ultrathink` 關鍵字"
+      example: "ultrathink 分析這個架構設計"
+
+    - method: "keyboard_shortcut"
+      description: "按 Option+T（Mac）或 Alt+T（Windows/Linux）"
+      note: "需在 Claude Code 互動模式中"
+
+    - method: "environment_variable"
+      description: "設定環境變數"
+      example: "export MAX_THINKING_TOKENS=10000"
+
+  token_budget:
+    default: 5000
+    extended: 10000
+    maximum: 32000
+
+# 自動觸發規則
+auto_trigger:
+  enabled: false  # 預設關閉，需手動啟用
+  rules:
+    - condition: "stage in [RESEARCH, PLAN] AND perspective in [architecture, risk-analyst]"
+      action: "suggest_thinking"
+      message: "建議使用擴展思考以獲得更深入的分析"
+
+    - condition: "keyword_match(prompt, stage_thinking[stage].keywords)"
+      action: "suggest_thinking"
+      message: "偵測到複雜分析關鍵字，建議啟用擴展思考"
+
+# 擴展思考提示模板
+thinking_prompts:
+  architecture_analysis: |
+    請深入分析此架構，考慮：
+    1. 組件間的依賴關係
+    2. 可擴展性和可維護性
+    3. 潛在的技術債務
+    4. 替代方案比較
+
+  risk_assessment: |
+    請評估潛在風險：
+    1. 技術風險（依賴、相容性）
+    2. 業務風險（時程、資源）
+    3. 安全風險（漏洞、資料外洩）
+    4. 緩解策略
+
+  integration_review: |
+    請分析整合影響：
+    1. 跨模組依賴
+    2. API 變更影響
+    3. 資料流變化
+    4. 向後相容性

@@ -16,6 +16,50 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 - Git Worktree 隔離實作環境
 - 品質閘門自動檢查
 
+## 快速開始
+
+### 斜線命令
+
+| 命令 | 說明 | 階段 |
+|------|------|------|
+| `/orchestrate [需求]` | 端到端工作流 | 全部 |
+| `/multi-research [主題]` | 多視角研究 | RESEARCH |
+| `/multi-plan [功能]` | 多視角規劃 | PLAN |
+| `/multi-tasks [plan-path]` | 任務分解（DAG） | TASKS |
+| `/multi-implement [task-path]` | 監督式實作 | IMPLEMENT |
+| `/multi-review [impl-path]` | 程式碼審查 | REVIEW |
+| `/multi-verify [review-path]` | 驗證測試 | VERIFY |
+| `/status` | 工作流狀態 | - |
+
+### 擴展思考
+
+在複雜分析階段（RESEARCH / PLAN）建議啟用擴展思考：
+
+| 方式 | 說明 |
+|------|------|
+| 關鍵字 | 在提示中加入 `ultrathink` |
+| 快捷鍵 | Option+T（Mac）/ Alt+T（Windows/Linux） |
+| 環境變數 | `export MAX_THINKING_TOKENS=10000` |
+
+觸發配置：[shared/config/thinking-triggers.yaml](./shared/config/thinking-triggers.yaml)
+
+### @ 檔案參考
+
+使用 `@` 符號動態載入模組指南：
+
+```bash
+# 載入協調模組指南
+@shared/coordination
+
+# 載入品質閘門配置
+@shared/quality
+
+# 載入特定視角配置
+@shared/perspectives
+```
+
+每個 shared 子目錄都有 `CLAUDE.md` 自動說明使用方式。
+
 ## 常用命令
 
 ### 端到端編排

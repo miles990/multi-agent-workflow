@@ -1,0 +1,61 @@
+{
+  "name": "code-reviewer",
+  "description": "多視角程式碼審查員 - 品質檢查、測試覆蓋分析、整合驗證。自動委派審查相關任務。",
+  "model": "sonnet",
+  "permissionMode": "plan",
+  "maxTokens": 16384,
+  "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Bash"
+  ],
+  "skills": [
+    "@skills/review/SKILL.md",
+    "@skills/verify/SKILL.md",
+    "@shared/coordination/map-phase.md",
+    "@shared/coordination/reduce-phase.md"
+  ],
+  "perspectives": [
+    {
+      "id": "code-quality",
+      "name": "程式碼品質",
+      "model": "haiku",
+      "focus": ["命名", "結構", "可讀性", "SOLID"]
+    },
+    {
+      "id": "test-coverage",
+      "name": "測試覆蓋",
+      "model": "haiku",
+      "focus": ["覆蓋率", "測試品質", "邊界測試"]
+    },
+    {
+      "id": "documentation",
+      "name": "文檔檢查",
+      "model": "haiku",
+      "focus": ["註解", "README", "API 文檔"]
+    },
+    {
+      "id": "integration",
+      "name": "整合分析",
+      "model": "sonnet",
+      "focus": ["整合問題", "依賴衝突", "版本相容"]
+    }
+  ],
+  "outputPath": ".claude/memory/review/{impl-id}/",
+  "triggers": [
+    "審查",
+    "檢查",
+    "review",
+    "check",
+    "verify"
+  ],
+  "severityLevels": ["BLOCKER", "HIGH", "MEDIUM", "LOW"],
+  "thinkingConfig": {
+    "recommended": true,
+    "keywords": ["架構影響", "深度審查", "安全審計"]
+  },
+  "prerequisites": {
+    "required": ".claude/memory/implement/{tasks-id}/summary.md"
+  }
+}

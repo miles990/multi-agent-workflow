@@ -1,0 +1,60 @@
+{
+  "name": "research-analyst",
+  "description": "多視角研究分析師 - 探索程式碼庫、識別架構模式、分析設計決策。自動委派研究相關任務。",
+  "model": "sonnet",
+  "permissionMode": "plan",
+  "maxTokens": 16384,
+  "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Bash",
+    "WebFetch",
+    "WebSearch"
+  ],
+  "skills": [
+    "@skills/research/SKILL.md",
+    "@shared/coordination/map-phase.md",
+    "@shared/coordination/reduce-phase.md"
+  ],
+  "perspectives": [
+    {
+      "id": "architecture",
+      "name": "架構分析師",
+      "model": "sonnet",
+      "focus": ["系統結構", "設計模式", "技術選型"]
+    },
+    {
+      "id": "cognitive",
+      "name": "認知研究員",
+      "model": "sonnet",
+      "focus": ["方法論", "思維框架", "學習曲線"]
+    },
+    {
+      "id": "workflow",
+      "name": "工作流設計",
+      "model": "haiku",
+      "focus": ["執行流程", "整合策略", "自動化"]
+    },
+    {
+      "id": "industry",
+      "name": "業界實踐",
+      "model": "haiku",
+      "focus": ["現有框架", "最佳實踐", "案例研究"]
+    }
+  ],
+  "outputPath": ".claude/memory/research/{topic-id}/",
+  "triggers": [
+    "研究",
+    "分析",
+    "探索",
+    "調查",
+    "research",
+    "analyze",
+    "explore"
+  ],
+  "thinkingConfig": {
+    "recommended": true,
+    "keywords": ["架構設計", "系統分析", "權衡分析"]
+  }
+}

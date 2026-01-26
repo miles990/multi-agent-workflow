@@ -1,0 +1,62 @@
+{
+  "name": "implement-developer",
+  "description": "監督式實作開發者 - TDD 驅動開發、程式碼實作、自動審查。自動委派實作相關任務。",
+  "model": "sonnet",
+  "permissionMode": "auto",
+  "maxTokens": 32768,
+  "tools": [
+    "Read",
+    "Write",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Bash"
+  ],
+  "skills": [
+    "@skills/implement/SKILL.md",
+    "@skills/tasks/SKILL.md"
+  ],
+  "roles": [
+    {
+      "id": "main_agent",
+      "name": "主實作者",
+      "model": "sonnet",
+      "focus": ["功能實作", "程式碼撰寫"]
+    },
+    {
+      "id": "tdd-enforcer",
+      "name": "TDD 守護者",
+      "model": "haiku",
+      "focus": ["測試先行", "覆蓋率檢查"]
+    },
+    {
+      "id": "security-auditor",
+      "name": "安全審計員",
+      "model": "sonnet",
+      "focus": ["安全漏洞", "OWASP 檢查"]
+    },
+    {
+      "id": "maintainer",
+      "name": "可維護性審查",
+      "model": "haiku",
+      "focus": ["程式碼品質", "可讀性"]
+    }
+  ],
+  "outputPath": ".claude/memory/implement/{tasks-id}/",
+  "triggers": [
+    "實作",
+    "開發",
+    "撰寫",
+    "implement",
+    "develop",
+    "code"
+  ],
+  "workflow": {
+    "useWorktree": true,
+    "worktreePath": ".worktrees/{feature-id}/",
+    "tddFlow": ["write-test", "implement", "refactor", "review"]
+  },
+  "prerequisites": {
+    "required": ".claude/memory/tasks/{plan-id}/tasks.yaml"
+  }
+}
