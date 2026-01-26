@@ -13,6 +13,8 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 **核心特性**：
 - 每階段 4 視角並行（Map-Reduce 模式）
 - 上下文新鮮機制（Task = Fresh Context）
+- Skills + Subagents 整合（context: fork）
+- Claude Code Tasks 跨 session 協作
 - Claude Code Hooks 自動 logging + git commit
 - Git Worktree 隔離實作環境
 - 品質閘門自動檢查
@@ -50,6 +52,54 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 ```
 
 配置：[shared/config/execution-profiles.yaml](./shared/config/execution-profiles.yaml)
+
+### Claude Code 新功能整合
+
+> 2026 年 1 月更新：Skills + Subagents 整合、Todos → Tasks 升級
+
+#### Skills + Subagents
+
+Skill 現在可以直接在 Subagent 中執行，保護主 Context Window：
+
+```yaml
+# SKILL.md frontmatter 新選項
+---
+name: research-perspective
+context: fork          # 在獨立 Subagent 執行
+agent: Explore         # 使用 Explore subagent
+allowed-tools: Read, Grep, Glob, Write
+model: sonnet
+---
+```
+
+| 選項 | 說明 |
+|------|------|
+| `context: fork` | Skill 在獨立 Subagent 中執行 |
+| `agent: Explore` | 指定 Subagent 類型（Explore/Plan/general-purpose） |
+| `allowed-tools` | 限制可用工具 |
+| `disable-model-invocation` | 禁止 Claude 自動觸發（僅手動） |
+
+#### Tasks 跨 Session 協作
+
+Tasks 系統支援多 Agent 協作同一任務清單：
+
+```bash
+# 設定共享任務清單
+export CLAUDE_CODE_TASK_LIST_ID=my-workflow
+
+# 建立有依賴關係的任務
+TaskCreate({ subject: "研究階段", ... })  # → taskId: 1
+TaskCreate({ subject: "規劃階段", addBlockedBy: ["1"], ... })  # 等待研究完成
+```
+
+| API | 說明 |
+|-----|------|
+| `TaskCreate` | 建立任務 |
+| `TaskUpdate` | 更新狀態、設定依賴 |
+| `TaskList` | 列出所有任務 |
+| `TaskGet` | 取得任務詳情 |
+
+**跨 session 共享**：設定相同的 `CLAUDE_CODE_TASK_LIST_ID`，多個 Claude/Subagent 可協作同一任務清單。
 
 ### 擴展思考
 
