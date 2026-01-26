@@ -1,0 +1,99 @@
+# Sample Tasks for Testing
+# 測試用任務定義
+
+version: "1.0"
+workflow_id: "test-workflow-001"
+
+tasks:
+  # Wave 1: 設置
+  - id: SETUP-001
+    title: 環境設置
+    description: 設置開發環境和相依套件
+    status: completed
+    wave: 1
+    estimate_minutes: 15
+    files:
+      - pyproject.toml
+      - requirements.txt
+
+  # Wave 2: 測試先行
+  - id: TEST-001
+    title: 撰寫單元測試
+    description: 為核心功能撰寫單元測試
+    status: pending
+    depends_on:
+      - SETUP-001
+    wave: 2
+    estimate_minutes: 30
+    files:
+      - tests/test_core.py
+
+  - id: TEST-002
+    title: 撰寫整合測試
+    description: 為 API 撰寫整合測試
+    status: pending
+    depends_on:
+      - SETUP-001
+    wave: 2
+    estimate_minutes: 25
+    files:
+      - tests/integration/test_api.py
+
+  # Wave 3: 實作
+  - id: T-F-001
+    title: 實作核心功能
+    description: 實作主要業務邏輯
+    status: pending
+    depends_on:
+      - TEST-001
+    wave: 3
+    estimate_minutes: 45
+    files:
+      - src/core.py
+      - src/utils.py
+
+  - id: T-F-002
+    title: 實作 API 端點
+    description: 實作 RESTful API
+    status: pending
+    depends_on:
+      - TEST-002
+    wave: 3
+    estimate_minutes: 40
+    files:
+      - src/api.py
+      - src/routes.py
+
+  # Wave 4: 整合
+  - id: INT-001
+    title: 整合測試
+    description: 執行整合測試並修復問題
+    status: pending
+    depends_on:
+      - T-F-001
+      - T-F-002
+    wave: 4
+    estimate_minutes: 30
+    files:
+      - tests/integration/
+
+  # Wave 5: 文檔
+  - id: DOC-001
+    title: 更新文檔
+    description: 更新 README 和 API 文檔
+    status: pending
+    depends_on:
+      - INT-001
+    wave: 5
+    estimate_minutes: 20
+    files:
+      - README.md
+      - docs/api.md
+
+# 統計
+summary:
+  total_tasks: 7
+  completed: 1
+  pending: 6
+  total_waves: 5
+  estimated_total_minutes: 205
