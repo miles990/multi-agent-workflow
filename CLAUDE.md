@@ -12,6 +12,7 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 
 **核心特性**：
 - 每階段 4 視角並行（Map-Reduce 模式）
+- 上下文新鮮機制（Task = Fresh Context）
 - Claude Code Hooks 自動 logging + git commit
 - Git Worktree 隔離實作環境
 - 品質閘門自動檢查

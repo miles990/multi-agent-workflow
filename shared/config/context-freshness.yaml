@@ -1,85 +1,88 @@
-# Context Freshness Configuration
-# 上下文新鮮機制：避免上下文累積導致效能下降
+# Context Freshness Configuration v2.0
+# 上下文新鮮機制（簡化版）— 參考 GSD 設計
 
-version: "1.0"
+version: "2.0"
 
-# 上下文策略
+# 核心原則
+# =========
+# 1. 每個 Task 天生獨立 — Task API 本身就提供新鮮上下文
+# 2. 直接注入必要資訊 — 不依賴快照檔案
+# 3. Agent 按需讀取 — 需要更多資訊時自己用 Read 工具
+
+# 策略
 strategy:
-  mode: "fresh_per_wave"  # 每個 Wave 使用新鮮上下文
-  enabled: true
+  mode: "inline_injection"  # 直接注入（不產生快照檔案）
+  principle: "Task = Fresh Context"
 
-# 上下文快照配置
-snapshot:
-  # 快照中包含的資訊（傳給新 Agent）
-  include:
-    essential:
-      - workflow_id
-      - current_stage
-      - current_wave
-      - profile_mode  # express/default/quality
+# 為什麼不需要快照檔案？
+# =====================
+# GSD 的洞察：Claude Code 的 Task API 每次呼叫都是獨立的 context window
+# - 不需要「保存」快照，因為沒有共享的 context 需要「重置」
+# - 直接在 Task prompt 中注入必要資訊更簡單、更可靠
+# - 驗證方式：Task 能完成 = 上下文足夠
 
-    state:
-      - completed_tasks_ids  # 只保留 ID，不保留完整內容
-      - pending_tasks_ids
-      - blocking_issues
-      - critical_decisions
+# Agent Prompt 組成
+prompt_structure:
+  # 必須包含（直接注入到 prompt）
+  required:
+    - role_description      # 角色描述
+    - task_objective        # 任務目標
+    - focus_areas           # 聚焦領域
+    - output_requirements   # 輸出要求
+    - output_path           # 輸出檔案路徑
 
-    summaries:
-      - previous_stage_summary  # 上一階段的摘要（壓縮版）
-      - key_findings  # 關鍵發現（列表形式）
+  # 可選包含（視任務需要）
+  optional:
+    - previous_stage_summary    # 上一階段摘要（1-3 句）
+    - critical_decisions        # 關鍵決策（列表）
+    - relevant_file_paths       # 相關檔案路徑（不是內容）
 
-  # 不包含在快照中（從磁碟讀取）
-  exclude:
-    - full_perspective_reports
-    - complete_conversation_history
-    - detailed_analysis_content
-    - file_contents  # Agent 自己用 Read 讀取
+  # 絕不包含（Agent 自己讀取）
+  never_include:
+    - full_file_contents        # 檔案內容
+    - previous_reports          # 完整的視角報告
+    - conversation_history      # 對話歷史
+    - detailed_analysis         # 詳細分析
 
-  # 快照大小限制
-  max_tokens: 2000  # 快照最多 2000 tokens
+# Prompt 範本
+prompt_template: |
+  ## 任務
 
-# 快照保存位置
-storage:
-  path: ".claude/memory/workflows/{workflow_id}/snapshots/"
-  naming: "wave-{wave_number}-snapshot.yaml"
-  retention: "until_workflow_complete"
+  你是一位 {role_description}。
 
-# Agent 啟動時的上下文組成
-agent_context:
-  components:
-    1: "system_prompt"           # 系統提示
-    2: "snapshot"                # 上下文快照（精簡）
-    3: "task_definition"         # 當前任務定義（完整）
-    4: "relevant_file_paths"     # 相關檔案路徑（不是內容）
+  ### 目標
+  {task_objective}
 
-  # Agent 需要時自己讀取
-  read_on_demand:
-    - "previous_reports"         # 用 Read 讀取
-    - "source_code"              # 用 Read 讀取
-    - "test_files"               # 用 Read 讀取
+  ### 聚焦領域
+  {focus_areas}
 
-# 快照範本
-snapshot_template: |
-  snapshot:
-    workflow_id: "{workflow_id}"
-    stage: "{current_stage}"
-    wave: {wave_number}
-    profile: "{profile_mode}"
+  ### 背景（精簡）
+  {previous_stage_summary}
 
-    completed_tasks: [{completed_task_ids}]
-    pending_tasks: [{pending_task_ids}]
-    blocking_issues: [{blocking_issues}]
+  ### 相關檔案
+  以下檔案可能有用，請使用 Read 工具讀取：
+  {relevant_file_paths}
 
-    previous_stage_summary: |
-      {previous_summary}
+  ### 輸出要求
+  {output_requirements}
 
-    critical_decisions:
-      {decisions_list}
+  ### 輸出路徑
+  完成後，將報告寫入：{output_path}
 
-# 優勢說明
-benefits:
-  - "每個 Agent 都有「新鮮」的上下文"
-  - "避免累積無關資訊"
-  - "Token 使用量更可控"
-  - "長工作流後期效能穩定"
-  - "Agent 只收到必要的資訊"
+# 驗證方式
+validation:
+  # Task 完成本身就是驗證
+  method: "task_completion"
+  indicators:
+    - "Task 能正常完成"
+    - "輸出檔案被正確寫入"
+    - "報告內容符合要求"
+
+# 品質曲線（來自 GSD）
+quality_curve:
+  "0-30%": "Peak（最佳）"
+  "30-50%": "Good"
+  "50-70%": "Degrading"
+  "70%+": "Poor"
+
+# 因此：每個 Task 從 0% 開始，保持在最佳品質區間

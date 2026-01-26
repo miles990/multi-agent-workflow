@@ -96,10 +96,8 @@ Task({
 │  準備階段                                                        │
 │  1. 載入視角配置（由各 skill 提供）                              │
 │  2. 載入執行模式（express/default/quality）                      │
-│  3. 生成上下文快照（新鮮上下文機制）                             │
-│     └─ 參考 shared/config/context-freshness.yaml                │
-│  4. 為每個視角生成專屬 prompt（含快照）                          │
-│  5. 準備 Task API 呼叫                                           │
+│  3. 為每個視角生成專屬 prompt（直接注入必要資訊）                │
+│  4. 準備 Task API 呼叫                                           │
 └─────────────────────────────────────────────────────────────────┘
          ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -178,21 +176,21 @@ await Promise.all(tasks.map(task => executeTask(task)))
 ### 通用 Prompt 結構
 
 ```markdown
-## 上下文快照
-
-{snapshot_yaml}
-
 ## 任務
 
 你是一位 {角色描述}。
 
-### 主題/目標
+### 目標
 {topic}
 
-### 你的聚焦領域
+### 背景
+{previous_stage_summary}
+
+### 聚焦領域
 {focus_points}
 
-### 相關檔案（如需讀取內容，請使用 Read 工具）
+### 相關檔案
+以下檔案可能有用，請使用 Read 工具讀取：
 {relevant_file_paths}
 
 ### 輸出要求
@@ -203,11 +201,11 @@ await Promise.all(tasks.map(task => executeTask(task)))
 3. **建議與洞察**
 4. **風險/注意事項**（如適用）
 
-### 格式
-使用 Markdown 格式，清晰分段
+### 輸出路徑
+{output_path}
 ```
 
-**注意**：Agent 收到的是精簡的上下文快照，如需完整的視角報告或程式碼內容，請使用 Read 工具讀取。
+**原則**：直接注入必要資訊，Agent 需要更多內容時自己用 Read 讀取。
 
 ## 同步檢查點
 
@@ -279,67 +277,80 @@ await Promise.all(tasks.map(task => executeTask(task)))
 
 ## 上下文新鮮機制
 
-### 目的
+> 參考 GSD (Get-Shit-Done) 設計簡化
 
-避免上下文累積導致效能下降。每個 Wave 開始前重置上下文，只保留關鍵資訊。
+### 核心洞察
 
-### 上下文快照生成
+**Task = Fresh Context**
 
-**時機**：每個 Wave 開始前
+Claude Code 的 Task API 每次呼叫都是獨立的 context window。不需要額外的「快照檔案」機制，因為：
+- 沒有共享的 context 需要「重置」
+- 直接在 Task prompt 中注入必要資訊更簡單、更可靠
+- 驗證方式：Task 能完成 = 上下文足夠
 
-**步驟**：
+### 品質曲線
 
-1. **收集關鍵狀態**
-   ```yaml
-   snapshot:
-     workflow_id: "{id}"
-     stage: "IMPLEMENT"
-     wave: 2
-     profile: "default"
+```
+Context 使用量    品質
+0-30%           Peak（最佳）
+30-50%          Good
+50-70%          Degrading
+70%+            Poor
+```
 
-     completed_tasks: ["T-001", "T-002"]  # 只保留 ID
-     pending_tasks: ["T-003", "T-004"]
-     blocking_issues: []
+**每個 Task 從 0% 開始**，自動保持在最佳品質區間。
 
-     previous_stage_summary: |
-       PLAN 階段完成，確定使用 JWT 認證，
-       12 個任務分 4 個 Wave 執行
+### Prompt 直接注入
 
-     critical_decisions:
-       - "D-001: JWT over sessions"
-       - "D-002: PostgreSQL over MongoDB"
-   ```
+不需要保存快照檔案，直接在 Task prompt 中注入必要資訊：
 
-2. **保存快照**
-   ```
-   Write → .claude/memory/workflows/{id}/snapshots/wave-{n}-snapshot.yaml
-   ```
+```javascript
+Task({
+  prompt: `
+    ## 任務
+    你是一位 ${role_description}。
 
-3. **Agent 啟動時注入**
-   - Agent 只收到：快照 + 任務定義 + 檔案路徑
-   - 需要完整報告時，Agent 自己用 Read 讀取
+    ### 目標
+    ${task_objective}
 
-### 快照內容規範
+    ### 背景（精簡）
+    ${previous_stage_summary}  // 1-3 句即可
 
-| 包含 | 不包含 |
-|------|--------|
-| workflow_id, stage, wave | 完整視角報告 |
-| completed_tasks IDs | 完整對話歷史 |
-| pending_tasks IDs | 詳細分析內容 |
-| blocking_issues | 檔案內容（自己讀） |
-| previous_stage_summary | - |
-| critical_decisions | - |
+    ### 相關檔案
+    以下檔案可能有用，請使用 Read 工具讀取：
+    ${relevant_file_paths}
 
-### 快照大小限制
+    ### 輸出路徑
+    ${output_path}
+  `,
+  model: model,
+  subagent_type: "general-purpose"
+})
+```
 
-最多 **2000 tokens**，超過時壓縮摘要。
+### 注入內容規範
 
-### 優勢
+| 直接注入 | Agent 自己讀取 |
+|----------|----------------|
+| 角色描述 | 完整視角報告 |
+| 任務目標 | 檔案內容 |
+| 背景摘要（1-3 句） | 詳細分析 |
+| 相關檔案路徑 | 對話歷史 |
+| 輸出路徑 | - |
 
-- 每個 Agent 都有「新鮮」的上下文
-- 避免累積無關資訊
-- Token 使用量更可控
-- 長工作流後期效能穩定
+### 驗證方式
+
+```
+Task 能正常完成
+    ↓
+輸出檔案被正確寫入
+    ↓
+報告內容符合要求
+    ↓
+✓ 上下文新鮮機制正常運作
+```
+
+**不需要額外的驗證步驟** — Task 完成本身就是驗證。
 
 → 完整配置：[../config/context-freshness.yaml](../config/context-freshness.yaml)
 
