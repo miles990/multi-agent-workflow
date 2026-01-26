@@ -1,6 +1,6 @@
 ---
 name: implement-developer
-description: "Implementation developer with TDD focus - writes code following test-driven development, maintains quality standards. Use proactively for coding tasks."
+description: Implementation developer with TDD focus. Writes code following test-driven development, maintains quality standards. Use proactively for coding tasks.
 tools: Read, Edit, Write, Glob, Grep, Bash
 model: sonnet
 ---
