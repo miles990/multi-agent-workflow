@@ -1,20 +1,22 @@
-# Clawdbot MVP 里程碑規劃
+# Clawdbot MVP 里程碑規劃（更新版）
 
-**版本**: 1.0
+**版本**: 2.0
 **日期**: 2026-01-27
+**更新**: 納入完整記憶系統和 Session 管理
 
 ---
 
 ## 里程碑總覽
 
 ```
-Week 1      Week 2      Week 3      Week 4      Week 5      Week 6      Week 7
+Week 1-2    Week 3-4    Week 5      Week 6-7    Week 8      Week 9      Week 10
   │           │           │           │           │           │           │
   ▼           ▼           ▼           ▼           ▼           ▼           ▼
-┌─────┐    ┌─────┐    ┌─────────────────┐    ┌─────┐    ┌─────┐    ┌─────┐
-│ M1  │───▶│ M2  │───▶│       M3        │───▶│ M4  │───▶│ M5  │───▶│ M6  │
-│Skel.│    │Sec. │    │     Core        │    │Integ│    │Feat.│    │Rel. │
-└─────┘    └─────┘    └─────────────────┘    └─────┘    └─────┘    └─────┘
+┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐
+│M1+M2│───▶│ M3  │───▶│ M4  │───▶│ M5  │───▶│ M6  │───▶│ M7  │───▶│ M8  │
+│Skel.│    │Mem. │    │Sess.│    │Core │    │Integ│    │Feat.│    │Rel. │
+│+Sec │    │     │    │     │    │     │    │     │    │     │    │     │
+└─────┘    └─────┘    └─────┘    └─────┘    └─────┘    └─────┘    └─────┘
 ```
 
 ---
@@ -22,7 +24,7 @@ Week 1      Week 2      Week 3      Week 4      Week 5      Week 6      Week 7
 ## M1: Skeleton
 
 **週次**: Week 1
-**估算工時**: 38 小時
+**估算工時**: 24 小時
 **目標**: 專案基礎建設完成
 
 ### 交付物
@@ -32,7 +34,7 @@ Week 1      Week 2      Week 3      Week 4      Week 5      Week 6      Week 7
 | 專案結構 | 目錄結構符合設計 |
 | 配置系統 | 可載入 YAML 配置 |
 | CI/CD | GitHub Actions 通過 |
-| 開發環境 | 本地可啟動 |
+| SQLite 基礎 | better-sqlite3 + sqlite-vec 可用 |
 
 ### 任務清單
 
@@ -43,17 +45,8 @@ Week 1      Week 2      Week 3      Week 4      Week 5      Week 6      Week 7
 - [ ] 實作配置 Schema (Zod)
 - [ ] 實作配置載入器
 - [ ] 設定 GitHub Actions CI
-- [ ] 建立開發環境 Docker
-
-### 驗收檢查
-
-```bash
-# 驗收命令
-pnpm build          # 建置成功
-pnpm lint           # 無錯誤
-pnpm test           # 測試通過
-pnpm start          # 可啟動（空殼）
-```
+- [ ] 安裝 better-sqlite3 + sqlite-vec
+- [ ] 建立 SQLite 基礎表結構
 
 ---
 
@@ -75,53 +68,125 @@ pnpm start          # 可啟動（空殼）
 ### 任務清單
 
 - [ ] 實作 Allowlist 管理
-  - [ ] 載入配置
-  - [ ] 用戶查詢 (O(1))
-  - [ ] 權限判斷
 - [ ] 實作 DM Pairing
-  - [ ] 配對碼生成
-  - [ ] 驗證流程
-  - [ ] 配對狀態存儲
 - [ ] 實作 PermissionChecker
-  - [ ] 集中化入口
-  - [ ] 快速失敗機制
-  - [ ] Policy 檢查
 - [ ] 實作 AuditLogger
-  - [ ] JSONL 寫入
-  - [ ] 自動 redact
-  - [ ] Retention 機制
-- [ ] 安全測試
-  - [ ] 權限繞過測試
-  - [ ] 注入測試
+- [ ] 安全測試（100% 覆蓋）
+
+---
+
+## M3: Memory（新增）
+
+**週次**: Week 3-4
+**估算工時**: 80 小時
+**目標**: 記憶系統完成
+
+### 交付物
+
+| 交付物 | 驗收標準 |
+|--------|---------|
+| MemoryIndexManager | 可索引、可搜尋 |
+| Hybrid Search | 向量 + BM25 搜尋 |
+| Multi-Provider | OpenAI/Gemini/Local Fallback |
+| Memory Flush | Compaction 前觸發 |
+
+### 任務清單
+
+- [ ] 移植 MemoryIndexManager 核心
+- [ ] 實作 sqlite-vec 向量存儲
+  - [ ] 表結構（chunks, chunks_vec）
+  - [ ] 向量 CRUD 操作
+- [ ] 實作 FTS5 全文搜尋
+  - [ ] 表結構（chunks_fts）
+  - [ ] BM25 搜尋
+- [ ] 實作 Hybrid Search
+  - [ ] 向量搜尋（70%）
+  - [ ] BM25 搜尋（30%）
+  - [ ] 結果合併
+- [ ] 實作 Embedding Provider
+  - [ ] OpenAI Provider
+  - [ ] Gemini Provider
+  - [ ] Local Provider (node-llama-cpp)
+  - [ ] Fallback 機制
+- [ ] 實作 Embedding Cache
+  - [ ] Hash-based 變化偵測
+  - [ ] 避免重複嵌入
+- [ ] 實作 Memory Flush Hook
+- [ ] 記憶系統測試
 
 ### 驗收檢查
 
 ```bash
 # 驗收命令
-pnpm test:security  # 安全測試 100% 通過
+pnpm test:memory  # 記憶系統測試通過
 
 # 手動驗收
-# 1. 配置 allowlist
-# 2. 非 allowlist 用戶被拒絕
-# 3. 配對流程正常
-# 4. 審計日誌有記錄
+# 1. 索引文字 → 可搜尋
+# 2. Hybrid Search 結果合理
+# 3. Provider Fallback 正常
 ```
-
-### 安全驗收標準
-
-| 檢查項 | 通過標準 |
-|--------|---------|
-| 權限邏輯 | 無分散檢查 |
-| 測試覆蓋 | 權限模組 100% |
-| 日誌完整 | 所有決策有記錄 |
-| 敏感資訊 | 無硬編碼 |
 
 ---
 
-## M3: Core
+## M4: Session（新增）
 
-**週次**: Week 3-4
-**估算工時**: 75 小時
+**週次**: Week 5
+**估算工時**: 56 小時
+**目標**: Session 管理完成
+
+### 交付物
+
+| 交付物 | 驗收標準 |
+|--------|---------|
+| Session Store | 可讀寫 Session |
+| Transcript Store | 可記錄對話 |
+| Session Compaction | 長對話可壓縮 |
+| LRU Cache | 快取有效 |
+
+### 任務清單
+
+- [ ] 實作 SessionEntry 類型
+- [ ] 實作 Session Store
+  - [ ] CRUD 操作
+  - [ ] 持久化（JSON）
+- [ ] 實作 Transcript Store
+  - [ ] JSONL 追加
+  - [ ] 讀取歷史
+  - [ ] Delta Tracking
+- [ ] 實作 Session Compaction
+  - [ ] Token 計數
+  - [ ] 壓縮閾值檢查
+  - [ ] 觸發 Memory Flush
+  - [ ] Transcript 壓縮
+- [ ] 實作 LRU Cache
+  - [ ] TTL 機制（45s）
+  - [ ] 容量限制
+  - [ ] 自動清理
+- [ ] 實作檔案鎖定
+  - [ ] proper-lockfile 整合
+  - [ ] 並發控制
+- [ ] 實作 Session Memory Hook
+- [ ] Session 系統測試
+
+### 驗收檢查
+
+```bash
+# 驗收命令
+pnpm test:session  # Session 測試通過
+
+# 手動驗收
+# 1. Session 重啟後保留
+# 2. Transcript 可查詢
+# 3. Compaction 在閾值觸發
+# 4. 並發寫入不衝突
+```
+
+---
+
+## M5: Core
+
+**週次**: Week 6-7
+**估算工時**: 80 小時
 **目標**: Claude Code 整合完成
 
 ### 交付物
@@ -129,21 +194,20 @@ pnpm test:security  # 安全測試 100% 通過
 | 交付物 | 驗收標準 |
 |--------|---------|
 | Claude Adapter | 可調用 Claude Code |
+| Context Builder | 整合 Memory 搜尋 |
 | Tool API | HTTP 端點可用 |
 | Response Streaming | 可串流回覆 |
-| Session 管理 | 上下文正確傳遞 |
 
 ### 任務清單
 
-Week 3:
 - [ ] 設計 Adapter 介面
 - [ ] 實作 subprocess spawn
-- [ ] 實作輸出解析
+- [ ] 實作 Context Builder
+  - [ ] 整合 Session 上下文
+  - [ ] 整合 Memory 搜尋結果
+  - [ ] 構建完整 prompt
 - [ ] 實作 Tool API HTTP 端點
-
-Week 4:
 - [ ] 實作 Response Streaming
-- [ ] 實作 Session Context
 - [ ] 實作錯誤處理
 - [ ] 整合測試
 
@@ -154,26 +218,16 @@ Week 4:
 pnpm test:integration  # 整合測試通過
 
 # 手動驗收
-curl -X POST http://localhost:3000/api/process \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Hello", "userId": "123"}'
-# 應返回 Claude Code 回覆
+# 1. API 成功調用 Claude Code
+# 2. Context 包含相關記憶
+# 3. Tool 回調正常
 ```
-
-### 技術驗收標準
-
-| 檢查項 | 通過標準 |
-|--------|---------|
-| API 調用 | 成功調用 Claude Code |
-| 回覆時間 | < 15s (P95) |
-| 錯誤處理 | 無未捕獲異常 |
-| Tool 調用 | 工具可正確回調 |
 
 ---
 
-## M4: Integration
+## M6: Integration
 
-**週次**: Week 5
+**週次**: Week 8
 **估算工時**: 46 小時
 **目標**: Telegram Bot 上線
 
@@ -189,90 +243,41 @@ curl -X POST http://localhost:3000/api/process \
 ### 任務清單
 
 - [ ] Grammy Bot 設定
-  - [ ] Token 配置
-  - [ ] Long Polling 設定
-  - [ ] 錯誤處理
-- [ ] 消息處理器
-  - [ ] 文字訊息
-  - [ ] 整合 PermissionChecker
-  - [ ] 整合 ClaudeAdapter
+- [ ] 消息處理器（整合完整流程）
 - [ ] 命令處理器
-  - [ ] /start
-  - [ ] /pair
-  - [ ] /help
-  - [ ] /status
-  - [ ] /reset
 - [ ] Typing 控制
-  - [ ] Heartbeat 機制
-  - [ ] 進度提示
-
-### 驗收檢查
-
-```bash
-# 驗收命令
-pnpm start  # Bot 啟動
-
-# 手動驗收（Telegram）
-# 1. 發送 /start → 收到歡迎訊息
-# 2. 發送 /pair → 配對流程正常
-# 3. 發送訊息 → 收到 AI 回覆
-# 4. 發送訊息時 → 顯示「正在輸入」
-```
+- [ ] 整合測試
 
 ---
 
-## M5: Feature Complete
+## M7: Feature Complete
 
-**週次**: Week 6
-**估算工時**: 63 小時
+**週次**: Week 9
+**估算工時**: 40 小時
 **目標**: 所有功能完成
 
 ### 交付物
 
 | 交付物 | 驗收標準 |
 |--------|---------|
-| Session Store | 可讀寫 Session |
-| Transcript Store | 可記錄對話 |
 | CLI 工具 | start, config check |
 | 文檔 | README, 架構文檔 |
+| 整合測試 | 核心流程通過 |
 
 ### 任務清單
 
-- [ ] Session Store
-  - [ ] JSON 讀寫
-  - [ ] 檔案鎖定
-  - [ ] 清理機制
-- [ ] Transcript Store
-  - [ ] JSONL 追加
-  - [ ] 讀取歷史
 - [ ] CLI 工具
-  - [ ] start 命令
-  - [ ] config check 命令
-  - [ ] status 命令
-- [ ] 文檔
-  - [ ] README.md
-  - [ ] architecture.md
-  - [ ] deployment.md
-
-### 驗收檢查
-
-```bash
-# 驗收命令
-clawdbot config check  # 配置驗證通過
-clawdbot start         # Bot 啟動
-
-# 功能檢查
-# 1. Session 重啟後保留
-# 2. Transcript 可查詢
-# 3. CLI 友善輸出
-```
+- [ ] README.md
+- [ ] architecture.md
+- [ ] deployment.md
+- [ ] 整合測試
 
 ---
 
-## M6: Release
+## M8: Release
 
-**週次**: Week 7
-**估算工時**: 58 小時
+**週次**: Week 10
+**估算工時**: 50 小時
 **目標**: 生產就緒
 
 ### 交付物
@@ -284,33 +289,6 @@ clawdbot start         # Bot 啟動
 | 安全測試 | 無高危漏洞 |
 | 部署指南 | 可依指南部署 |
 
-### 任務清單
-
-- [ ] E2E 測試
-  - [ ] 配對流程
-  - [ ] 對話流程
-  - [ ] 錯誤處理
-- [ ] 效能測試
-  - [ ] 負載測試
-  - [ ] 回覆延遲測試
-- [ ] 安全測試
-  - [ ] 權限測試
-  - [ ] 注入測試
-  - [ ] 依賴審計
-- [ ] 部署準備
-  - [ ] Docker 映像
-  - [ ] 部署指南
-  - [ ] 維運文檔
-
-### 驗收檢查
-
-```bash
-# 驗收命令
-pnpm test:e2e          # E2E 測試通過
-pnpm audit             # 無高危漏洞
-docker build -t clawdbot-mvp .  # 映像建置成功
-```
-
 ### 發布標準
 
 | 檢查項 | 通過標準 |
@@ -319,38 +297,24 @@ docker build -t clawdbot-mvp .  # 映像建置成功
 | E2E 測試 | 100% 通過 |
 | 效能 | P95 < 10s |
 | 安全 | 無 HIGH/CRITICAL |
+| Memory Search | Recall > 80% |
 
 ---
 
-## 里程碑依賴關係
+## 工時總結
 
-```mermaid
-graph LR
-    M1[M1: Skeleton] --> M2[M2: Security]
-    M2 --> M3[M3: Core]
-    M3 --> M4[M4: Integration]
-    M4 --> M5[M5: Feature Complete]
-    M5 --> M6[M6: Release]
-```
-
----
-
-## 風險里程碑
-
-### 高風險里程碑
-
-| 里程碑 | 風險 | 緩解 |
+| 里程碑 | 工時 | 週數 |
 |--------|------|------|
-| M3: Core | Claude Code API 變更 | Adapter 隔離，版本鎖定 |
-| M2: Security | 權限邏輯複雜 | 集中化設計，高覆蓋測試 |
-
-### 備用計劃
-
-| 如果 | 則 |
-|------|-----|
-| M3 延遲 | 壓縮 M5 CLI 功能 |
-| M4 延遲 | 延遲發布，不壓縮測試 |
+| M1: Skeleton | 24h | W1 |
+| M2: Security | 58h | W2 |
+| M3: Memory | 80h | W3-4 |
+| M4: Session | 56h | W5 |
+| M5: Core | 80h | W6-7 |
+| M6: Integration | 46h | W8 |
+| M7: Feature Complete | 40h | W9 |
+| M8: Release | 50h | W10 |
+| **總計** | **434h** | **10 週** |
 
 ---
 
-**規劃完成時間**: 2026-01-27
+**規劃更新時間**: 2026-01-27

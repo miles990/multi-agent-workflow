@@ -16,17 +16,18 @@
 |------|------|
 | **單一 Channel** | 僅支援 Telegram（Long Polling） |
 | **Claude Code 整合** | 使用 Task API 替代內建 Agent Runtime |
-| **精簡記憶系統** | JSON-first，無向量搜尋 |
+| **完整記憶系統** | Hybrid Search（向量 + BM25）、Memory Flush、Multi-Provider |
+| **完整 Session 管理** | Compaction、Transcript、LRU 機制 |
 | **強化權限控制** | 集中化檢查 + Allowlist + Audit |
 | **保留擴展性** | 保留插件架構核心介面 |
 
 ### 1.2 非目標（明確排除）
 
 - 多 Channel 支援（Discord, Slack 等）
-- 向量搜尋 / RAG 功能
-- Block Streaming / Coalescing
-- 複雜的 Queue Mode
-- Memory Search 功能
+- Block Streaming / Coalescing 複雜邏輯
+- 複雜的 Queue Mode（steer/followup/collect/interrupt）
+- memory-lancedb 插件（使用 sqlite-vec）
+- Memory CLI 工具（延後）
 - 群組 AI 互動
 
 ---
@@ -56,13 +57,28 @@
 │   ┌───────────────────────────────────────────────────────┐     │
 │   │               CLAUDE CODE ADAPTER                      │     │
 │   │   • Task API Integration  • Response Streaming        │     │
-│   │   • Tool Callback         • Context Management        │     │
+│   │   • Tool Callback         • Context Builder           │     │
+│   └───────────────────────────────────────────────────────┘     │
+│                              ↓                                   │
+│   ┌───────────────────────────────────────────────────────┐     │
+│   │              SESSION MANAGER (完整保留)                 │     │
+│   │   • Session Compaction    • Transcript Store          │     │
+│   │   • LRU Cache             • File Locking              │     │
+│   │   • Session Entry         • Delta Tracking            │     │
+│   └───────────────────────────────────────────────────────┘     │
+│                              ↓                                   │
+│   ┌───────────────────────────────────────────────────────┐     │
+│   │              MEMORY SYSTEM (核心保留)                   │     │
+│   │   • MemoryIndexManager    • Hybrid Search             │     │
+│   │   • sqlite-vec + FTS5     • Embedding Cache           │     │
+│   │   • Multi-Provider        • Memory Flush              │     │
+│   │   • Session Memory Hook   • Safe Reindex              │     │
 │   └───────────────────────────────────────────────────────┘     │
 │                              ↓                                   │
 │   ┌───────────────────────────────────────────────────────┐     │
 │   │                   STORAGE                              │     │
-│   │   • Session Store (JSON)  • Transcript Store (JSONL)  │     │
-│   │   • Audit Store (JSONL)   • Config Store (YAML)       │     │
+│   │   • SQLite (memory.db)    • Transcript (.jsonl)       │     │
+│   │   • Audit (.jsonl)        • Config (YAML)             │     │
 │   └───────────────────────────────────────────────────────┘     │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -95,11 +111,30 @@ clawdbot-mvp/
 │   │   └── audit.ts                # 審計日誌
 │   ├── agents/                     # Agent 整合
 │   │   ├── claude-adapter.ts       # Claude Code Adapter
+│   │   ├── context-builder.ts      # 上下文構建（含 Memory）
 │   │   ├── agent-scope.ts          # Agent 配置
 │   │   └── types.ts                # Agent 類型
+│   ├── session/                    # Session 管理（從 Clawdbot 移植）
+│   │   ├── manager.ts              # Session Manager
+│   │   ├── compaction.ts           # Session Compaction
+│   │   ├── transcript.ts           # Transcript Store
+│   │   ├── lru-cache.ts            # LRU 快取
+│   │   ├── lock.ts                 # 檔案鎖定
+│   │   └── types.ts                # SessionEntry 類型
+│   ├── memory/                     # 記憶系統（從 Clawdbot 移植）
+│   │   ├── manager.ts              # MemoryIndexManager
+│   │   ├── search.ts               # Hybrid Search (Vector + BM25)
+│   │   ├── embeddings.ts           # Embedding Provider
+│   │   ├── providers/              # Multi-Provider
+│   │   │   ├── openai.ts
+│   │   │   ├── gemini.ts
+│   │   │   └── local.ts
+│   │   ├── flush.ts                # Memory Flush Hook
+│   │   ├── session-hook.ts         # Session Memory Hook
+│   │   └── types.ts                # Memory 類型
 │   ├── storage/                    # 存儲系統
-│   │   ├── json-store.ts           # JSON 存儲
-│   │   ├── session-store.ts        # Session 存儲
+│   │   ├── sqlite.ts               # SQLite + sqlite-vec
+│   │   ├── fts.ts                  # FTS5 全文搜尋
 │   │   └── audit-store.ts          # Audit 存儲
 │   ├── cli/                        # CLI 工具
 │   │   ├── index.ts                # CLI 入口
@@ -187,12 +222,14 @@ security:
       permissions: ["read", "chat"]
 ```
 
-### 3.3 記憶系統
+### 3.3 記憶系統（完整保留）
 
-**簡化設計**: JSON 檔案存儲，無向量搜尋
+**設計**: 從 Clawdbot 移植核心記憶系統
 
 ```
 .clawdbot/
+├── memory/
+│   └── memory.db               # SQLite + sqlite-vec + FTS5
 ├── sessions/
 │   └── {session-key}.json      # Session 元數據
 ├── transcripts/
@@ -201,15 +238,173 @@ security:
     └── {date}.jsonl            # 審計日誌
 ```
 
-**Session 結構**:
+**記憶系統架構**:
 ```typescript
-interface SessionData {
+// src/memory/manager.ts - 從 Clawdbot 移植
+
+export class MemoryIndexManager {
+  private db: Database;
+  private embeddingProvider: EmbeddingProvider;
+
+  // Hybrid Search: 向量 70% + BM25 30%
+  async search(query: string, options?: SearchOptions): Promise<MemorySearchResult[]> {
+    const [vectorResults, ftsResults] = await Promise.all([
+      this.searchVector(query, options),
+      this.searchKeyword(query, options),
+    ]);
+    return this.mergeResults(vectorResults, ftsResults, {
+      vectorWeight: 0.7,
+      ftsWeight: 0.3,
+    });
+  }
+
+  // Memory Flush - compaction 前觸發
+  async flush(sessionKey: string): Promise<void> {
+    const transcript = await this.getRecentTranscript(sessionKey);
+    await this.indexTranscript(transcript);
+  }
+
+  // Safe Reindex - 原子交換
+  async reindex(): Promise<void> {
+    // 建立新索引 → 驗證 → 原子交換
+  }
+}
+```
+
+**Multi-Provider Fallback**:
+```typescript
+// src/memory/embeddings.ts
+
+export class EmbeddingProvider {
+  private providers: Provider[] = [
+    new OpenAIProvider(),    // 主要
+    new GeminiProvider(),    // 備用
+    new LocalProvider(),     // 離線備用 (node-llama-cpp)
+  ];
+
+  async embed(text: string): Promise<number[]> {
+    for (const provider of this.providers) {
+      try {
+        return await provider.embed(text);
+      } catch (error) {
+        logger.warn(`Provider ${provider.name} failed, trying next`);
+      }
+    }
+    throw new Error('All embedding providers failed');
+  }
+}
+```
+
+**Session Memory Hook**:
+```typescript
+// src/memory/session-hook.ts
+
+export class SessionMemoryHook {
+  // 自動保存重要對話到長期記憶
+  async onSessionEnd(sessionKey: string): Promise<void> {
+    const transcript = await transcriptStore.get(sessionKey);
+    const importantMessages = this.extractImportant(transcript);
+    await memoryManager.index(importantMessages);
+  }
+
+  // 規則 + 語義判斷重要性
+  private extractImportant(transcript: TranscriptEntry[]): MemoryChunk[] {
+    // 1. 明確標記的記憶 (/remember)
+    // 2. 長回覆（可能是重要資訊）
+    // 3. 語義相似度去重 (0.95 閾值)
+  }
+}
+```
+
+### 3.4 Session 管理（完整保留）
+
+**SessionEntry 結構** (從 Clawdbot 移植):
+```typescript
+// src/session/types.ts
+
+export interface SessionEntry {
   sessionKey: string;
   userId: string;
   chatId: string;
+  chatType: 'private' | 'group';
+
+  // 時間戳
   createdAt: number;
   lastActiveAt: number;
+
+  // 統計
   messageCount: number;
+  tokenCount: number;
+
+  // Compaction 狀態
+  compactionCount: number;
+  lastCompactionAt: number | null;
+
+  // 元數據
+  metadata: Record<string, unknown>;
+}
+```
+
+**Session Compaction**:
+```typescript
+// src/session/compaction.ts
+
+export class SessionCompactor {
+  private readonly MAX_TOKENS = 100000;
+  private readonly COMPACTION_THRESHOLD = 0.8; // 80% 時觸發
+
+  async checkAndCompact(sessionKey: string): Promise<void> {
+    const session = await sessionStore.get(sessionKey);
+
+    if (session.tokenCount > this.MAX_TOKENS * this.COMPACTION_THRESHOLD) {
+      // 1. 觸發 Memory Flush（保存重要內容）
+      await memoryManager.flush(sessionKey);
+
+      // 2. 壓縮 Transcript
+      await this.compactTranscript(sessionKey);
+
+      // 3. 更新 Session 狀態
+      await sessionStore.update(sessionKey, {
+        compactionCount: session.compactionCount + 1,
+        lastCompactionAt: Date.now(),
+      });
+    }
+  }
+
+  private async compactTranscript(sessionKey: string): Promise<void> {
+    // 保留最近 N 條 + 摘要舊內容
+  }
+}
+```
+
+**LRU Cache**:
+```typescript
+// src/session/lru-cache.ts
+
+export class SessionLRUCache {
+  private cache: Map<string, { session: SessionEntry; accessedAt: number }>;
+  private readonly MAX_SIZE = 100;
+  private readonly TTL = 45000; // 45 秒
+
+  get(sessionKey: string): SessionEntry | null {
+    const entry = this.cache.get(sessionKey);
+    if (!entry) return null;
+
+    if (Date.now() - entry.accessedAt > this.TTL) {
+      this.cache.delete(sessionKey);
+      return null;
+    }
+
+    entry.accessedAt = Date.now();
+    return entry.session;
+  }
+
+  set(sessionKey: string, session: SessionEntry): void {
+    if (this.cache.size >= this.MAX_SIZE) {
+      this.evictOldest();
+    }
+    this.cache.set(sessionKey, { session, accessedAt: Date.now() });
+  }
 }
 ```
 
@@ -304,10 +499,12 @@ storage:
 |--------|------|------|---------|
 | M1: Skeleton | W1 | 專案骨架 | CI 通過，配置載入成功 |
 | M2: Security | W2 | 權限系統 | 權限測試 100% 通過 |
-| M3: Core | W4 | Claude Code 整合 | 可透過 API 對話 |
-| M4: Integration | W5 | Telegram Bot | Bot 可收發訊息 |
-| M5: Feature Complete | W6 | 全功能 | 所有功能可用 |
-| M6: Release | W7 | 生產就緒 | E2E 測試通過 |
+| M3: Memory | W3-4 | 記憶系統 | Hybrid Search 可用 |
+| M4: Session | W5 | Session 管理 | Compaction 可用 |
+| M5: Core | W6-7 | Claude Code 整合 | 可透過 API 對話 |
+| M6: Integration | W8 | Telegram Bot | Bot 可收發訊息 |
+| M7: Feature Complete | W9 | 全功能 | 所有功能可用 |
+| M8: Release | W10 | 生產就緒 | E2E 測試通過 |
 
 ### 5.2 任務分解
 
@@ -316,6 +513,7 @@ storage:
 - [ ] 建立目錄結構
 - [ ] 配置系統（schema, loader）
 - [ ] CI/CD 設定
+- [ ] SQLite + sqlite-vec 基礎設定
 
 #### M2: Security (Week 2)
 - [ ] Allowlist 管理
@@ -323,25 +521,43 @@ storage:
 - [ ] 集中化 PermissionChecker
 - [ ] Audit Logger
 
-#### M3: Core (Week 3-4)
+#### M3: Memory (Week 3-4)
+- [ ] MemoryIndexManager 移植
+- [ ] Embedding Provider（OpenAI/Gemini/Local）
+- [ ] sqlite-vec 向量存儲
+- [ ] FTS5 全文搜尋
+- [ ] Hybrid Search 實作
+- [ ] Memory Flush Hook
+- [ ] Embedding Cache
+
+#### M4: Session (Week 5)
+- [ ] SessionEntry 類型
+- [ ] Session Store
+- [ ] Transcript Store
+- [ ] Session Compaction
+- [ ] LRU Cache
+- [ ] 檔案鎖定
+- [ ] Session Memory Hook
+
+#### M5: Core (Week 6-7)
 - [ ] Claude Code Adapter 設計
 - [ ] Task API 整合
+- [ ] Context Builder（整合 Memory）
 - [ ] Tool API 端點
 - [ ] Response 串流處理
 
-#### M4: Integration (Week 5)
+#### M6: Integration (Week 8)
 - [ ] Grammy Bot 設定
 - [ ] 消息處理器
 - [ ] 命令處理器
 - [ ] Typing 控制
 
-#### M5: Feature Complete (Week 6)
-- [ ] Session 存儲
-- [ ] Transcript 存儲
+#### M7: Feature Complete (Week 9)
 - [ ] CLI 工具
 - [ ] 文檔
+- [ ] 整合測試
 
-#### M6: Release (Week 7)
+#### M8: Release (Week 10)
 - [ ] E2E 測試
 - [ ] 效能測試
 - [ ] 安全測試
@@ -357,9 +573,15 @@ storage:
 |------|------|------|------|
 | Runtime | Node.js | ^20.0 | JavaScript 執行環境 |
 | Telegram | grammy | ^1.21 | Telegram Bot API |
+| Database | better-sqlite3 | ^9.4 | SQLite 驅動 |
+| Vector | sqlite-vec | ^0.1 | 向量搜尋擴展 |
+| Embedding | openai | ^4.28 | OpenAI Embedding API |
+| Embedding | @google/generative-ai | ^0.2 | Gemini Embedding API |
+| Embedding | node-llama-cpp | ^3.0 | 本地 Embedding（備用） |
 | Validation | zod | ^3.22 | Schema 驗證 |
 | Config | yaml | ^2.3 | YAML 解析 |
 | Logging | pino | ^8.17 | 結構化日誌 |
+| Lock | proper-lockfile | ^4.1 | 檔案鎖定 |
 | CLI | commander | ^11.1 | CLI 框架 |
 | Testing | vitest | ^1.2 | 測試框架 |
 | Build | tsup | ^8.0 | 打包工具 |
@@ -400,6 +622,8 @@ storage:
 | 指標 | 目標 | 量測方式 |
 |------|------|---------|
 | 功能完整性 | 所有 MVP 功能可用 | 功能測試 |
+| 記憶系統 | Hybrid Search recall > 80% | 搜尋測試 |
+| Session 管理 | Compaction 正常運作 | 長對話測試 |
 | 安全性 | 無已知漏洞 | 安全測試 |
 | 效能 | 回覆 < 10s (P95) | 效能測試 |
 | 測試覆蓋 | > 80% | vitest coverage |
@@ -410,12 +634,13 @@ storage:
 
 以下功能明確排除在 MVP 範圍外，留待未來版本：
 
-- [ ] 向量搜尋 / Memory Search
-- [ ] 多 Channel 支援
-- [ ] Block Streaming
+- [ ] 多 Channel 支援（Discord, Slack 等）
+- [ ] Block Streaming / Coalescing
+- [ ] Queue Modes（steer/followup/collect）
 - [ ] RBAC 權限系統
 - [ ] 群組 AI 互動
 - [ ] 監控儀表板
+- [ ] Memory CLI 工具
 
 ---
 
@@ -438,5 +663,6 @@ storage:
 ---
 
 **規劃完成時間**: 2026-01-27
+**規劃更新時間**: 2026-01-27（納入完整記憶系統和 Session 管理）
 **下一步**: TASKS 階段 - 任務分解
-**預計開發時間**: 7-9 週
+**預計開發時間**: 9-11 週
