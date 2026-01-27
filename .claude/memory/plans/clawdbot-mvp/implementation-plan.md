@@ -276,10 +276,11 @@ export class MemoryIndexManager {
 // src/memory/embeddings.ts
 
 export class EmbeddingProvider {
+  // 預設使用本地模型，免費且中文效果好
   private providers: Provider[] = [
-    new OpenAIProvider(),    // 主要
-    new GeminiProvider(),    // 備用
-    new LocalProvider(),     // 離線備用 (node-llama-cpp)
+    new LocalProvider('BAAI/bge-m3'),  // 主要（免費，中文最佳）
+    new OpenAIProvider(),               // 備用（需 API key）
+    new GeminiProvider(),               // 備用（需 API key）
   ];
 
   async embed(text: string): Promise<number[]> {
@@ -293,6 +294,11 @@ export class EmbeddingProvider {
     throw new Error('All embedding providers failed');
   }
 }
+
+// 推薦本地模型（按中文效果排序）：
+// 1. BAAI/bge-m3 (1.2GB) - 中文最佳，8192 tokens
+// 2. intfloat/multilingual-e5-small (470MB) - 中文好，512 tokens
+// 3. nomic-ai/nomic-embed-text-v1.5 (274MB) - 英文為主
 ```
 
 **Session Memory Hook**:
