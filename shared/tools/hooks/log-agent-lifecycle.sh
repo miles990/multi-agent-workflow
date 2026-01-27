@@ -20,20 +20,27 @@ CURRENT_FILE="${WORKFLOW_BASE}/current.json"
 # 事件類型（start 或 stop）
 LIFECYCLE_EVENT="${LIFECYCLE_EVENT:-start}"
 
-# 快速退出：如果沒有活躍的 workflow
-if [ ! -f "$CURRENT_FILE" ]; then
-    exit 0
+# 決定日誌位置（支援 fallback 到通用日誌）
+WORKFLOW_ID=""
+HAS_WORKFLOW=false
+if [ -f "$CURRENT_FILE" ]; then
+    WORKFLOW_ID=$(jq -r '.workflow_id // ""' "$CURRENT_FILE" 2>/dev/null || echo "")
 fi
 
-# 讀取 workflow 資訊
-WORKFLOW_ID=$(jq -r '.workflow_id // ""' "$CURRENT_FILE" 2>/dev/null || echo "")
-if [ -z "$WORKFLOW_ID" ]; then
-    exit 0
+if [ -n "$WORKFLOW_ID" ]; then
+    # 有活躍的 workflow
+    HAS_WORKFLOW=true
+    WORKFLOW_DIR="${WORKFLOW_BASE}/${WORKFLOW_ID}"
+    LOG_FILE="${WORKFLOW_DIR}/logs/events.jsonl"
+    AGENTS_FILE="${WORKFLOW_DIR}/state/agents.json"
+    ERROR_DIR="${WORKFLOW_DIR}/logs"
+else
+    # 沒有活躍的 workflow，記錄到通用日誌（fallback）
+    WORKFLOW_ID="general"
+    LOG_FILE="${PROJECT_DIR}/.claude/logs/events.jsonl"
+    AGENTS_FILE=""  # 沒有 agents 狀態檔案
+    ERROR_DIR="${PROJECT_DIR}/.claude/logs"
 fi
-
-WORKFLOW_DIR="${WORKFLOW_BASE}/${WORKFLOW_ID}"
-LOG_FILE="${WORKFLOW_DIR}/logs/events.jsonl"
-AGENTS_FILE="${WORKFLOW_DIR}/state/agents.json"
 
 # 確保目錄存在
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -95,8 +102,8 @@ if [ "$LIFECYCLE_EVENT" = "start" ]; then
             status: "started"
         }')
 
-    # 更新 agents.json（如果存在）
-    if [ -f "$AGENTS_FILE" ]; then
+    # 更新 agents.json（如果存在且有活躍的 workflow）
+    if [ "$HAS_WORKFLOW" = true ] && [ -n "$AGENTS_FILE" ] && [ -f "$AGENTS_FILE" ]; then
         TMP_FILE=$(mktemp)
         jq --arg id "$SUBAGENT_ID" \
            --arg perspective "$PERSPECTIVE" \
@@ -162,8 +169,8 @@ else
             status: $status
         }')
 
-    # 更新 agents.json
-    if [ -f "$AGENTS_FILE" ]; then
+    # 更新 agents.json（如果存在且有活躍的 workflow）
+    if [ "$HAS_WORKFLOW" = true ] && [ -n "$AGENTS_FILE" ] && [ -f "$AGENTS_FILE" ]; then
         TMP_FILE=$(mktemp)
         jq --arg id "$SUBAGENT_ID" \
            --arg status "$STATUS" \
@@ -174,7 +181,8 @@ else
 
     # 如果失敗，記錄錯誤
     if [ "$STATUS" = "failed" ]; then
-        ERROR_FILE="${WORKFLOW_DIR}/logs/errors.jsonl"
+        ERROR_FILE="${ERROR_DIR}/errors.jsonl"
+        mkdir -p "$ERROR_DIR"
         ERROR=$(jq -n \
             --arg id "err_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 3 2>/dev/null || echo $$)" \
             --arg ts "$TIMESTAMP" \

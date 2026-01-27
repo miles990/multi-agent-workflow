@@ -13,19 +13,21 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 WORKFLOW_BASE="${PROJECT_DIR}/.claude/workflow"
 CURRENT_FILE="${WORKFLOW_BASE}/current.json"
 
-# 快速退出：如果沒有活躍的 workflow
-if [ ! -f "$CURRENT_FILE" ]; then
-    exit 0
+# 決定日誌位置（支援 fallback 到通用日誌）
+WORKFLOW_ID=""
+if [ -f "$CURRENT_FILE" ]; then
+    WORKFLOW_ID=$(jq -r '.workflow_id // ""' "$CURRENT_FILE" 2>/dev/null || echo "")
 fi
 
-# 讀取 workflow 資訊
-WORKFLOW_ID=$(jq -r '.workflow_id // ""' "$CURRENT_FILE" 2>/dev/null || echo "")
-if [ -z "$WORKFLOW_ID" ]; then
-    exit 0
+if [ -n "$WORKFLOW_ID" ]; then
+    # 有活躍的 workflow，記錄到該 workflow 目錄
+    WORKFLOW_DIR="${WORKFLOW_BASE}/${WORKFLOW_ID}"
+    LOG_FILE="${WORKFLOW_DIR}/logs/events.jsonl"
+else
+    # 沒有活躍的 workflow，記錄到通用日誌（fallback）
+    WORKFLOW_ID="general"
+    LOG_FILE="${PROJECT_DIR}/.claude/logs/events.jsonl"
 fi
-
-WORKFLOW_DIR="${WORKFLOW_BASE}/${WORKFLOW_ID}"
-LOG_FILE="${WORKFLOW_DIR}/logs/events.jsonl"
 
 # 確保目錄存在
 mkdir -p "$(dirname "$LOG_FILE")"

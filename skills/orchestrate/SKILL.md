@@ -46,6 +46,9 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 ```
 Phase 0: 初始化工作流
     ├── 生成 workflow-id
+    ├── **【必要】執行 workflow-init.sh 初始化通訊環境**
+    │   └── Bash: ./shared/tools/workflow-init.sh init <workflow-id> orchestrate "<需求摘要>"
+    │   └── 這會創建 .claude/workflow/current.json（Hooks 依賴此檔案）
     ├── 載入執行模式配置
     │   └── 讀取 shared/config/execution-profiles.yaml
     │   └── 套用視角數和模型配置
@@ -135,3 +138,21 @@ Phase 4: 完成
 | [config/execution-profiles.yaml](../../shared/config/execution-profiles.yaml) | 執行模式 |
 | [config/context-freshness.yaml](../../shared/config/context-freshness.yaml) | 上下文新鮮 |
 | [tools/generate-report.sh](../../shared/tools/generate-report.sh) | 報告生成 |
+| [tools/workflow-init.sh](../../shared/tools/workflow-init.sh) | 工作流初始化 |
+
+## 【重要】初始化步驟
+
+在執行任何階段之前，**必須**先初始化工作流環境：
+
+```bash
+# 1. 生成 workflow ID（格式：orchestrate_YYYYMMDD_HHMMSS_xxxx）
+WORKFLOW_ID="orchestrate_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 4)"
+
+# 2. 執行初始化（創建 current.json，讓 Hooks 能記錄活動）
+./shared/tools/workflow-init.sh init "$WORKFLOW_ID" orchestrate "需求摘要"
+```
+
+**為什麼這很重要？**
+- Hooks（log-tool-pre.sh、log-tool-post.sh、log-agent-lifecycle.sh）依賴 `.claude/workflow/current.json`
+- 如果沒有這個檔案，所有 Agent 活動都不會被記錄
+- 這會導致 `/status` 和 statusline 無法顯示正確的工作流狀態
