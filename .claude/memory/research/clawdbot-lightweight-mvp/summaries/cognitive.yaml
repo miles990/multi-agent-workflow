@@ -1,0 +1,54 @@
+perspective_id: cognitive
+source_file: perspectives/cognitive.md
+extracted_at: "2026-01-27T04:15:00Z"
+confidence: high
+
+executive_summary: |
+  從認知設計角度，Clawdbot 的插件化架構提供統一心智模型，適配器模式降低認知負擔，
+  註冊表模式提供單一事實來源。權限設計採用零信任縱深防禦，複雜度集中在整合層是必要的。
+  Claude Code 整合需要從「內建 Agent」轉變為「外部 Agent」的心智模型。
+
+core_findings:
+  - finding: 插件化架構是核心心智模型
+    evidence: 統一的 ClawdbotPluginApi 讓開發者只需理解一個核心概念
+    confidence: ★★★★
+
+  - finding: 適配器模式降低認知負擔
+    evidence: ChannelConfigAdapter, SecurityAdapter 等封裝平台差異
+    confidence: ★★★★
+
+  - finding: 零信任權限設計（縱深防禦）
+    evidence: DM Policy → Device Auth → Tool Policy → Elevated 四層防禦
+    confidence: ★★★★
+
+  - finding: 複雜度集中在整合層是必要複雜度
+    evidence: audit.ts 973 行、memory/manager.ts 2178 行是整合協調層
+    confidence: ★★★
+
+  - finding: Claude Code 整合需要心智模型轉變
+    evidence: Gateway 責任從「執行 Agent」變為「路由和審計」
+    confidence: ★★★★
+
+key_recommendations:
+  - 保留插件架構核心抽象，縮減為 3 種插件
+  - 保留適配器模式，簡化可選適配器
+  - 保留前 3 層權限（DM, Device, Tool），移除 Elevated
+  - Gateway 專注連接和授權，Agent 責任轉移給 Claude Code
+
+risks:
+  - 過度簡化可能導致整合複雜度轉移到 Gateway-Claude 協議
+  - 移除 Memory Search 可能影響用戶體驗
+  - 必須保留的複雜度：Security Audit、Permission System、Config Validation
+
+cross_reference:
+  consensus_points:
+    - 插件架構值得保留（與 architecture 共識）
+    - 權限模型需要簡化但保留核心（與 industry 共識）
+    - 必要複雜度不可移除（與 workflow 共識）
+  potential_conflicts:
+    - 無明顯衝突
+  unique_insights:
+    - 設計模式的認知效益分析
+    - 必要複雜度 vs 偶然複雜度的區分
+    - 從內建 Agent 到外部 Agent 的心智模型轉變
+    - 測試覆蓋率建議（安全模組 95%+，其他可降低）

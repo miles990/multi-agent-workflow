@@ -1,0 +1,55 @@
+perspective_id: workflow
+source_file: perspectives/workflow.md
+extracted_at: "2026-01-27T04:15:00Z"
+confidence: high
+
+executive_summary: |
+  消息處理流程有 6 層權限檢查，可優化為 3 步 + 2 可選。Claude Code 整合需要在 Agent 執行層切入，
+  建立 Adapter 提供 Tool Invocation API。5 個核心步驟不可移除，4 個主要簡化機會可執行。
+  分層權限檢查架構值得保留，可顯著提高效能。
+
+core_findings:
+  - finding: 消息處理流程有 6 層權限檢查
+    evidence: Token 驗證 → 消息分類 → 權限檢查 → Session 路由 → Agent 執行 → 回覆傳遞
+    confidence: ★★★★
+
+  - finding: Claude Code 整合需在 Agent 執行層切入
+    evidence: 替換 pi-embedded-runner.ts 為 claude-code-adapter.ts
+    confidence: ★★★★
+
+  - finding: 5 個核心步驟不可移除
+    evidence: Token 驗證、身份檢查、上下文構建、路由決策、回覆傳遞
+    confidence: ★★★★
+
+  - finding: 4 個主要簡化機會
+    evidence: 移除多頻道、簡化配置、簡化會話、移除高級流式傳輸
+    confidence: ★★★
+
+  - finding: 分層權限檢查可顯著提高效能
+    evidence: 快速失敗層 → 緩存層 → 複雜檢查層
+    confidence: ★★★★
+
+key_recommendations:
+  - 簡化為 4 層處理（接收 → 權限 → Agent → 回覆）
+  - 權限檢查合併為單一函數，使用快速失敗機制
+  - 使用記憶體 Map + JSON 持久化作為會話存儲
+  - 實作結構化日誌和關鍵指標監控
+
+risks:
+  - 長輪詢斷線可能丟失消息，需要確認機制
+  - Claude Code 執行延遲可能影響用戶體驗
+  - 權限檢查邏輯集中後需要完整測試
+  - 資源耗盡風險需要限流機制
+
+cross_reference:
+  consensus_points:
+    - 核心處理步驟不可移除（與 architecture 共識）
+    - 權限檢查需要優化（與 cognitive 共識）
+    - 長輪詢是正確選擇（與 industry 共識）
+  potential_conflicts:
+    - 無明顯衝突
+  unique_insights:
+    - 完整的 6 層消息處理流程圖
+    - 權限檢查從 6 步優化為 3+2 步的方案
+    - Gateway Tool API 介面定義
+    - MVP 路線圖（4 週規劃）

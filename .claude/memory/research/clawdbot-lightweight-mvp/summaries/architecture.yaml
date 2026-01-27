@@ -1,0 +1,53 @@
+perspective_id: architecture
+source_file: perspectives/architecture.md
+extracted_at: "2026-01-27T04:15:00Z"
+confidence: high
+
+executive_summary: |
+  Clawdbot 採用成熟的插件化架構，Telegram 通道依賴鏈清晰且獨立，可以完整隔離。
+  Agent 系統可透過 Claude Code Task API 完全替代 Pi Agent，保留 Session 管理層即可。
+  權限系統分散但可整合為統一的權限策略引擎，可擴充性已內建於插件系統中。
+
+core_findings:
+  - finding: 插件化架構是核心基礎設施
+    evidence: PluginRegistry 管理所有 Channel/Tool/Hook，支援動態加載卸載
+    confidence: ★★★★
+
+  - finding: Telegram 通道依賴鏈清晰且獨立
+    evidence: src/telegram/ 與其他 channel 高度解耦，可獨立運行
+    confidence: ★★★★
+
+  - finding: Agent 系統可完全替換為 Claude Code
+    evidence: 只需保留 Session 管理層 (routing, session-key, agent-scope)
+    confidence: ★★★★
+
+  - finding: 權限系統分散但可整合
+    evidence: 檢查點分佈在 command-auth.ts, bot.ts, types.telegram.ts
+    confidence: ★★★
+
+  - finding: 可擴充性已內建
+    evidence: 新 Channel 只需實作 ChannelPlugin 介面，零核心修改
+    confidence: ★★★★
+
+key_recommendations:
+  - 保留插件架構骨架，將實作數量從 8+ 縮減為 3 種
+  - 建立 claude-code-adapter.ts 作為整合層
+  - 集中化權限引擎，添加審計日誌
+  - 使用配置驅動的權限策略
+
+risks:
+  - Plugin 系統可能過度設計，MVP 簡化為靜態註冊
+  - Claude Code API 可能變更，需要 adapter 層隔離
+  - 移除 channel 可能有隱性依賴，需漸進式移除
+
+cross_reference:
+  consensus_points:
+    - 插件化架構值得保留（與 cognitive 共識）
+    - Telegram 可獨立隔離（與 workflow 共識）
+    - Claude Code 整合可行（與 industry 共識）
+  potential_conflicts:
+    - 無明顯衝突
+  unique_insights:
+    - 詳細的模組保留/移除清單
+    - Claude Code 整合的三階段實作策略
+    - 權限系統重構的 YAML 配置範例

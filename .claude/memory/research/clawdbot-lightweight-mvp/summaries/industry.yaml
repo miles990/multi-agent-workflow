@@ -1,0 +1,55 @@
+perspective_id: industry
+source_file: perspectives/industry.md
+extracted_at: "2026-01-27T04:15:00Z"
+confidence: high
+
+executive_summary: |
+  Telegram + Grammy 是業界標準組合，長輪詢比 Webhook 更適合 MVP。權限控制採用多層次 Allowlist
+  是 MVP 最佳實踐，RBAC 可延後到 v2.0。Claude Code 整合需要 MCP + Task API。
+  Clawdbot 現有架構已驗證單 Channel 的完整實現，是可靠的 MVP 基礎。
+
+core_findings:
+  - finding: Telegram + Grammy 是業界標準組合
+    evidence: Grammy 成熟度高，TypeScript 原生支援，活躍維護
+    confidence: ★★★★
+
+  - finding: 長輪詢優於 Webhook（MVP 階段）
+    evidence: 無需公開 URL、NAT 穿透簡單、故障轉移更簡單
+    confidence: ★★★★
+
+  - finding: Allowlist 是 MVP 最佳權限實踐
+    evidence: 實施成本低（3-5 行配置）、安全性足夠、易於除錯
+    confidence: ★★★★
+
+  - finding: Claude Code 整合需要 MCP + Task API
+    evidence: Task API 支援跨 Session 協作，Subagent 保護主上下文
+    confidence: ★★★
+
+  - finding: 現有架構是業界驗證的 MVP 基礎
+    evidence: Clawdbot 已展示單 Channel 的完整實現
+    confidence: ★★★★
+
+key_recommendations:
+  - 優先長輪詢，避免基礎設施複雜性
+  - 使用 Allowlist，v2.0 遷移到 RBAC
+  - 建立統一消息格式介面，為未來 Channel 擴展準備
+  - 審計日誌按業界標準格式設計
+
+risks:
+  - 長輪詢有 IPv6 相容性問題和 Node 22+ AbortSignal 變更
+  - Claude Code 有 Subagent 記憶體開銷（50-100MB/實例）和 Task API 延遲
+  - Telegram API 有速率限制（30/秒）和文件大小限制（5MB）
+  - Allowlist 在 100+ 用戶時維護成本陡增
+
+cross_reference:
+  consensus_points:
+    - 長輪詢是正確選擇（與 workflow 共識）
+    - 權限簡化為 Allowlist（與 cognitive 共識）
+    - Claude Code 整合可行（與 architecture 共識）
+  potential_conflicts:
+    - 無明顯衝突
+  unique_insights:
+    - RBAC vs Allowlist vs ABAC 對比表
+    - 業界類似專案成功/失敗案例分析
+    - Telegram Bot API 限制詳細清單
+    - 統一消息格式 (NormalizedMessage) 設計
