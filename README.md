@@ -71,7 +71,7 @@
 | **implement** | `/multi-implement` | 監督式並行實作 | ✅ Ready |
 | **review** | `/multi-review` | 多視角程式碼審查 | ✅ Ready |
 | **verify** | `/multi-verify` | 多視角驗證測試 | ✅ Ready |
-| **orchestrate** | `/multi-orchestrate` | 端到端編排 | ✅ Ready |
+| **orchestrate** | `/orchestrate` | 端到端編排 | ✅ Ready |
 
 ## Quick Start
 
@@ -148,29 +148,29 @@
 
 ```bash
 # 端到端編排（自動判斷起始點）
-/multi-orchestrate 新增用戶認證功能
+/orchestrate 新增用戶認證功能
 
 # 從已有計劃開始
-/multi-orchestrate --from-plan user-auth
+/orchestrate --from-plan user-auth
 ```
 
 ### Git Worktree Mode
 
 ```bash
 # 自動使用 worktree（預設）
-/multi-orchestrate 新增用戶認證功能
+/orchestrate 新增用戶認證功能
 
 # 強制使用 worktree
-/multi-orchestrate --worktree 新增功能
+/orchestrate --worktree 新增功能
 
 # 禁用 worktree（直接在 main 工作）
-/multi-orchestrate --no-worktree 快速修復
+/orchestrate --no-worktree 快速修復
 
 # 恢復中斷的工作流
-/multi-orchestrate --resume user-auth
+/orchestrate --resume user-auth
 
 # 清理孤立的 worktrees
-/multi-orchestrate --cleanup-worktrees
+/orchestrate --cleanup-worktrees
 ```
 
 ## Skill Perspectives
