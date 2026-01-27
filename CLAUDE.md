@@ -240,9 +240,11 @@ Write → .claude/memory/{stage}/{id}/perspectives/{perspective_id}.md
 
 ### Hooks 自動處理
 - **PreToolUse**: 工具調用前驗證
-- **PostToolUse**: 工具調用後記錄到 `actions.jsonl`
+- **PostToolUse**:
+  - Write: 記錄到 `actions.jsonl`
+  - **Task: 自動 git commit 程式碼（可設定是否包含 memory/logs）**
 - **SubagentStart**: Agent 啟動追蹤
-- **SubagentStop**: Agent 完成 + 自動 git commit
+- **SubagentStop**: Agent 完成 + memory 目錄 git commit
 
 ### Git Worktree 隔離
 IMPLEMENT/REVIEW/VERIFY 階段在 `.worktrees/{feature-id}/` 執行。
@@ -275,4 +277,5 @@ IMPLEMENT/REVIEW/VERIFY 階段在 `.worktrees/{feature-id}/` 執行。
 | 品質閘門 | [shared/quality/gates.yaml](./shared/quality/gates.yaml) |
 | 執行模式 | [shared/config/execution-profiles.yaml](./shared/config/execution-profiles.yaml) |
 | 上下文新鮮 | [shared/config/context-freshness.yaml](./shared/config/context-freshness.yaml) |
+| Commit 設定 | [shared/config/commit-settings.yaml](./shared/config/commit-settings.yaml) |
 | 錯誤碼 | [shared/errors/error-codes.md](./shared/errors/error-codes.md) |

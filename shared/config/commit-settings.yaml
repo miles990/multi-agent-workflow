@@ -1,0 +1,23 @@
+# Task 完成後的 Git Commit 設定
+# 由 PostToolUse Task hook 使用
+
+task_commit:
+  # 是否啟用自動 commit
+  enabled: true
+
+  # 是否包含 .claude/memory/ 目錄
+  # 預設 false：memory 由 SubagentStop hook 單獨 commit
+  include_memory: false
+
+  # 是否包含 .claude/workflow/ logs
+  # 預設 false：logs 通常不需要 commit
+  include_logs: false
+
+  # 排除的檔案模式（總是排除）
+  exclude_patterns:
+    - "*.pyc"
+    - "__pycache__/"
+    - ".pytest_cache/"
+    - "*.egg-info/"
+    - ".DS_Store"
+    - "*.log"
