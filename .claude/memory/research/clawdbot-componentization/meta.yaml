@@ -1,0 +1,45 @@
+id: clawdbot-componentization
+topic: Clawdbot 組件化拆分策略研究
+created_at: 2026-01-27T03:38:58Z
+completed_at: 2026-01-27T03:45:00Z
+stage: RESEARCH
+status: completed
+
+perspectives:
+  - id: architecture
+    name: 架構分析師
+    model: sonnet
+    focus: 系統結構、設計模式、依賴關係
+
+  - id: cognitive
+    name: 認知研究員
+    model: sonnet
+    focus: DDD 邊界、抽象層次、重用性評估
+
+  - id: workflow
+    name: 工作流設計師
+    model: haiku
+    focus: 訊息流程、模組互動、整合點
+
+  - id: industry
+    name: 業界實踐專家
+    model: haiku
+    focus: npm 最佳實踐、業界對標
+
+metrics:
+  quality_score: 85
+  consensus_rate: 0.875
+  perspectives_completed: 4
+  perspectives_expected: 4
+
+key_findings:
+  - Memory 系統是最佳拆分候選（P0）
+  - Plugin SDK 已經定義了成熟的邊界（P0）
+  - Channel 可按協議獨立拆分（P1）
+  - Gateway 和 Agent Runtime 需要先定義介面才能拆分（P3）
+
+recommended_actions:
+  - 拆分 @clawdbot/memory
+  - 獨立 @clawdbot/core
+  - 定義核心介面（SessionManager, AgentExecutor）
+  - 拆分 Telegram Channel 作為 Pilot
