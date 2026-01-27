@@ -130,20 +130,47 @@ Task({
 
 ## Task API 呼叫模式
 
-### 並行啟動
+### 並行啟動（重要！）
+
+> ⚠️ **關鍵**：真正的並行需要在**單一訊息中發送多個 Task 工具呼叫**
+
+**錯誤做法**（順序執行）：
+```
+Message 1: Task({...}) → 視角 A
+[等待完成]
+Message 2: Task({...}) → 視角 B
+[等待完成]
+Message 3: Task({...}) → 視角 C
+[等待完成]
+Message 4: Task({...}) → 視角 D
+```
+
+**正確做法**（並行執行）：
+```
+Message 1 同時包含：
+  - Task({description: "架構視角", prompt: "...", subagent_type: "Explore", model: "sonnet"})
+  - Task({description: "認知視角", prompt: "...", subagent_type: "Explore", model: "sonnet"})
+  - Task({description: "工作流視角", prompt: "...", subagent_type: "Explore", model: "haiku"})
+  - Task({description: "業界視角", prompt: "...", subagent_type: "Explore", model: "haiku"})
+[所有 Task 並行執行]
+```
+
+### 概念示意
 
 ```javascript
-// 概念示意（實際使用 Claude Code Task tool）
+// JavaScript 偽代碼（僅供理解概念）
 const tasks = perspectives.map(perspective => ({
   description: `${perspective.name} 處理 ${topic}`,
   prompt: generatePrompt(perspective, topic, config),
   subagent_type: selectAgentType(perspective),
-  model: selectModelForPerspective(perspective)  // 根據視角選擇模型
+  model: selectModelForPerspective(perspective)
 }))
 
 // 並行執行所有 Task
 await Promise.all(tasks.map(task => executeTask(task)))
 ```
+
+**實際執行**：Claude 需要在單一回應中發送多個 Task 工具呼叫，而非依序發送。
 
 ### 模型選擇流程
 

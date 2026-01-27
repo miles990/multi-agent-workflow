@@ -58,6 +58,14 @@ Phase 3: MAP（並行規劃）✅ 自動追蹤
     └──────────┴──────────┴──────────┴──────────┘
     [CP2/CP3 由 hooks 自動處理 Agent 狀態追蹤]
 
+    ⚠️ **並行執行關鍵**：
+       在單一訊息中發送 4 個 Task 工具呼叫：
+       - Task({description: "架構師視角", ...})
+       - Task({description: "風險分析視角", ...})
+       - Task({description: "估算專家視角", ...})
+       - Task({description: "UX 倡導視角", ...})
+       這樣才能真正並行執行！
+
     ⚠️ **強制**：每個 Agent 必須在完成前執行：
        1. mkdir -p .claude/memory/plans/{feature-id}/perspectives/
        2. Write → .claude/memory/plans/{feature-id}/perspectives/{perspective_id}.md
