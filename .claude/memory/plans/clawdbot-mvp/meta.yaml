@@ -1,0 +1,77 @@
+id: clawdbot-mvp
+type: plan
+topic: "Clawdbot 輕量 MVP 實作計劃"
+description: |
+  基於研究結果的詳細實作規劃：
+  - Channel: 僅 Telegram（Long Polling）
+  - Agent: Claude Code 整合（Task API）
+  - Memory: JSON-first（無向量搜尋）
+  - 權限: Allowlist + 集中化檢查
+  - 架構: 保留插件模式，精簡功能
+
+created_at: "2026-01-27T05:30:00Z"
+updated_at: "2026-01-27T05:30:00Z"
+
+workflow:
+  id: "clawdbot-mvp-plan_20260127_a3b4c5"
+  stage: "PLAN"
+  mode: "default"
+
+input_references:
+  - ".claude/memory/research/clawdbot-lightweight-mvp/synthesis.md"
+  - ".claude/memory/research/clawdbot-memory-system/synthesis.md"
+  - ".claude/memory/research/clawdbot-auto-reply-system/synthesis.md"
+  - ".claude/memory/research/clawdbot-componentization/synthesis.md"
+
+perspectives:
+  - id: architect
+    name: "系統架構師"
+    model: sonnet
+    focus: "技術可行性、組件設計"
+    status: completed
+
+  - id: risk-analyst
+    name: "風險分析師"
+    model: sonnet
+    focus: "潛在風險、失敗場景"
+    status: completed
+
+  - id: estimator
+    name: "估算專家"
+    model: haiku
+    focus: "工作量評估、時程規劃"
+    status: completed
+
+  - id: ux-advocate
+    name: "UX 倡導者"
+    model: haiku
+    focus: "使用者體驗、API 設計"
+    status: completed
+
+quality:
+  consensus_rate: 0.92
+  feasibility_score: 88
+  completeness_score: 90
+  total_score: 87
+  passed: true
+  threshold: 75
+
+outputs:
+  primary: implementation-plan.md
+  perspectives:
+    - perspectives/architect.md
+    - perspectives/risk-analyst.md
+    - perspectives/estimator.md
+    - perspectives/ux-advocate.md
+  additional:
+    - milestones.md
+    - risk-mitigation.md
+
+next_stage:
+  recommended: TASKS
+  input_reference: "implementation-plan.md"
+  suggested_focus:
+    - "Claude Code Adapter 實作任務"
+    - "Telegram 整合任務"
+    - "權限系統任務"
+    - "測試任務分解"
