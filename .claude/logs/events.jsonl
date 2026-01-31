@@ -1,0 +1,3409 @@
+{
+  "id": "evt_20260127_150024_085098",
+  "timestamp": "2026-01-27T07:00:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150025_3ebf76",
+  "timestamp": "2026-01-27T07:00:25.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150024_085098"
+}
+{
+  "id": "evt_20260127_150028_183cf8",
+  "timestamp": "2026-01-27T07:00:28.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150028_82a229",
+  "timestamp": "2026-01-27T07:00:28.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150028_183cf8"
+}
+{
+  "id": "evt_20260127_150032_2e9ea0",
+  "timestamp": "2026-01-27T07:00:32.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150032_679fdc",
+  "timestamp": "2026-01-27T07:00:32.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150032_2e9ea0"
+}
+{
+  "id": "evt_20260127_150041_7e251f",
+  "timestamp": "2026-01-27T07:00:41.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150041_9022af",
+  "timestamp": "2026-01-27T07:00:41.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150041_7e251f"
+}
+{
+  "id": "evt_20260127_150045_937241",
+  "timestamp": "2026-01-27T07:00:45.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150045_dd6430",
+  "timestamp": "2026-01-27T07:00:45.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150045_937241"
+}
+{
+  "id": "evt_20260127_150049_ce3cd4",
+  "timestamp": "2026-01-27T07:00:49.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150049_7607ce",
+  "timestamp": "2026-01-27T07:00:49.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150049_ce3cd4"
+}
+{
+  "id": "evt_20260127_150055_05dcad",
+  "timestamp": "2026-01-27T07:00:55.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150055_f9857a",
+  "timestamp": "2026-01-27T07:00:55.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150055_05dcad"
+}
+{
+  "id": "evt_20260127_150100_c5fd25",
+  "timestamp": "2026-01-27T07:01:00.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150100_dd16d6",
+  "timestamp": "2026-01-27T07:01:00.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150100_c5fd25"
+}
+{
+  "id": "evt_20260127_150104_c53b4f",
+  "timestamp": "2026-01-27T07:01:04.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150105_f42735",
+  "timestamp": "2026-01-27T07:01:05.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150104_c53b4f"
+}
+{
+  "id": "evt_20260127_150108_5f02b0",
+  "timestamp": "2026-01-27T07:01:08.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150109_09b13a",
+  "timestamp": "2026-01-27T07:01:09.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150108_5f02b0"
+}
+{
+  "id": "evt_20260127_150117_5355d0",
+  "timestamp": "2026-01-27T07:01:17.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150117_86e087",
+  "timestamp": "2026-01-27T07:01:17.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150117_5355d0"
+}
+{
+  "id": "evt_20260127_150120_832bb7",
+  "timestamp": "2026-01-27T07:01:20.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150120_7bed66",
+  "timestamp": "2026-01-27T07:01:20.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150120_832bb7"
+}
+{
+  "id": "evt_20260127_150127_8804d2",
+  "timestamp": "2026-01-27T07:01:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150127_aa9e7f",
+  "timestamp": "2026-01-27T07:01:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150127_8804d2"
+}
+{
+  "id": "evt_20260127_150132_a5a010",
+  "timestamp": "2026-01-27T07:01:32.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150132_5dbac3",
+  "timestamp": "2026-01-27T07:01:32.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150132_a5a010"
+}
+{
+  "id": "evt_20260127_150135_9bad2d",
+  "timestamp": "2026-01-27T07:01:35.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150135_931048",
+  "timestamp": "2026-01-27T07:01:35.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150135_9bad2d"
+}
+{
+  "id": "evt_20260127_150143_43d392",
+  "timestamp": "2026-01-27T07:01:43.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150143_0b97a1",
+  "timestamp": "2026-01-27T07:01:43.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150143_43d392"
+}
+{
+  "id": "evt_20260127_150148_22bde0",
+  "timestamp": "2026-01-27T07:01:48.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150148_a1390d",
+  "timestamp": "2026-01-27T07:01:48.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150148_22bde0"
+}
+{
+  "id": "evt_20260127_150155_c94cd2",
+  "timestamp": "2026-01-27T07:01:55.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150155_f2a2c8",
+  "timestamp": "2026-01-27T07:01:55.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150155_c94cd2"
+}
+{
+  "id": "evt_20260127_150159_4fcb81",
+  "timestamp": "2026-01-27T07:01:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150159_b0b8ab",
+  "timestamp": "2026-01-27T07:01:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150159_09a14a",
+  "timestamp": "2026-01-27T07:01:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150159_b0b8ab"
+}
+{
+  "id": "evt_20260127_150159_512e26",
+  "timestamp": "2026-01-27T07:01:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150208_1c8d05",
+  "timestamp": "2026-01-27T07:02:08.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150209_60c4f3",
+  "timestamp": "2026-01-27T07:02:09.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150208_1c8d05"
+}
+{
+  "id": "evt_20260127_150209_bb071d",
+  "timestamp": "2026-01-27T07:02:09.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150210_f22738",
+  "timestamp": "2026-01-27T07:02:10.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150209_bb071d"
+}
+{
+  "id": "evt_20260127_150210_782506",
+  "timestamp": "2026-01-27T07:02:10.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150212_49b4e6",
+  "timestamp": "2026-01-27T07:02:12.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150210_782506"
+}
+{
+  "id": "evt_20260127_150212_344b54",
+  "timestamp": "2026-01-27T07:02:12.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150213_363df4",
+  "timestamp": "2026-01-27T07:02:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150212_344b54"
+}
+{
+  "id": "evt_20260127_150213_90ddf6",
+  "timestamp": "2026-01-27T07:02:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150215_7a00e5",
+  "timestamp": "2026-01-27T07:02:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150213_90ddf6"
+}
+{
+  "id": "evt_20260127_150215_4d22d7",
+  "timestamp": "2026-01-27T07:02:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150216_2a0fc2",
+  "timestamp": "2026-01-27T07:02:16.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150215_4d22d7"
+}
+{
+  "id": "evt_20260127_150222_81aba2",
+  "timestamp": "2026-01-27T07:02:22.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150222_7db4e8",
+  "timestamp": "2026-01-27T07:02:23.000Z",
+  "session_id": "test-session-123",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "TestTool",
+  "data": {
+    "raw": "invalid_json"
+  },
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150226_ff6440",
+  "timestamp": "2026-01-27T07:02:26.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150227_f2f6ab",
+  "timestamp": "2026-01-27T07:02:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150226_ff6440"
+}
+{
+  "id": "evt_20260127_150231_4e04c5",
+  "timestamp": "2026-01-27T07:02:32.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150253_3a0c1c",
+  "timestamp": "2026-01-27T07:02:53.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150253_15e785"
+}
+{
+  "id": "evt_20260127_150256_ad4132",
+  "timestamp": "2026-01-27T07:02:56.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150256_9b2357",
+  "timestamp": "2026-01-27T07:02:56.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150256_ad4132"
+}
+{
+  "id": "evt_20260127_150313_9e61b7",
+  "timestamp": "2026-01-27T07:03:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_stop",
+  "agent_id": "unknown",
+  "data": {
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "completed"
+}
+{
+  "id": "evt_20260127_150342_0caaba",
+{
+  "timestamp": "2026-01-27T07:03:42.000Z",
+  "id": "evt_20260127_150342_21c154",
+{
+  "timestamp": "2026-01-27T07:03:42.000Z",
+  "id": "evt_20260127_150342_1ae0a2",
+  "session_id": "unknown",
+  "timestamp": "2026-01-27T07:03:42.000Z",
+  "workflow_id": "general",
+  "session_id": "unknown",
+  "session_id": "unknown",
+  "event_type": "tool_call",
+  "workflow_id": "general",
+  "phase": "pre",
+  "event_type": "tool_call",
+  "tool_name": "unknown",
+  "phase": "pre",
+  "data": {},
+  "tool_name": "unknown",
+  "status": "pending"
+  "data": {},
+}
+  "workflow_id": "general",
+  "status": "pending"
+  "event_type": "tool_call",
+}
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150342_a9fd61",
+  "timestamp": "2026-01-27T07:03:42.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150342_0caaba"
+}
+{
+  "id": "evt_20260127_150342_87d6a4",
+{
+  "timestamp": "2026-01-27T07:03:42.000Z",
+  "id": "evt_20260127_150342_dab7ed",
+  "session_id": "unknown",
+  "timestamp": "2026-01-27T07:03:42.000Z",
+  "workflow_id": "general",
+  "session_id": "unknown",
+  "event_type": "tool_call",
+  "workflow_id": "general",
+  "phase": "post",
+  "event_type": "tool_call",
+  "tool_name": "unknown",
+  "phase": "post",
+  "data": {
+  "tool_name": "unknown",
+    "output_length": 0,
+  "data": {
+    "output_preview": null,
+    "output_length": 0,
+    "exit_code": 0
+    "output_preview": null,
+  },
+    "exit_code": 0
+  "duration_ms": 0,
+  },
+  "status": "success",
+  "duration_ms": 0,
+  "related_event": null
+  "status": "success",
+}
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150352_509c8e",
+  "timestamp": "2026-01-27T07:03:52.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150353_447794",
+  "timestamp": "2026-01-27T07:03:53.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150352_509c8e"
+}
+{
+  "id": "evt_20260127_150357_70f9c7",
+  "timestamp": "2026-01-27T07:03:57.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150358_b626da",
+  "timestamp": "2026-01-27T07:03:58.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150357_70f9c7"
+}
+{
+  "id": "evt_20260127_150402_1b240c",
+  "timestamp": "2026-01-27T07:04:02.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150402_4ec9a8",
+  "timestamp": "2026-01-27T07:04:02.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150402_1b240c"
+}
+{
+  "id": "evt_20260127_150411_b4dbb9",
+  "timestamp": "2026-01-27T07:04:11.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_stop",
+  "agent_id": "unknown",
+  "data": {
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "completed"
+}
+{
+{
+  "id": "evt_20260127_150909_d4a43b",
+  "timestamp": "2026-01-27T07:09:09.000Z",
+  "session_id": "unknown",
+  "id": "evt_20260127_150909_cd7c54",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "timestamp": "2026-01-27T07:09:09.000Z",
+  "phase": "pre",
+  "session_id": "unknown",
+  "tool_name": "unknown",
+  "workflow_id": "general",
+  "data": {},
+  "event_type": "tool_call",
+  "status": "pending"
+  "phase": "pre",
+}
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150909_9f3a9d",
+  "timestamp": "2026-01-27T07:09:09.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_start",
+  "agent_id": "unknown",
+  "data": {
+    "perspective": "unknown",
+    "prompt_preview": ""
+  },
+  "status": "started"
+}
+{
+  "id": "evt_20260127_150909_f4d0d2",
+  "timestamp": "2026-01-27T07:09:09.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_start",
+  "agent_id": "unknown",
+  "data": {
+    "perspective": "unknown",
+    "prompt_preview": ""
+  },
+  "status": "started"
+}
+{
+  "id": "evt_20260127_150913_6e08f1",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+{
+  "id": "evt_20260127_150913_f05827",
+  "id": "evt_20260127_150913_0f7b1d",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "session_id": "unknown",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "tool_name": "unknown",
+  "data": {},
+  "data": {},
+  "status": "pending"
+  "status": "pending"
+}
+}
+{
+  "id": "evt_20260127_150913_12c006",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150913_64fded",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150913_9eb2c7",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150913_9ce7a5",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150913_2430ef",
+  "timestamp": "2026-01-27T07:09:13.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150914_3186fa",
+  "timestamp": "2026-01-27T07:09:14.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150913_2430ef"
+}
+{
+  "id": "evt_20260127_150914_ffb680",
+  "timestamp": "2026-01-27T07:09:14.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+{
+    "output_preview": null,
+  "id": "evt_20260127_150914_352b09",
+    "exit_code": 0
+  "timestamp": "2026-01-27T07:09:14.000Z",
+  },
+  "session_id": "unknown",
+  "duration_ms": 0,
+  "workflow_id": "general",
+  "status": "success",
+  "event_type": "tool_call",
+  "related_event": null
+  "phase": "post",
+}
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150914_988ba7",
+  "timestamp": "2026-01-27T07:09:14.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150914_9ca31d",
+  "timestamp": "2026-01-27T07:09:14.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150915_08e5b8",
+  "timestamp": "2026-01-27T07:09:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150915_7182fd",
+  "timestamp": "2026-01-27T07:09:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150915_ac1751",
+  "timestamp": "2026-01-27T07:09:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150918_b64cff",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150918_e51762",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150918_fba984",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150918_c3ce69",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150918_871124",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150918_c3ce69"
+}
+{
+  "id": "evt_20260127_150918_96a557",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150918_6c79a2",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+{
+  "tool_name": "unknown",
+  "id": "evt_20260127_150918_8768ac",
+  "data": {
+  "timestamp": "2026-01-27T07:09:18.000Z",
+    "output_length": 0,
+  "session_id": "unknown",
+    "output_preview": null,
+  "workflow_id": "general",
+    "exit_code": 0
+  "event_type": "tool_call",
+  },
+  "phase": "post",
+  "duration_ms": 0,
+  "tool_name": "unknown",
+  "status": "success",
+  "data": {
+  "related_event": null
+    "output_length": 0,
+}
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150918_7fd769",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150918_94ac37",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150918_272800",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+{
+  "phase": "pre",
+  "id": "evt_20260127_150918_f38831",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150918_aecdd9",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "session_id": "unknown",
+{
+  "id": "evt_20260127_150918_66d893",
+  "workflow_id": "general",
+  "timestamp": "2026-01-27T07:09:18.000Z",
+  "event_type": "tool_call",
+  "session_id": "unknown",
+  "phase": "post",
+  "workflow_id": "general",
+  "tool_name": "unknown",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  "data": {
+  },
+    "output_length": 0,
+    "output_preview": null,
+  "duration_ms": 0,
+    "exit_code": 0
+  "status": "success",
+  },
+  "related_event": "evt_20260127_150918_272800"
+  "duration_ms": 0,
+}
+{
+  "status": "success",
+  "id": "evt_20260127_150918_f7d859",
+  "related_event": "evt_20260127_150918_272800"
+  "timestamp": "2026-01-27T07:09:18.000Z",
+}
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150918_272800"
+}
+{
+  "id": "evt_20260127_150920_ece167",
+  "timestamp": "2026-01-27T07:09:20.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+{
+  "id": "evt_20260127_150921_2910ac",
+  "id": "evt_20260127_150921_5ae0d2",
+  "timestamp": "2026-01-27T07:09:21.000Z",
+  "timestamp": "2026-01-27T07:09:21.000Z",
+  "session_id": "unknown",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "tool_name": "unknown",
+  "data": {},
+  "data": {},
+  "status": "pending"
+  "status": "pending"
+}
+}
+{
+  "id": "evt_20260127_150921_9425ef",
+  "timestamp": "2026-01-27T07:09:21.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150922_d6ac64",
+{
+  "timestamp": "2026-01-27T07:09:22.000Z",
+  "id": "evt_20260127_150922_9c58aa",
+  "session_id": "unknown",
+  "timestamp": "2026-01-27T07:09:22.000Z",
+  "workflow_id": "general",
+  "session_id": "unknown",
+  "event_type": "tool_call",
+  "workflow_id": "general",
+  "phase": "post",
+  "event_type": "tool_call",
+  "tool_name": "unknown",
+  "phase": "post",
+  "data": {
+  "tool_name": "unknown",
+    "output_length": 0,
+  "data": {
+    "output_preview": null,
+    "output_length": 0,
+    "exit_code": 0
+    "output_preview": null,
+  },
+    "exit_code": 0
+  "duration_ms": 0,
+  },
+  "status": "success",
+  "duration_ms": 0,
+  "related_event": "evt_20260127_150921_2910ac"
+  "status": "success",
+}
+  "related_event": "evt_20260127_150921_2910ac"
+}
+{
+  "id": "evt_20260127_150922_e45980",
+  "timestamp": "2026-01-27T07:09:22.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150923_5fac66",
+  "timestamp": "2026-01-27T07:09:23.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150923_bf28e2",
+  "timestamp": "2026-01-27T07:09:23.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150923_2e5dda",
+  "timestamp": "2026-01-27T07:09:23.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150923_7c3d73",
+  "timestamp": "2026-01-27T07:09:23.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150924_e69fea",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150923_2e5dda"
+}
+{
+{
+  "id": "evt_20260127_150924_e06ac1",
+  "id": "evt_20260127_150924_c0999c",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "event_type": "tool_call",
+  "phase": "post",
+  "phase": "post",
+  "tool_name": "unknown",
+  "tool_name": "unknown",
+  "data": {
+  "data": {
+    "output_length": 0,
+    "output_length": 0,
+    "output_preview": null,
+    "output_preview": null,
+    "exit_code": 0
+    "exit_code": 0
+  },
+  },
+  "duration_ms": 0,
+  "duration_ms": 0,
+  "status": "success",
+  "status": "success",
+  "related_event": null
+  "related_event": null
+}
+}
+{
+  "id": "evt_20260127_150924_839b4b",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150924_4f0792",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150924_33551d",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150924_c69120",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150924_98e02c",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150924_33551d"
+}
+{
+  "id": "evt_20260127_150924_b53f1e",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150924_ea82a2",
+  "timestamp": "2026-01-27T07:09:24.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150927_828791",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150927_9889b4",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150927_9efd55",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150927_d9feb6",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150927_52e51b",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150927_9889b4"
+}
+{
+  "id": "evt_20260127_150927_172354",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150927_9889b4"
+}
+{
+  "id": "evt_20260127_150927_7127c2",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150927_72bdd3",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150927_a00b9b",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150927_aedc94",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150927_96dd70",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150927_803224",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150927_96dd70"
+}
+{
+  "id": "evt_20260127_150927_bee49a",
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+{
+  "related_event": "evt_20260127_150927_96dd70"
+  "id": "evt_20260127_150927_db0626",
+}
+  "timestamp": "2026-01-27T07:09:27.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150930_2d27db",
+  "timestamp": "2026-01-27T07:09:30.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+{
+  "id": "evt_20260127_150930_ec3ea8",
+  "timestamp": "2026-01-27T07:09:30.000Z",
+  "status": "pending"
+}
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150930_811f03",
+  "timestamp": "2026-01-27T07:09:30.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150930_ec3ea8"
+}
+{
+  "id": "evt_20260127_150930_30ea4d",
+  "timestamp": "2026-01-27T07:09:30.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150931_0489bd",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150931_5f7307",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150931_723305",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+{
+  "phase": "pre",
+  "id": "evt_20260127_150931_941629",
+  "tool_name": "unknown",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "data": {},
+  "session_id": "unknown",
+  "status": "pending"
+  "workflow_id": "general",
+}
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150931_09ca35",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+{
+  "id": "evt_20260127_150931_c2a84b",
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "related_event": "evt_20260127_150931_723305"
+}
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150931_b1c2aa",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150931_9b932d",
+  "timestamp": "2026-01-27T07:09:31.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150932_b46cde",
+  "timestamp": "2026-01-27T07:09:32.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150932_1a62aa",
+  "timestamp": "2026-01-27T07:09:32.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150932_b46cde"
+}
+{
+  "id": "evt_20260127_150933_fff29a",
+  "timestamp": "2026-01-27T07:09:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150933_1d7245",
+  "timestamp": "2026-01-27T07:09:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150933_78b325",
+  "timestamp": "2026-01-27T07:09:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150933_619886",
+  "timestamp": "2026-01-27T07:09:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150933_1d7245"
+}
+{
+  "id": "evt_20260127_150933_e83cb0",
+  "timestamp": "2026-01-27T07:09:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150933_82339d",
+  "timestamp": "2026-01-27T07:09:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150937_f31cec",
+  "timestamp": "2026-01-27T07:09:37.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150937_771969",
+  "timestamp": "2026-01-27T07:09:37.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150937_16814b",
+  "timestamp": "2026-01-27T07:09:37.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150937_c5ee67",
+  "timestamp": "2026-01-27T07:09:37.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150937_771969"
+}
+{
+  "id": "evt_20260127_150937_4db00d",
+  "timestamp": "2026-01-27T07:09:37.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150937_9c65f6",
+  "timestamp": "2026-01-27T07:09:37.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150941_db07a3",
+  "timestamp": "2026-01-27T07:09:41.000Z",
+  "session_id": "unknown",
+{
+  "id": "evt_20260127_150941_003ebb",
+  "timestamp": "2026-01-27T07:09:41.000Z",
+  "workflow_id": "general",
+  "session_id": "unknown",
+  "event_type": "tool_call",
+  "workflow_id": "general",
+  "phase": "pre",
+  "event_type": "tool_call",
+  "tool_name": "unknown",
+  "phase": "pre",
+  "data": {},
+  "tool_name": "unknown",
+  "status": "pending"
+  "data": {},
+}
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150941_fa0e47",
+  "timestamp": "2026-01-27T07:09:41.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150941_003ebb"
+}
+{
+  "id": "evt_20260127_150941_18cb7f",
+  "timestamp": "2026-01-27T07:09:41.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150941_25075f",
+  "timestamp": "2026-01-27T07:09:41.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150942_186784",
+  "timestamp": "2026-01-27T07:09:42.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150941_25075f"
+}
+{
+  "id": "evt_20260127_150945_04f6d3",
+  "timestamp": "2026-01-27T07:09:45.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+{
+{
+  "id": "evt_20260127_150945_4edaa7",
+  "data": {},
+  "timestamp": "2026-01-27T07:09:45.000Z",
+  "session_id": "unknown",
+  "status": "pending"
+  "id": "evt_20260127_150945_4cc619",
+  "workflow_id": "general",
+}
+  "event_type": "tool_call",
+  "timestamp": "2026-01-27T07:09:45.000Z",
+  "phase": "pre",
+  "session_id": "unknown",
+  "tool_name": "unknown",
+  "workflow_id": "general",
+  "data": {},
+  "event_type": "tool_call",
+  "status": "pending"
+  "phase": "pre",
+}
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150945_431fd4",
+  "timestamp": "2026-01-27T07:09:45.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150945_04f6d3"
+}
+{
+  "id": "evt_20260127_150945_96bf14",
+  "timestamp": "2026-01-27T07:09:45.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150946_91e695",
+  "timestamp": "2026-01-27T07:09:46.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_150949_8a71c1",
+  "timestamp": "2026-01-27T07:09:49.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_150950_24c28c",
+  "timestamp": "2026-01-27T07:09:50.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_150949_8a71c1"
+}
+{
+  "id": "evt_20260127_150954_142265",
+  "timestamp": "2026-01-27T07:09:54.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_stop",
+  "agent_id": "unknown",
+  "data": {
+    "exit_code": 0
+  },
+  "duration_ms": 28845000,
+  "status": "completed"
+}
+{
+  "id": "evt_20260127_150954_e5f760",
+  "timestamp": "2026-01-27T07:09:54.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_151015_76893e",
+  "timestamp": "2026-01-27T07:10:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_stop",
+  "agent_id": "unknown",
+  "data": {
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "completed"
+}
+{
+  "id": "evt_20260127_151015_6b9ef5",
+  "timestamp": "2026-01-27T07:10:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_151027_d5b392",
+  "timestamp": "2026-01-27T07:10:27.000Z",
+{
+  "session_id": "unknown",
+  "id": "evt_20260127_151027_b7ac8e",
+  "workflow_id": "general",
+  "timestamp": "2026-01-27T07:10:27.000Z",
+  "event_type": "tool_call",
+  "session_id": "unknown",
+  "phase": "pre",
+  "workflow_id": "general",
+  "tool_name": "unknown",
+  "event_type": "tool_call",
+  "data": {},
+  "phase": "pre",
+  "status": "pending"
+  "tool_name": "unknown",
+}
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151028_346096",
+  "timestamp": "2026-01-27T07:10:28.000Z",
+  "session_id": "unknown",
+{
+  "id": "evt_20260127_151028_45386e",
+  "workflow_id": "general",
+  "timestamp": "2026-01-27T07:10:28.000Z",
+  "event_type": "tool_call",
+  "session_id": "unknown",
+  "phase": "post",
+  "workflow_id": "general",
+  "tool_name": "unknown",
+  "event_type": "tool_call",
+  "data": {
+  "phase": "post",
+    "output_length": 0,
+  "tool_name": "unknown",
+    "output_preview": null,
+  "data": {
+    "exit_code": 0
+    "output_length": 0,
+  },
+    "output_preview": null,
+  "duration_ms": 0,
+    "exit_code": 0
+  "status": "success",
+  },
+  "related_event": "evt_20260127_151027_b7ac8e"
+  "duration_ms": 0,
+}
+  "status": "success",
+  "related_event": "evt_20260127_151027_b7ac8e"
+}
+{
+  "id": "evt_20260127_151040_e25e61",
+  "timestamp": "2026-01-27T07:10:40.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151108_1f817e",
+  "timestamp": "2026-01-27T07:11:08.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151040_e25e61"
+}
+{
+  "id": "evt_20260127_151115_85c8a1",
+  "timestamp": "2026-01-27T07:11:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151115_ea29ae",
+  "timestamp": "2026-01-27T07:11:15.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151116_3851be",
+  "timestamp": "2026-01-27T07:11:16.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151115_ea29ae"
+}
+{
+  "id": "evt_20260127_151117_63a333",
+  "timestamp": "2026-01-27T07:11:17.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_151121_99dc38",
+  "timestamp": "2026-01-27T07:11:21.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151121_dcd90e",
+  "timestamp": "2026-01-27T07:11:21.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151121_99dc38"
+}
+{
+  "id": "evt_20260127_151145_864902",
+  "timestamp": "2026-01-27T07:11:45.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151146_342dde",
+  "timestamp": "2026-01-27T07:11:46.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151145_864902"
+}
+{
+  "id": "evt_20260127_151150_660630",
+  "timestamp": "2026-01-27T07:11:50.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151602_5f8df6",
+  "timestamp": "2026-01-27T07:16:02.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151602_adaccb",
+  "timestamp": "2026-01-27T07:16:02.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151602_5f8df6"
+}
+{
+  "id": "evt_20260127_151607_2ef851",
+  "timestamp": "2026-01-27T07:16:07.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151751_fcf2e2",
+  "timestamp": "2026-01-27T07:17:51.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151751_de9b42",
+  "timestamp": "2026-01-27T07:17:51.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151751_fcf2e2"
+}
+{
+  "id": "evt_20260127_151756_2a3dea",
+  "timestamp": "2026-01-27T07:17:56.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151859_217e27",
+  "timestamp": "2026-01-27T07:18:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151859_ac4b18",
+  "timestamp": "2026-01-27T07:18:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+{
+  "event_type": "tool_call",
+  "id": "evt_20260127_151859_e7cdb0",
+  "phase": "pre",
+  "timestamp": "2026-01-27T07:18:59.000Z",
+  "tool_name": "unknown",
+  "session_id": "unknown",
+  "data": {},
+  "workflow_id": "general",
+  "status": "pending"
+  "event_type": "tool_call",
+}
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151859_783215",
+  "timestamp": "2026-01-27T07:18:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+{
+  "id": "evt_20260127_151859_136cc9",
+  "duration_ms": 0,
+  "timestamp": "2026-01-27T07:18:59.000Z",
+  "status": "success",
+  "session_id": "unknown",
+  "related_event": "evt_20260127_151859_ac4b18"
+  "workflow_id": "general",
+}
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151859_ac4b18"
+}
+{
+  "id": "evt_20260127_151901_b7de7a",
+  "timestamp": "2026-01-27T07:19:01.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_151910_333e64",
+  "timestamp": "2026-01-27T07:19:10.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151910_29a26b",
+  "timestamp": "2026-01-27T07:19:10.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151910_333e64"
+}
+{
+  "id": "evt_20260127_151933_02662c",
+  "timestamp": "2026-01-27T07:19:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151933_eb98a5",
+  "timestamp": "2026-01-27T07:19:33.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151933_02662c"
+}
+{
+  "id": "evt_20260127_151940_87b19c",
+  "timestamp": "2026-01-27T07:19:40.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151940_7c2214",
+  "timestamp": "2026-01-27T07:19:40.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151940_87b19c"
+}
+{
+  "id": "evt_20260127_151946_03bef3",
+  "timestamp": "2026-01-27T07:19:46.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151946_580f4d",
+  "timestamp": "2026-01-27T07:19:46.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151946_03bef3"
+}
+{
+  "id": "evt_20260127_151952_beacb4",
+  "timestamp": "2026-01-27T07:19:52.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151953_d3d016",
+  "timestamp": "2026-01-27T07:19:53.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151952_beacb4"
+}
+{
+  "id": "evt_20260127_151953_39b66f",
+  "timestamp": "2026-01-27T07:19:53.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_151955_05cd2b",
+  "timestamp": "2026-01-27T07:19:55.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151953_39b66f"
+}
+{
+  "id": "evt_20260127_151959_1bf1be",
+  "timestamp": "2026-01-27T07:19:59.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_152000_f9f113",
+  "timestamp": "2026-01-27T07:20:00.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_151959_1bf1be"
+}
+{
+  "id": "evt_20260127_152012_a10c60",
+  "timestamp": "2026-01-27T07:20:12.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_stop",
+  "agent_id": "unknown",
+  "data": {
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "completed"
+}
+{
+  "id": "evt_20260127_152344_a724f7",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_152344_e14f8c",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_152344_e6d513",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+{
+  "phase": "pre",
+  "id": "evt_20260127_152344_82235d",
+  "tool_name": "unknown",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "data": {},
+  "session_id": "unknown",
+  "status": "pending"
+  "workflow_id": "general",
+}
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_152344_70f357",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_152344_82235d"
+}
+{
+  "id": "evt_20260127_152344_2bf511",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_152344_25c0d7",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_152344_242b7f",
+  "timestamp": "2026-01-27T07:23:44.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": null
+}
+{
+  "id": "evt_20260127_152348_821f39",
+  "timestamp": "2026-01-27T07:23:48.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_152350_04337e",
+  "timestamp": "2026-01-27T07:23:50.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_152348_821f39"
+}
+{
+  "id": "evt_20260127_152355_8bfa95",
+  "timestamp": "2026-01-27T07:23:55.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_152357_c0de48",
+  "timestamp": "2026-01-27T07:23:57.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_152355_8bfa95"
+}
+{
+  "id": "evt_20260127_152400_0ab31a",
+  "timestamp": "2026-01-27T07:24:00.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "pre",
+  "tool_name": "unknown",
+  "data": {},
+  "status": "pending"
+}
+{
+  "id": "evt_20260127_152400_407ff1",
+  "timestamp": "2026-01-27T07:24:00.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "tool_call",
+  "phase": "post",
+  "tool_name": "unknown",
+  "data": {
+    "output_length": 0,
+    "output_preview": null,
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "success",
+  "related_event": "evt_20260127_152400_0ab31a"
+}
+{
+  "id": "evt_20260127_152409_3d8a8c",
+  "timestamp": "2026-01-27T07:24:09.000Z",
+  "session_id": "unknown",
+  "workflow_id": "general",
+  "event_type": "agent_stop",
+  "agent_id": "unknown",
+  "data": {
+    "exit_code": 0
+  },
+  "duration_ms": 0,
+  "status": "completed"
+}

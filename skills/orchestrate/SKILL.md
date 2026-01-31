@@ -1,7 +1,7 @@
 ---
 name: orchestrate
-version: 3.2.0
-description: 端到端工作流編排器 - 串聯 RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY（含智能並行決策）
+version: 3.3.0
+description: 端到端工作流編排器 - File-Based Handoff + 智能並行決策
 triggers: [orchestrate, workflow, 全流程, e2e]
 allowed-tools: [Read, Write, Bash, Glob, Grep, Skill, Task, TaskCreate, TaskUpdate, TaskList, TaskGet]
 ---
@@ -156,6 +156,66 @@ WORKFLOW_ID="orchestrate_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 4)"
 - Hooks（log-tool-pre.sh、log-tool-post.sh、log-agent-lifecycle.sh）依賴 `.claude/workflow/current.json`
 - 如果沒有這個檔案，所有 Agent 活動都不會被記錄
 - 這會導致 `/status` 和 statusline 無法顯示正確的工作流狀態
+
+## File-Based Handoff Protocol（v3.3 核心機制）
+
+**解決 Context Limit 的根本方案**：使用檔案系統作為 Agent 間的「外部記憶體」。
+
+→ 完整說明：[shared/coordination/file-based-handoff.md](../../shared/coordination/file-based-handoff.md)
+
+### 為什麼會 Context Limit？
+
+```
+傳統方式：
+  Agent A 完成 → 15K tokens 回傳 Orchestrator
+  Agent B 完成 → 15K tokens 回傳
+  Agent C 完成 → 15K tokens 回傳
+  Agent D 完成 → 15K tokens 回傳
+  ─────────────────────────────────
+  總計：60K+ tokens → 爆炸 💥
+```
+
+### 新方式
+
+```
+File-Based Handoff：
+  Agent A 完成 → 寫入檔案 → 回傳 "完成，見 path/a.md" (~100 tokens)
+  Agent B 完成 → 寫入檔案 → 回傳 "完成，見 path/b.md" (~100 tokens)
+  ...
+  ─────────────────────────────────
+  Orchestrator 只累積：~400 tokens ✅
+  完整結果在：檔案系統 + Git
+```
+
+### 執行規則
+
+1. **大型任務使用背景執行**：
+   ```javascript
+   Task({
+     description: "複雜任務",
+     prompt: "...結果寫入 {path}，只回覆確認",
+     run_in_background: true  // 關鍵！
+   })
+   ```
+
+2. **Agent 輸出到檔案**：
+   - 完整報告 → `.claude/memory/{type}/{id}/result.md`
+   - 回傳給 Orchestrator → 只說「完成，結果在 {path}」
+
+3. **Git Checkpoint**：
+   - 每批任務完成 → `git commit`
+   - 即使 session 崩潰，結果保留
+
+4. **下一階段讀取檔案**：
+   - Orchestrator 告訴下一個 Agent 檔案路徑
+   - Agent 自己用 Read 讀取
+
+### Context 使用量對比
+
+| 方式 | 4 個大型 Agent | Orchestrator Context |
+|------|---------------|---------------------|
+| 傳統 | 全部回傳 | ~60K tokens（危險）|
+| File-Based | 只回傳路徑 | ~10K tokens（安全）|
 
 ## 智能並行決策（v3.2 新增）
 

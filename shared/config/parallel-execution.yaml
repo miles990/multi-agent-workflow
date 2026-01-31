@@ -5,8 +5,61 @@
 # 1. 多個大型 Agent 同時執行導致 Orchestrator context 爆炸
 # 2. 無法智能判斷任務依賴關係
 # 3. Context Limit Reached 後沒有恢復策略
+#
+# 核心解法：File-Based Handoff Protocol
+# → 詳見 shared/coordination/file-based-handoff.md
 
-version: "1.0"
+version: "1.1"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File-Based Handoff Protocol（核心機制）
+# ═══════════════════════════════════════════════════════════════════════════════
+
+handoff_protocol:
+  type: "file_based"
+  description: "使用檔案系統作為 Agent 間的外部記憶體，避免 context 膨脹"
+
+  # Agent 輸出規則
+  agent_output:
+    destination: "file"  # 寫入檔案，不回傳到 orchestrator context
+    path_pattern: ".claude/memory/{type}/{id}/{agent_id}.md"
+    confirmation_only: true  # 只回傳確認訊息
+
+  # Orchestrator 追蹤規則
+  orchestrator_tracking:
+    store: "path_only"  # 只記錄檔案路徑
+    full_content: false  # 不存完整內容
+
+  # 下一階段如何取得資料
+  next_stage_access:
+    method: "read_file"  # Agent 自己用 Read 工具讀取
+    inject_paths: true   # 在 prompt 中注入檔案路徑
+
+  # Git Checkpoint
+  checkpoint:
+    enabled: true
+    trigger: "batch_complete"
+    method: "git_commit"
+    message_pattern: "checkpoint({type}): {description}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 大型任務執行模式
+# ═══════════════════════════════════════════════════════════════════════════════
+
+large_task_execution:
+  # 強制使用背景執行的條件
+  force_background:
+    enabled: true
+    conditions:
+      - "task_complexity == complex"
+      - "estimated_tokens > 10000"
+      - "is_multi_stage_task"
+
+  # 背景執行的好處
+  benefits:
+    - "Agent 輸出不進入 Orchestrator context"
+    - "透過 TaskOutput 只取狀態，不取完整內容"
+    - "失敗不影響其他任務"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 並行度控制
