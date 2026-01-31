@@ -1,7 +1,7 @@
 ---
 name: orchestrate
-version: 3.1.0
-description: 端到端工作流編排器 - 串聯 RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
+version: 3.2.0
+description: 端到端工作流編排器 - 串聯 RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY（含智能並行決策）
 triggers: [orchestrate, workflow, 全流程, e2e]
 allowed-tools: [Read, Write, Bash, Glob, Grep, Skill, Task, TaskCreate, TaskUpdate, TaskList, TaskGet]
 ---
@@ -156,3 +156,140 @@ WORKFLOW_ID="orchestrate_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 4)"
 - Hooks（log-tool-pre.sh、log-tool-post.sh、log-agent-lifecycle.sh）依賴 `.claude/workflow/current.json`
 - 如果沒有這個檔案，所有 Agent 活動都不會被記錄
 - 這會導致 `/status` 和 statusline 無法顯示正確的工作流狀態
+
+## 智能並行決策（v3.2 新增）
+
+當用戶要求同時執行多個任務時，Orchestrator 會智能決定執行策略。
+
+→ 配置：[shared/config/parallel-execution.yaml](../../shared/config/parallel-execution.yaml)
+
+### 並行度控制
+
+| 任務複雜度 | 最大並行數 | 判斷依據 |
+|-----------|-----------|----------|
+| 簡單 | 4 | 單一模組、< 3 檔案、測試已存在 |
+| 中等 | 2 | 跨模組、3-10 檔案、需新測試 |
+| 複雜 | 1 | 架構變更、> 10 檔案、多階段 |
+
+### 決策流程
+
+```
+用戶請求多任務
+    ↓
+┌─────────────────────────────────────┐
+│  1. 分析每個任務的複雜度              │
+│  2. 偵測任務間的依賴關係              │
+│  3. 估算 context 消耗                │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│  決策：                              │
+│  - 無依賴 + 簡單 → 全部並行           │
+│  - 有依賴 → 拓撲排序後分批            │
+│  - 複雜任務 → 順序執行                │
+│  - context 緊張 → 降低並行度          │
+└─────────────────────────────────────┘
+    ↓
+執行並監控
+```
+
+### 依賴偵測
+
+自動偵測以下依賴：
+- **檔案重疊**：修改相同檔案的任務不能並行
+- **模組依賴**：A 模組 import B 模組，B 要先完成
+- **測試依賴**：測試依賴實作，實作要先完成
+
+### 範例
+
+**輸入**：同時執行 4 個 Phase 1 任務
+
+**分析**：
+- 複雜度：全部是複雜任務
+- 依賴：無直接依賴
+- 估算 context：高
+
+**決策**：
+```
+批次 1: [智能待辦 P1, 動態 Skill P1]  → 並行
+  ↓ 完成後 /compact
+批次 2: [記憶演化 P1, 分布式記憶 P1]  → 並行
+```
+
+**原因**：每批 2 個任務，避免 context 爆炸。
+
+## Context Limit 處理（v3.2 新增）
+
+→ 指南：[shared/coordination/context-limit-handler.md](../../shared/coordination/context-limit-handler.md)
+
+### 預防機制
+
+1. **監控閾值**：
+   - < 50%：正常並行
+   - 50-70%：減少到 2 並行
+   - 70-85%：順序執行
+   - \> 85%：暫停並壓縮
+
+2. **即時壓縮**：
+   - Agent 完成後只保留摘要在 context
+   - 完整輸出保存到檔案
+
+3. **背景執行**：
+   - 大型任務使用 `run_in_background: true`
+   - 不佔用 orchestrator 的 context
+
+### 發生時的處理
+
+當看到 "Context limit reached"：
+
+```
+┌─────────────────────────────────────┐
+│  1. 記錄哪些 Agent 已完成            │
+│  2. 記錄哪些 Agent 還在運行          │
+│  3. 開新 session                    │
+│  4. 執行完成狀態檢查：               │
+│     - git status                    │
+│     - pnpm typecheck                │
+│     - pnpm test <paths>             │
+│  5. 從中斷點繼續，降低並行度          │
+└─────────────────────────────────────┘
+```
+
+### 進度保存
+
+自動保存到 `.claude/workflow/{id}/recovery/progress.yaml`：
+
+```yaml
+tasks:
+  - id: "task-1"
+    status: "completed"
+    commit: "abc123"
+  - id: "task-2"
+    status: "in_progress"
+    last_checkpoint: "80%"
+```
+
+### 恢復指令模板
+
+```markdown
+我需要繼續之前因 context limit 中斷的工作。
+
+**已完成**：
+- [x] 任務 A（已 commit）
+- [x] 任務 B（未 commit 但完整）
+
+**未完成**：
+- [ ] 任務 C（進度 80%）
+
+請：
+1. 先 commit 任務 B
+2. 驗證並繼續任務 C
+3. **一個一個執行，不要並行**
+```
+
+## 新增 Flags（v3.2）
+
+- `--max-parallel <n>` - 限制最大並行數（預設：自動決定）
+- `--sequential` - 強制順序執行所有任務
+- `--save-progress` - 每個任務完成後保存進度檔
+- `--resume <progress-file>` - 從進度檔恢復執行

@@ -1,0 +1,311 @@
+# Parallel Execution Configuration
+# 智能並行執行策略：決定哪些任務可以並行、何時需要等待
+#
+# 解決問題：
+# 1. 多個大型 Agent 同時執行導致 Orchestrator context 爆炸
+# 2. 無法智能判斷任務依賴關係
+# 3. Context Limit Reached 後沒有恢復策略
+
+version: "1.0"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 並行度控制
+# ═══════════════════════════════════════════════════════════════════════════════
+
+parallelism:
+  # 最大並行 Task 數量（Orchestrator 層級）
+  max_concurrent_tasks: 2
+
+  # 根據任務複雜度動態調整
+  complexity_based_adjustment:
+    enabled: true
+    rules:
+      # 簡單任務（預計 < 5 分鐘）
+      simple:
+        indicators:
+          - "單一模組修改"
+          - "少於 3 個檔案"
+          - "測試已存在"
+        max_parallel: 4
+
+      # 中等任務（預計 5-15 分鐘）
+      medium:
+        indicators:
+          - "跨模組修改"
+          - "3-10 個檔案"
+          - "需要新增測試"
+        max_parallel: 2
+
+      # 複雜任務（預計 > 15 分鐘）
+      complex:
+        indicators:
+          - "架構變更"
+          - "超過 10 個檔案"
+          - "多階段執行"
+          - "使用 /orchestrate"
+        max_parallel: 1  # 一次只執行一個複雜任務
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 任務依賴分析
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dependency_analysis:
+  # 自動偵測依賴關係
+  auto_detect:
+    enabled: true
+    methods:
+      - "file_overlap"      # 修改相同檔案
+      - "module_dependency" # 模組間依賴
+      - "test_coverage"     # 測試覆蓋重疊
+      - "explicit_blocks"   # 明確宣告的 blockedBy
+
+  # 依賴類型
+  dependency_types:
+    hard:
+      description: "必須等待完成"
+      examples:
+        - "A 的輸出是 B 的輸入"
+        - "共用相同的 lock 檔案"
+        - "修改同一個 config"
+
+    soft:
+      description: "建議順序執行但可並行"
+      examples:
+        - "共用相同的測試 fixtures"
+        - "可能有資源競爭"
+      action: "warn_and_proceed"
+
+    none:
+      description: "完全獨立"
+      examples:
+        - "不同模組"
+        - "不同檔案集"
+      action: "parallel_ok"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 執行批次策略
+# ═══════════════════════════════════════════════════════════════════════════════
+
+batching:
+  # 如何將多個任務分批執行
+  strategy: "dependency_aware"
+
+  strategies:
+    # 根據依賴關係分批
+    dependency_aware:
+      description: "有依賴的順序執行，無依賴的並行"
+      algorithm: |
+        1. 建立依賴圖（DAG）
+        2. 拓撲排序
+        3. 同一層級的任務可並行
+        4. 不同層級順序執行
+
+    # 保守策略
+    sequential:
+      description: "全部順序執行"
+      use_when:
+        - "context 使用率 > 70%"
+        - "曾經發生 context limit"
+        - "任務間關係不明確"
+
+    # 激進策略
+    aggressive_parallel:
+      description: "盡可能並行"
+      use_when:
+        - "明確無依賴"
+        - "context 使用率 < 30%"
+        - "express 模式"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Context 監控與保護
+# ═══════════════════════════════════════════════════════════════════════════════
+
+context_protection:
+  # 監控閾值
+  thresholds:
+    safe: 0.50        # < 50%：安全，可並行
+    caution: 0.70     # 50-70%：謹慎，減少並行
+    warning: 0.85     # 70-85%：警告，順序執行
+    critical: 0.95    # > 95%：危急，立即處理
+
+  # 各閾值的動作
+  actions:
+    safe:
+      parallelism: "normal"
+      message: null
+
+    caution:
+      parallelism: "reduced"
+      reduce_to: 2
+      message: "Context 使用率較高，減少並行度"
+
+    warning:
+      parallelism: "sequential"
+      reduce_to: 1
+      message: "Context 接近上限，切換為順序執行"
+      additional_actions:
+        - "compress_completed_results"
+        - "summarize_agent_outputs"
+
+    critical:
+      parallelism: "pause"
+      message: "Context 即將到達上限"
+      actions:
+        - "pause_new_tasks"
+        - "wait_for_completion"
+        - "aggressive_compress"
+        - "consider_new_session"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Context Limit 恢復策略
+# ═══════════════════════════════════════════════════════════════════════════════
+
+context_limit_recovery:
+  # 當 Context Limit Reached 發生時的處理
+  on_limit_reached:
+    immediate_actions:
+      - action: "save_progress"
+        description: "保存所有進行中任務的進度"
+        output: ".claude/workflow/{id}/recovery/progress.yaml"
+
+      - action: "identify_completed"
+        description: "識別已完成的任務"
+        criteria:
+          - "Agent 顯示 completed"
+          - "輸出檔案存在且完整"
+          - "測試通過（如適用）"
+
+      - action: "identify_incomplete"
+        description: "識別未完成的任務"
+        criteria:
+          - "Agent 仍在運行"
+          - "輸出檔案不存在或不完整"
+          - "測試失敗或未執行"
+
+    recovery_guidance:
+      to_new_session:
+        title: "在新 Session 繼續"
+        steps:
+          - "讀取 recovery/progress.yaml"
+          - "跳過已完成的任務"
+          - "從中斷點繼續"
+          - "使用較低的並行度"
+
+      completion_check:
+        title: "檢查完成狀態"
+        commands:
+          - "git status"
+          - "pnpm typecheck"
+          - "pnpm test <affected_paths>"
+
+  # 進度保存格式
+  progress_format:
+    version: "1.0"
+    fields:
+      - workflow_id
+      - timestamp
+      - tasks:
+          - id
+          - name
+          - status: "completed | in_progress | pending | failed"
+          - output_files: []
+          - last_checkpoint: ""
+          - error: ""
+      - context_state:
+          - estimated_usage
+          - last_message_count
+      - recovery_instructions: ""
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 預防性措施
+# ═══════════════════════════════════════════════════════════════════════════════
+
+prevention:
+  # 啟動前檢查
+  pre_launch_check:
+    enabled: true
+    checks:
+      - name: "estimate_context_usage"
+        description: "估算任務的 context 消耗"
+        formula: |
+          base_cost = 5000  # 基礎開銷
+          per_task = 15000  # 每個任務的平均消耗
+          per_perspective = 3000  # 每個視角的額外消耗
+          estimated = base_cost + (num_tasks * per_task) + (num_perspectives * per_perspective)
+
+      - name: "check_available_context"
+        description: "檢查剩餘可用 context"
+        action_if_insufficient: "reduce_parallelism_or_batch"
+
+  # Agent 輸出壓縮
+  output_compression:
+    enabled: true
+    strategies:
+      # 即時壓縮
+      streaming:
+        description: "Agent 完成後立即壓縮其輸出"
+        compress_to: "summary"  # 只保留摘要在 context 中
+        preserve_full: true     # 完整輸出保存到檔案
+
+      # 批次壓縮
+      batch:
+        trigger: "context_usage > 0.7"
+        action: "compress_all_completed_agent_outputs"
+
+  # 使用 run_in_background
+  background_execution:
+    enabled: true
+    description: "大型任務使用背景執行減少 context 膨脹"
+    criteria:
+      - "estimated_duration > 5_minutes"
+      - "is_independent_task"
+    benefits:
+      - "不佔用 orchestrator 的 context"
+      - "可透過 TaskOutput 取得結果"
+      - "失敗不影響其他任務"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 範例：多任務執行決策
+# ═══════════════════════════════════════════════════════════════════════════════
+
+examples:
+  scenario_1:
+    input:
+      tasks:
+        - "智能待辦 Phase 1"
+        - "記憶演化 Phase 1"
+        - "動態 Skill Phase 1"
+        - "分布式記憶 Phase 1"
+
+    analysis:
+      complexity: "complex"
+      dependencies: "none detected"
+      estimated_context: "high"
+
+    decision:
+      strategy: "batched_sequential"
+      batches:
+        - ["智能待辦 P1", "動態 Skill P1"]  # 批次 1
+        - ["記憶演化 P1", "分布式記憶 P1"]  # 批次 2
+      reason: |
+        雖然任務間無依賴，但每個都是複雜任務。
+        分成 2 批執行，每批 2 個任務，避免 context 爆炸。
+        每批完成後 /compact，然後執行下一批。
+
+  scenario_2:
+    input:
+      tasks:
+        - "修復 TypeScript 錯誤"
+        - "更新 README"
+        - "新增測試"
+
+    analysis:
+      complexity: "simple/medium"
+      dependencies: "soft (test depends on fix)"
+
+    decision:
+      strategy: "partial_parallel"
+      execution:
+        - parallel: ["修復 TypeScript 錯誤", "更新 README"]
+        - then: ["新增測試"]
+      reason: "測試可能依賴修復結果，最後執行"
