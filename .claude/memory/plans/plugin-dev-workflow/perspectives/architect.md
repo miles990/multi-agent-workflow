@@ -1,944 +1,508 @@
 # 系統架構師報告
 
-> 基於研究報告設計 plugin-dev Skill 的詳細組件架構
->
-> **評分**: 可行性 8.0/10 | 複雜度 6.5/10 | 技術債務清除 9.5/10
->
-> **日期**: 2026-02-01
+> plugin-dev Skill 組件設計與技術架構
 
----
+**視角**：系統架構師
+**日期**：2026-02-01
+**階段**：PLAN
 
 ## 核心設計
 
-### 架構模式：工具型 Skill + CLI Facade
-
-plugin-dev Skill 採用**輕量級工具型架構**，不同於 RESEARCH/PLAN/IMPLEMENT 等多視角 Skill，它直接調用 Python CLI 模組完成操作：
+### 架構層次
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Claude Code Skill Layer                                    │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │ /plugin-dev [command] [args]                          │  │
-│  │   ├─ sync        → DevCommands.sync()                 │  │
-│  │   ├─ watch       → DevCommands.watch()                │  │
-│  │   ├─ validate    → ReleaseCommands.validate()         │  │
-│  │   ├─ status      → CacheManager.status()              │  │
-│  │   ├─ version     → VersionManager.bump()              │  │
-│  │   └─ release     → ReleaseCommands.release()          │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Python CLI Layer (cli/plugin/)                             │
-│  ┌──────────────┐  ┌─────────────┐  ┌──────────────────┐   │
-│  │ CacheManager │  │ DevCommands │  │VersionManager    │   │
-│  │              │  │             │  │                  │   │
-│  │ - status()   │  │ - sync()    │  │ - bump()         │   │
-│  │ - clean()    │  │ - watch()   │  │ - changelog()    │   │
-│  │ - repair()   │  │ - link()    │  │ - check()        │   │
-│  └──────────────┘  └─────────────┘  └──────────────────┘   │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ ReleaseCommands                                       │   │
-│  │                                                       │   │
-│  │ - validate()  → 預檢查                               │   │
-│  │ - release()   → 完整發布流程（9 步驟）               │   │
-│  │ - resume()    → 失敗恢復                              │   │
-│  │ - rollback()  → 版本回退                              │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Shared Modules                                              │
-│  ┌────────────┐  ┌──────────────┐  ┌───────────────────┐   │
-│  │ git_lib    │  │ config.yaml  │  │ cache-policy.yaml │   │
-│  │            │  │              │  │                   │   │
-│  │ - GitOps   │  │ - sync 規則  │  │ - 快取策略        │   │
-│  │ - Commit   │  │ - watch 設定 │  │ - 驗證規則        │   │
-│  │ - Context  │  │ - release 流 │  │ - 清理策略        │   │
-│  └────────────┘  └──────────────┘  └───────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                  Skill Layer                         │
+│  /plugin-dev [command] [options]                    │
+│  skills/plugin-dev/SKILL.md                         │
+└────────────────────┬────────────────────────────────┘
+                     │ 調用
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│               Python CLI Layer                       │
+│  cli/plugin/                                        │
+│  ├── cache.py      (CacheManager)                   │
+│  ├── version.py    (VersionManager)                 │
+│  ├── dev.py        (DevCommands)                    │
+│  └── release.py    (ReleaseCommands)                │
+└────────────────────┬────────────────────────────────┘
+                     │ 使用
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│              Shared Modules Layer                    │
+│  ├── scripts/git_lib/  (Git 操作統一)               │
+│  └── shared/plugin/    (配置管理)                   │
+└─────────────────────────────────────────────────────┘
 ```
 
-### 設計原則
+### 工具型 Skill 定位
 
-| 原則 | 應用方式 |
-|------|----------|
-| **Single Responsibility** | 每個命令一個明確功能（sync/watch/validate/release） |
-| **Open/Closed** | 配置驅動（config.yaml），新增功能不修改核心代碼 |
-| **Liskov Substitution** | CacheManager/DevCommands 可獨立替換測試實現 |
-| **Interface Segregation** | 命令接口最小化，僅暴露必要參數 |
-| **Dependency Inversion** | 依賴 git_lib 抽象，不直接調用 subprocess |
+**不採用 MAP-REDUCE 框架**：
+- Plugin 開發是單一領域操作
+- 無需多視角並行分析
+- 保持簡單性優先
 
----
+**與工作流型 Skill 對比**：
+
+| 特性 | 工作流型（research/plan） | 工具型（plugin-dev） |
+|------|-------------------------|---------------------|
+| 並行視角 | 4 個 | 無 |
+| MAP-REDUCE | 是 | 否 |
+| Context | fork | shared |
+| 模型 | sonnet/haiku 混合 | haiku |
+| 輸出 | 報告文檔 | 操作結果 |
 
 ## 目錄結構
 
-### Skill 目錄（遵循 STANDARD.md）
+### Skill 目錄
 
 ```
 skills/plugin-dev/
-├── SKILL.md                              # Skill 主檔案
-│   ├─ Frontmatter（必要欄位）
-│   │   name: plugin-dev
-│   │   version: 1.0.0
-│   │   description: Plugin 開發工作流工具集
-│   │   triggers: [plugin-dev, pd]
-│   │   context: shared                    # 不需要 fork
-│   │   allowed-tools: [Bash, Read, Glob, TaskList]
-│   │   model: haiku                       # 輕量級命令
-│   │
-│   └─ 標準段落
-│       ├─ 使用方式
-│       ├─ 命令列表（9 個命令）
-│       ├─ 工作流集成
-│       ├─ 狀態管理
-│       ├─ 錯誤處理
-│       └─ 相關模組
-│
+├── SKILL.md                          # 主文檔 + Frontmatter
 ├── 00-quickstart/
 │   └── _base/
-│       └── usage.md                       # 快速開始
-│           ├─ 最簡用法（sync + watch）
-│           ├─ 常用模式（開發循環）
-│           ├─ 發布流程（version + release）
-│           └─ 故障排除
-│
-├── 01-perspectives/
+│       └── usage.md                  # 快速開始指南
+├── 01-commands/                      # 命令詳細說明（替代 perspectives）
 │   └── _base/
-│       └── commands.md                    # 命令詳解（取代視角）
-│           ├─ sync 命令
-│           ├─ watch 命令
-│           ├─ validate 命令
-│           ├─ status 命令
-│           ├─ version 命令
-│           └─ release 命令
-│
+│       ├── sync.md
+│       ├── watch.md
+│       ├── validate.md
+│       ├── status.md
+│       ├── version.md
+│       └── release.md
 ├── config/
-│   ├── commands.yaml                      # 命令配置
-│   │   ├─ sync:
-│   │   │   flags: [--force, --dry-run]
-│   │   │   timeout: 30
-│   │   ├─ watch:
-│   │   │   flags: [--debounce N]
-│   │   │   background: true
-│   │   └─ release:
-│   │       flags: [patch|minor|major, --dry-run, --resume]
-│   │       timeout: 300
-│   │
-│   └── validation.yaml                    # 驗證規則
-│       ├─ required_checks:
-│       │   - plugin_json_valid
-│       │   - skills_have_skill_md
-│       │   - version_consistent
-│       └─ optional_checks:
-│           - tests_pass
-│           - lint_pass
-│
+│   ├── commands.yaml                 # 命令配置
+│   └── validation.yaml               # 驗證規則
 └── templates/
-    ├── sync-result.md.template            # Sync 輸出模板
-    └── release-summary.md.template        # Release 輸出模板
+    ├── release-notes.md.template     # 發布說明模板
+    └── changelog-entry.md.template   # 變更日誌模板
 ```
 
-### .plugin-dev 目錄（狀態存儲）
+### 狀態目錄
 
 ```
-.plugin-dev/
-├── cache-map.json                         # 增量同步映射
-│   {
-│     "skills/research/SKILL.md": {
-│       "hash": "a1b2c3...",
-│       "size": 12345,
-│       "mtime": 1706789012.34
-│     }
-│   }
-│
-├── watch.config.json                      # 監控配置
-│   {
-│     "debounce_ms": 500,
-│     "exclude_patterns": ["__pycache__", "*.pyc"],
-│     "include_patterns": ["skills/**/*"]
-│   }
-│
-├── release-progress.json                  # 發布進度（失敗恢復）
-│   {
-│     "current_step": "git_tag",
-│     "completed_steps": ["validate", "test", "check_git", "bump_version"],
-│     "failed_step": "git_tag",
-│     "error": "Remote origin not configured",
-│     "new_version": "2.4.1",
-│     "started_at": "2026-02-01T14:30:00"
-│   }
-│
-└── dev-session.log                        # 開發 session 日誌
+.plugin-dev/                          # 運行時狀態
+├── cache-map.json                    # 增量同步映射
+├── watch.config.json                 # 監控配置
+├── release-progress.json             # 發布進度
+└── logs/
+    └── plugin-workflow.log           # 操作日誌
 ```
 
+## SKILL.md Frontmatter
+
+```yaml
 ---
+name: plugin-dev
+version: 1.0.0
+description: Plugin 開發完整工作流 - 同步、監控、驗證、發布
+triggers: [plugin-dev, plugin-workflow, plugin-sync, plugin-release]
+context: shared                       # 不需要 fork，直接在主 Context
+agent: general-purpose
+allowed-tools: [Read, Write, Bash, Grep, Glob]
+model: haiku                          # 輕量級工具，使用快速模型
+hooks: false                          # 不使用自動 Hook，手動控制 commit
+---
+```
 
 ## 介面設計
 
-### 命令架構
+### 命令結構
 
-#### 1. sync - 同步到快取
+```
+/plugin-dev <command> [subcommand] [options]
+
+Commands:
+  sync      同步到 Claude Code 快取
+  watch     監控模式（熱載入）
+  validate  驗證 Plugin 結構
+  status    查看快取和版本狀態
+  version   版本管理
+  release   發布流程
+```
+
+### 命令詳細設計
+
+#### `/plugin-dev sync`
 
 ```bash
-/plugin-dev sync [--force] [--dry-run]
+/plugin-dev sync [options]
+
+Options:
+  --force       強制全量同步（忽略快取映射）
+  --dry-run     預覽變更，不實際同步
+  --verbose     顯示詳細輸出
+
+Examples:
+  /plugin-dev sync              # 增量同步
+  /plugin-dev sync --force      # 全量同步
+  /plugin-dev sync --dry-run    # 預覽變更
 ```
 
-**調用路徑**：
+**實作路徑**：
 ```
-SKILL.md → Bash("python -m cli.plugin dev sync --force") → DevCommands.sync()
-```
-
-**參數映射**：
-| Skill 參數 | Python 參數 | 說明 |
-|-----------|-------------|------|
-| `--force` | `force=True` | 強制全量同步 |
-| `--dry-run` | `dry_run=True` | 模擬不執行 |
-| (無) | `force=False` | 增量同步（預設） |
-
-**輸出處理**：
-```python
-result = dev_commands.sync(force=args.force, dry_run=args.dry_run)
-# result: SyncResult(
-#   success=True,
-#   files_added=["skills/new.md"],
-#   files_modified=["plugin.json"],
-#   files_deleted=[],
-#   duration_ms=120
-# )
+Skill → Bash: python -m cli.plugin.dev sync [options]
+     → DevCommands.sync()
+     → CacheManager
 ```
 
-**Skill 輸出格式**（直接展示給用戶）：
-```
-📦 Sync to Cache
-
-Source: /Users/user/Workspace/multi-agent-workflow
-Cache:  ~/.claude/plugins/cache/multi-agent-workflow/multi-agent-workflow/2.4.0
-
-Changes:
-  + 2 files added
-  ~ 1 file modified
-  - 0 files deleted
-
-Duration: 120ms
-```
-
-#### 2. watch - 熱載入監控
+#### `/plugin-dev watch`
 
 ```bash
-/plugin-dev watch [--debounce N]
+/plugin-dev watch [options]
+
+Options:
+  --debounce N   防抖動時間（毫秒，預設 500）
+  --no-initial   不執行初始同步
+  --background   背景執行
+
+Examples:
+  /plugin-dev watch                    # 前台監控
+  /plugin-dev watch --background       # 背景監控
+  /plugin-dev watch --debounce 1000    # 1 秒防抖動
 ```
 
-**調用路徑**：
+**實作路徑**：
 ```
-SKILL.md → Bash("python -m cli.plugin dev watch --debounce 1000", run_in_background=true)
-```
-
-**背景任務管理**：
-```python
-# Skill 內部
-task_id = Bash(
-    "python -m cli.plugin dev watch --debounce 500",
-    run_in_background=True
-)
-
-# 檢查狀態（非阻塞）
-output = TaskOutput(task_id, block=False)
-if output:
-    print(output)  # 顯示同步日誌
-
-# 用戶可隨時停止
-# Ctrl+C 或 kill task_id
+Skill → Bash: python -m cli.plugin.dev watch [options]
+     → DevCommands.watch()
+     → fswatch / inotifywait / polling
 ```
 
-#### 3. validate - 預檢查
+#### `/plugin-dev validate`
 
 ```bash
-/plugin-dev validate [--strict]
-```
+/plugin-dev validate [options]
 
-**調用路徑**：
-```
-SKILL.md → Bash("python -m cli.plugin release validate") → ReleaseCommands.validate()
-```
-
-**輸出處理**：
-```python
-result = release_commands.validate()
-# result: ValidationResult(
-#   passed=True,
-#   checks={
-#     "plugin_json": True,
-#     "skills_structure": True,
-#     "version_consistency": True,
-#     "git_clean": False
-#   },
-#   errors=[],
-#   warnings=["Uncommitted changes: 3 files"]
-# )
-```
-
-**Skill 輸出格式**：
-```
-✅ Pre-Release Validation
+Options:
+  --strict      嚴格模式（警告也視為錯誤）
+  --fix         自動修復可修復的問題
 
 Checks:
-  ✅ plugin.json valid
-  ✅ Skills structure correct
-  ✅ Version consistency
-  ⚠️  Git workspace has uncommitted changes
-
-Status: PASSED (3 files uncommitted, non-blocking)
+  - plugin.json 存在且有效
+  - skills/ 目錄存在
+  - 至少一個 SKILL.md
+  - 版本一致性（plugin.json, marketplace.json）
 ```
 
-#### 4. status - 快取狀態
+**實作路徑**：
+```
+Skill → Bash: python -m cli.plugin.release validate [options]
+     → ReleaseCommands.validate()
+     → ValidationResult
+```
+
+#### `/plugin-dev status`
 
 ```bash
-/plugin-dev status
+/plugin-dev status [options]
+
+Options:
+  --json        JSON 格式輸出
+
+Output:
+  Plugin: multi-agent-workflow
+  Version: 2.4.0
+  Cache: ~/.claude/plugins/cache/...
+  Cache Status: Valid (synced 5 min ago)
+  Skills: 8 loaded
+  Last Release: v2.4.0 (2026-01-30)
 ```
 
-**調用路徑**：
+**實作路徑**：
 ```
-SKILL.md → Bash("python -m cli.plugin cache status") → CacheManager.status()
+Skill → Bash: python -m cli.plugin.dev status [options]
+     → CacheManager.status()
+     → VersionManager.get_current_version()
 ```
 
-#### 5. version - 版本管理
+#### `/plugin-dev version`
 
 ```bash
-/plugin-dev version [bump] [--dry-run]
+/plugin-dev version [command] [options]
+
+Commands:
+  (無)          顯示當前版本
+  bump LEVEL    升級版本（patch/minor/major）
+  check         檢查版本一致性
+
+Options:
+  --dry-run     預覽變更
+
+Examples:
+  /plugin-dev version             # 顯示 2.4.0
+  /plugin-dev version bump patch  # 升級到 2.4.1
+  /plugin-dev version check       # 檢查一致性
 ```
 
-**命令變體**：
-| 命令 | 說明 | 調用 |
-|------|------|------|
-| `/plugin-dev version` | 顯示當前版本 | `VersionManager.get_current_version()` |
-| `/plugin-dev version bump patch` | 升級 patch 版本 | `VersionManager.bump(BumpLevel.PATCH)` |
-| `/plugin-dev version bump minor` | 升級 minor 版本 | `VersionManager.bump(BumpLevel.MINOR)` |
-| `/plugin-dev version bump major` | 升級 major 版本 | `VersionManager.bump(BumpLevel.MAJOR)` |
-| `/plugin-dev version --dry-run` | 模擬升級 | `bump(dry_run=True)` |
-
-#### 6. release - 完整發布
+#### `/plugin-dev release`
 
 ```bash
-/plugin-dev release [patch|minor|major] [--dry-run] [--resume]
+/plugin-dev release [LEVEL] [options]
+
+Arguments:
+  LEVEL         版本級別：patch/minor/major（預設 patch）
+
+Options:
+  --dry-run     預覽完整發布流程
+  --skip-tests  跳過測試步驟
+  --resume      從中斷點恢復
+  --yes         跳過確認提示
+
+Examples:
+  /plugin-dev release patch              # 發布 patch 版本
+  /plugin-dev release minor --dry-run    # 預覽 minor 發布
+  /plugin-dev release --resume           # 恢復中斷的發布
 ```
 
-**9 步驟流程**：
-```python
-RELEASE_STEPS = [
-    VALIDATE,           # 1. 預檢查
-    TEST,               # 2. 執行測試
-    CHECK_GIT,          # 3. 檢查 Git 狀態
-    BUMP_VERSION,       # 4. 升級版本號
-    GENERATE_CHANGELOG, # 5. 生成變更日誌
-    GIT_COMMIT,         # 6. Git commit
-    GIT_TAG,            # 7. Git tag
-    GIT_PUSH,           # 8. 推送到遠端
-    UPDATE_MARKETPLACE, # 9. 更新 marketplace.json
-    COMPLETE            # 10. 完成
-]
+**發布流程**：
 ```
-
-**失敗恢復**：
-```bash
-# 發布在步驟 7 (git_tag) 失敗
-/plugin-dev release patch
-# ❌ Error: Remote origin not configured
-
-# 修復問題後恢復
-git remote add origin <url>
-/plugin-dev release --resume
-# ✅ Resuming from step: git_tag
+1. VALIDATE    驗證 Plugin 結構
+2. TEST        執行測試套件
+3. CHECK_GIT   檢查 Git 狀態
+4. BUMP        升級版本號
+5. CHANGELOG   生成變更日誌
+6. COMMIT      Git commit
+7. TAG         建立 Git tag
+8. PUSH        推送到遠端
+9. COMPLETE    完成
 ```
-
----
 
 ## 整合策略
 
-### 1. git_lib 整合
+### git_lib 整合
 
-**使用場景**：
-- `release` 命令的 git commit/tag/push
-- `validate` 命令的 git 狀態檢查
-- 未來可能的工作流 commit 集成
+**改造 release.py**：
 
-**集成方式**：
 ```python
-# cli/plugin/release.py
-from scripts.git_lib import GitOps, CommitManager, WorkflowContext
+# Before
+def _git_commit(self, message: str):
+    subprocess.run(["git", "add", "-A"], cwd=self.project_dir)
+    subprocess.run(["git", "commit", "-m", message], cwd=self.project_dir)
 
-class ReleaseCommands:
-    def __init__(self, project_dir):
-        self.git = GitOps(project_dir)
-        self.commit_mgr = CommitManager(self.git)
+# After
+from scripts.git_lib import GitOps, WorkflowCommitFacade
 
-    def _git_commit(self, message: str):
-        """使用 git_lib 統一提交"""
-        # 替換原有的 subprocess.run(["git", "commit", ...])
-        self.commit_mgr.commit_with_coauthor(
-            message=message,
-            coauthor="Claude Opus 4.5 <noreply@anthropic.com>"
-        )
-
-    def _check_git_status(self):
-        """使用 git_lib 檢查狀態"""
-        if self.git.has_changes():
-            changed = self.git.get_changed_files()
-            raise DirtyWorkspaceError(changed)
+def _git_commit(self, message: str):
+    git = GitOps(self.project_dir)
+    git.stage(["."])
+    git.commit(message)
 ```
 
 **優勢**：
-- 統一錯誤處理（GitExecutionError）
-- 自動包含 Co-Author
-- 符合專案 commit 規範
-- 可測試性提升（mock GitOps）
+- 統一 commit message 格式
+- 自動處理 pathspec 排除
+- 錯誤處理更完善
 
-### 2. 配置載入機制
+### 配置載入機制
 
-**配置優先順序**（高到低）：
-```
-1. 命令行參數（--debounce 1000）
-   ↓
-2. 環境變數（PLUGIN_WATCH_DEBOUNCE=1000）
-   ↓
-3. .plugin-dev/watch.config.json（專案級）
-   ↓
-4. shared/plugin/config.yaml（全域預設）
-```
-
-**實作**：
 ```python
-class DevCommands:
-    def _load_config(self, config_name: str) -> dict:
-        """分層載入配置"""
-        # 1. 載入全域預設
-        global_config = yaml.safe_load(
-            (self.project_dir / "shared/plugin/config.yaml").read_text()
-        )
+# cli/plugin/config.py
+from pathlib import Path
+import yaml
 
-        # 2. 載入專案級配置
-        project_config_path = self.dev_config_dir / f"{config_name}.json"
-        if project_config_path.exists():
-            project_config = json.load(project_config_path.open())
-            global_config.update(project_config)
+class PluginConfig:
+    """Plugin 配置管理"""
 
-        # 3. 環境變數覆蓋
-        env_overrides = self._get_env_overrides(config_name)
-        global_config.update(env_overrides)
+    CONFIG_PATH = Path("shared/plugin/config.yaml")
 
-        return global_config
+    def __init__(self, project_dir: Path):
+        self.project_dir = project_dir
+        self._config = self._load()
 
-    def watch(self, debounce_ms: Optional[int] = None):
-        config = self._load_config("watch")
+    def _load(self) -> dict:
+        config_file = self.project_dir / self.CONFIG_PATH
+        if config_file.exists():
+            return yaml.safe_load(config_file.read_text())
+        return self._defaults()
 
-        # 4. 命令行參數最高優先
-        if debounce_ms is not None:
-            config["debounce_ms"] = debounce_ms
+    @property
+    def cache_base(self) -> Path:
+        """快取基礎路徑"""
+        env_override = os.environ.get("PLUGIN_CACHE_BASE")
+        if env_override:
+            return Path(env_override)
+        return Path(self._config["cache"]["base_path"]).expanduser()
 
-        # 使用最終配置
-        return self._start_watch(config)
+    @property
+    def watch_debounce(self) -> int:
+        """監控防抖動時間"""
+        return self._config.get("watch", {}).get("debounce_ms", 500)
 ```
 
-### 3. 狀態持久化
+### Skill 調用 Python CLI
 
-**狀態檔案類型**：
+**SKILL.md 執行流程**：
 
-| 檔案 | 格式 | 用途 | 更新時機 |
-|------|------|------|---------|
-| `cache-map.json` | JSON | 增量同步映射 | 每次 sync 後 |
-| `watch.config.json` | JSON | 監控配置 | watch 啟動時 |
-| `release-progress.json` | JSON | 發布進度 | 每完成一步 + 失敗時 |
-| `dev-session.log` | 文本 | 開發日誌 | 持續追加 |
+```markdown
+## 執行流程
 
-**JSON Schema 定義**：
-```python
-# cache-map.json
-{
-  "skills/research/SKILL.md": {
-    "hash": "a1b2c3d4...",        # SHA256
-    "size": 12345,                 # bytes
-    "mtime": 1706789012.34         # timestamp
-  }
-}
+### /plugin-dev sync
 
-# release-progress.json
-{
-  "current_step": "git_tag",       # ReleaseStep enum value
-  "completed_steps": [...],        # list[ReleaseStep]
-  "failed_step": "git_tag",        # ReleaseStep | null
-  "error": "...",                  # str | null
-  "new_version": "2.4.1",          # str
-  "git_tag": "v2.4.1",             # str | null
-  "started_at": "2026-02-01T...",  # ISO 8601
-  "completed_at": null             # ISO 8601 | null
-}
+1. **解析參數**：
+   - `--force` → `force=True`
+   - `--dry-run` → `dry_run=True`
+
+2. **執行命令**：
+   ```
+   Bash: python -m cli.plugin.dev sync --force --dry-run
+   ```
+
+3. **處理輸出**：
+   - 成功：顯示同步結果
+   - 失敗：顯示錯誤訊息和修復建議
 ```
-
-### 4. 錯誤處理與恢復
-
-**錯誤層級**：
-
-| 層級 | 處理方式 | 範例 |
-|------|---------|------|
-| **CRITICAL** | 終止流程，保存進度 | Git push 失敗 |
-| **ERROR** | 顯示錯誤，允許重試 | 測試失敗 |
-| **WARNING** | 顯示警告，繼續執行 | 未提交變更（validate） |
-| **INFO** | 資訊提示 | Sync 完成 |
-
-**恢復機制**：
-```python
-# 發布失敗自動保存進度
-try:
-    for step in RELEASE_STEPS:
-        execute_step(step)
-        progress.completed_steps.append(step)
-except Exception as e:
-    progress.failed_step = progress.current_step
-    progress.error = str(e)
-    self._save_progress(progress)  # 持久化
-    raise
-
-# 用戶修復問題後恢復
-progress = self._load_progress()
-start_index = RELEASE_STEPS.index(progress.failed_step)
-for step in RELEASE_STEPS[start_index:]:
-    execute_step(step)
-```
-
----
 
 ## 狀態管理設計
 
-### Workflow ID 追蹤
+### ReleaseProgress 持久化
 
-**問題**：plugin-dev 是工具型 Skill，不屬於任何工作流（RESEARCH/PLAN/...），是否需要 Workflow ID？
-
-**設計決策**：**不需要 Workflow ID**
-
-**理由**：
-1. plugin-dev 是開發工具，不是業務工作流
-2. 狀態存儲在 `.plugin-dev/`，不在 `.claude/memory/`
-3. 不觸發 Hook 的工作流相關邏輯
-
-**狀態管理方式**：
 ```python
-# 不使用 WorkflowContext
-# ❌ context = WorkflowContext(project_dir)
-
-# 使用獨立狀態目錄
-# ✅ dev_config_dir = project_dir / ".plugin-dev"
-```
-
-### ReleaseProgress 狀態機
-
-**狀態轉換圖**：
-```
-IDLE
-  ↓ (release 命令)
-VALIDATE
-  ↓ (通過)
-TEST
-  ↓ (通過)
-CHECK_GIT
-  ↓ (乾淨)
-BUMP_VERSION
-  ↓ (已升級)
-GENERATE_CHANGELOG
-  ↓ (已生成)
-GIT_COMMIT
-  ↓ (已提交)
-GIT_TAG
-  ↓ (已標記)
-GIT_PUSH ←──────┐ (失敗：保存進度)
-  ↓ (已推送)    │
-UPDATE_MARKETPLACE│
-  ↓ (已更新)    │
-COMPLETE         │
-                 │
-  (--resume) ────┘
-```
-
-**進度文件結構**：
-```json
+# .plugin-dev/release-progress.json
 {
-  "current_step": "git_push",
-  "completed_steps": [
-    "validate",
-    "test",
-    "check_git",
-    "bump_version",
-    "generate_changelog",
-    "git_commit",
-    "git_tag"
-  ],
-  "failed_step": "git_push",
-  "error": "fatal: 'origin' does not appear to be a git repository",
-  "new_version": "2.4.1",
-  "git_tag": "v2.4.1",
-  "started_at": "2026-02-01T14:30:00Z",
-  "completed_at": null
+    "workflow_id": "release_20260201_143000",
+    "current_step": "CHANGELOG",
+    "completed_steps": ["VALIDATE", "TEST", "CHECK_GIT", "BUMP"],
+    "failed_step": null,
+    "error": null,
+    "new_version": "2.4.1",
+    "started_at": "2026-02-01T14:30:00",
+    "last_updated": "2026-02-01T14:35:00"
 }
 ```
 
----
-
-## 依賴關係
-
-### 模組依賴圖
-
-```
-skills/plugin-dev/SKILL.md
-        │
-        ├──→ cli/plugin/cache.py
-        │         └──→ shared/plugin/cache-policy.yaml
-        │
-        ├──→ cli/plugin/dev.py
-        │         ├──→ cli/plugin/cache.py
-        │         └──→ shared/plugin/config.yaml (watch, sync)
-        │
-        ├──→ cli/plugin/version.py
-        │         └──→ shared/plugin/version-strategy.yaml
-        │
-        └──→ cli/plugin/release.py
-                  ├──→ cli/plugin/cache.py
-                  ├──→ cli/plugin/version.py
-                  ├──→ scripts/git_lib/
-                  │         ├──→ operations.py
-                  │         ├──→ commit.py
-                  │         └──→ context.py
-                  └──→ shared/plugin/config.yaml (release, validation)
-```
-
-### 外部依賴
-
-| 依賴 | 用途 | 必要性 |
-|------|------|--------|
-| `python >= 3.8` | CLI 模組執行 | 必要 |
-| `pyyaml` | 載入配置 YAML | 必要 |
-| `fswatch` (macOS) | 檔案監控 | 可選（有 polling 備選） |
-| `inotifywait` (Linux) | 檔案監控 | 可選（有 polling 備選） |
-| `git` | 版本控制 | 必要（release 命令） |
-
----
-
-## 測試策略
-
-### 單元測試
-
-**測試覆蓋目標**：80%+
+### 增量同步映射
 
 ```python
-# tests/plugin/test_cache.py
-def test_sync_incremental(tmp_path):
-    """測試增量同步"""
-    dev = DevCommands(project_dir=tmp_path)
-    
-    # 首次同步
-    result1 = dev.sync()
-    assert len(result1.files_added) > 0
-    
-    # 無變更同步
-    result2 = dev.sync()
-    assert result2.total_changes == 0
-    
-    # 修改檔案後同步
-    (tmp_path / "skills/test/SKILL.md").write_text("updated")
-    result3 = dev.sync()
-    assert "skills/test/SKILL.md" in result3.files_modified
-
-# tests/plugin/test_release.py
-def test_release_state_recovery(tmp_path):
-    """測試發布失敗恢復"""
-    release = ReleaseCommands(project_dir=tmp_path)
-    
-    # 模擬在 git_push 步驟失敗
-    with patch.object(release, '_git_push', side_effect=Exception("Network error")):
-        with pytest.raises(Exception):
-            release.release(BumpLevel.PATCH)
-    
-    # 檢查進度已保存
-    progress = release._load_progress()
-    assert progress.failed_step == ReleaseStep.GIT_PUSH
-    assert ReleaseStep.GIT_TAG in progress.completed_steps
-    
-    # 恢復執行
-    result = release.resume()
-    assert result.current_step == ReleaseStep.COMPLETE
+# .plugin-dev/cache-map.json
+{
+    "skills/plugin-dev/SKILL.md": {
+        "hash": "sha256:a1b2c3...",
+        "size": 12345,
+        "mtime": 1706789012.34
+    },
+    "shared/plugin/config.yaml": {
+        "hash": "sha256:d4e5f6...",
+        "size": 2345,
+        "mtime": 1706789010.00
+    }
+}
 ```
 
-### 整合測試
+### Workflow ID 追蹤
 
 ```python
-# tests/plugin/integration/test_dev_workflow.py
-def test_complete_dev_cycle():
-    """測試完整開發循環"""
-    # 1. 修改 Skill
-    # 2. Sync 到快取
-    # 3. 驗證快取正確
-    # 4. 版本升級
-    # 5. 發布
+# 與 Claude Code Tasks 整合
+WORKFLOW_ID = f"plugin-dev_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+# 發布時建立任務
+task_id = TaskCreate({
+    "subject": f"Release v{new_version}",
+    "description": "Plugin release workflow",
+    "activeForm": "Releasing plugin",
+})
+
+# 更新進度
+TaskUpdate({
+    "taskId": task_id,
+    "status": "in_progress",
+    "metadata": {"step": current_step.value},
+})
+```
+
+## 錯誤處理設計
+
+### 錯誤類型
+
+```python
+# cli/plugin/exceptions.py
+class PluginDevError(Exception):
+    """Base exception"""
+    pass
+
+class CacheError(PluginDevError):
+    """快取相關錯誤"""
+    pass
+
+class SyncError(PluginDevError):
+    """同步相關錯誤"""
+    pass
+
+class ValidationError(PluginDevError):
+    """驗證相關錯誤"""
+    pass
+
+class ReleaseError(PluginDevError):
+    """發布相關錯誤"""
     pass
 ```
 
----
-
-## 效能考量
-
-### 增量同步效能
-
-**問題**：大型專案（100+ 檔案）全量同步慢
-
-**解決方案**：Hash-based 增量同步
-
-**效能指標**：
-| 場景 | 檔案數 | 全量同步 | 增量同步 | 提升 |
-|------|--------|---------|---------|------|
-| 小專案 | 10 | 50ms | 20ms | 2.5x |
-| 中專案 | 50 | 300ms | 80ms | 3.8x |
-| 大專案 | 200 | 2000ms | 150ms | 13.3x |
-
-**實作**：
-```python
-# 只計算變更檔案的 hash
-for rel_path in files_to_sync:
-    file_hash = compute_hash(src_file)
-    cached_hash = cache_map.get(rel_path, {}).get("hash")
-    
-    if cached_hash != file_hash:
-        # 僅同步變更檔案
-        copy_file(src_file, dest_file)
-```
-
-### 監控防抖動
-
-**問題**：檔案保存時觸發多次事件（編輯器臨時檔案）
-
-**解決方案**：500ms 防抖動 + 事件合併
+### 友善錯誤訊息
 
 ```python
-last_sync = time.time()
-while True:
-    event = watch_process.stdout.readline()
-    if event:
-        now = time.time()
-        if (now - last_sync) * 1000 >= config.debounce_ms:
-            # 執行同步
-            sync()
-            last_sync = now
+def handle_error(error: PluginDevError):
+    """處理錯誤並提供修復建議"""
+    messages = {
+        CacheError: {
+            "message": "快取操作失敗",
+            "suggestions": [
+                "嘗試 /plugin-dev sync --force 強制同步",
+                "檢查快取目錄權限",
+                "使用 /plugin-dev status 查看詳情",
+            ],
+        },
+        ValidationError: {
+            "message": "Plugin 結構驗證失敗",
+            "suggestions": [
+                "檢查 plugin.json 格式",
+                "確認 skills/ 目錄存在",
+                "使用 /plugin-dev validate --fix 嘗試自動修復",
+            ],
+        },
+    }
 ```
 
----
+## 實作優先順序
 
-## 安全考量
+### Phase 1: 基礎結構（Week 1-2）
+1. 建立 skills/plugin-dev/ 目錄
+2. 撰寫 SKILL.md
+3. 實作 sync/validate/status 命令
 
-### 1. 路徑遍歷防護
+### Phase 2: git_lib 整合（Week 2-3）
+4. 修改 release.py 使用 git_lib
+5. 統一 commit message 格式
+6. 添加整合測試
 
-```python
-def _validate_path(self, path: Path) -> None:
-    """防止路徑遍歷攻擊"""
-    resolved = path.resolve()
-    if not str(resolved).startswith(str(self.project_dir.resolve())):
-        raise SecurityError(f"Path traversal detected: {path}")
-```
+### Phase 3: 發布功能（Week 3-4）
+7. 實作 release 命令
+8. 狀態持久化
+9. Task API 整合
 
-### 2. Git 操作驗證
+### Phase 4: 熱載入（Week 4-5）
+10. 實作 watch 命令
+11. 跨平台監控
+12. 背景執行
 
-```python
-def _git_push(self, tag: str) -> None:
-    """推送前驗證遠端"""
-    # 檢查遠端是否存在
-    result = subprocess.run(
-        ["git", "remote", "get-url", "origin"],
-        capture_output=True
-    )
-    if result.returncode != 0:
-        log_warning("No remote configured, skipping push")
-        return
-    
-    # 確認遠端 URL 安全
-    remote_url = result.stdout.strip()
-    if not self._is_safe_remote(remote_url):
-        raise SecurityError(f"Unsafe remote URL: {remote_url}")
-```
-
-### 3. 執行權限限制
-
-```python
-ALLOWED_TOOLS = [
-    "Bash",      # 執行 Python CLI
-    "Read",      # 讀取配置
-    "Glob",      # 列出檔案
-    "TaskList",  # 檢查任務（可選）
-]
-
-# SKILL.md frontmatter
-allowed-tools: [Bash, Read, Glob, TaskList]
-```
-
----
-
-## 擴展性設計
-
-### 未來擴展點
-
-| 擴展需求 | 實作方式 |
-|---------|---------|
-| **新增命令** | 在 `cli/plugin/` 新增模組，SKILL.md 新增命令說明 |
-| **新增驗證規則** | 在 `config/validation.yaml` 添加，`ReleaseCommands.validate()` 自動載入 |
-| **新增同步模式** | 在 `cache-policy.yaml` 定義，`DevCommands` 根據配置選擇 |
-| **新增 Git 操作** | 使用 `git_lib` 擴展，不修改 release.py |
-
-### Plugin 化擴展
-
-```yaml
-# 未來可支援 Skill 級別的擴展配置
-# skills/plugin-dev/config/extensions.yaml
-extensions:
-  custom_sync:
-    enabled: true
-    module: my_plugin.custom_sync
-    config:
-      strategy: rsync
-  
-  custom_validate:
-    enabled: true
-    module: my_plugin.custom_validate
-    rules:
-      - check_license_headers
-      - check_skill_metadata
-```
-
----
+### Phase 5: 完善（Week 5-6）
+13. 文檔更新
+14. Dogfooding 驗證
+15. 效能優化
 
 ## 總結
 
-### 架構優勢
+**設計原則**：
+1. **單一入口**：`/plugin-dev` 統一命令
+2. **漸進複雜度**：簡單預設值 + 進階選項
+3. **錯誤友善**：清晰訊息 + 修復建議
+4. **狀態持久化**：支援中斷恢復
+5. **模組化**：Skill 作介面，Python 作實作
 
-| 優勢 | 具體體現 |
-|------|---------|
-| **簡潔性** | 工具型架構，無需 MAP-REDUCE |
-| **可測試性** | 73 個測試覆蓋核心邏輯 |
-| **可維護性** | 配置驅動，新增功能不改代碼 |
-| **容錯性** | 失敗恢復機制，狀態持久化 |
-| **效能** | 增量同步，13.3x 效能提升 |
-| **安全性** | 路徑驗證，權限限制 |
-
-### 技術債務清除
-
-| 原有問題 | 解決方式 |
-|---------|---------|
-| 手動複製到快取 | `sync` 命令自動化 |
-| 無熱載入 | `watch` 命令持續監控 |
-| 版本管理分散 | `version` 命令統一管理 |
-| 發布流程複雜 | `release` 命令一鍵發布 |
-| 缺乏驗證 | `validate` 命令預檢查 |
-
-### 實作優先順序
-
-| 優先級 | 組件 | 工作量 | 價值 |
-|-------|------|--------|------|
-| **P0** | Skill 結構 + SKILL.md | 2h | 框架基礎 |
-| **P0** | sync 命令 | 3h | 核心功能 |
-| **P1** | validate 命令 | 2h | 品質保證 |
-| **P1** | version 命令 | 2h | 版本管理 |
-| **P2** | watch 命令 | 3h | 開發體驗 |
-| **P2** | release 命令 | 4h | 完整流程 |
-| **P3** | status/clean 等輔助命令 | 2h | 便利性 |
-
-**總工作量估算**：18-20 小時
+**關鍵整合點**：
+- git_lib 統一 Git 操作
+- shared/plugin/config.yaml 配置管理
+- Claude Code Tasks API 進度追蹤
 
 ---
 
-## 附錄：關鍵程式碼片段
-
-### A. Skill 調用 CLI 範例
-
-```python
-# skills/plugin-dev/SKILL.md 中的實作邏輯
-
-# 1. 解析命令
-command = user_input.split()[1]  # /plugin-dev sync → "sync"
-args = user_input.split()[2:]     # --force → ["--force"]
-
-# 2. 構建 CLI 命令
-if command == "sync":
-    cmd = ["python", "-m", "cli.plugin", "dev", "sync"] + args
-elif command == "watch":
-    cmd = ["python", "-m", "cli.plugin", "dev", "watch"] + args
-elif command == "validate":
-    cmd = ["python", "-m", "cli.plugin", "release", "validate"] + args
-elif command == "release":
-    cmd = ["python", "-m", "cli.plugin", "release", "release"] + args
-else:
-    return f"Unknown command: {command}"
-
-# 3. 執行並展示輸出
-result = Bash(command=" ".join(cmd), description=f"Execute {command}")
-return result.stdout  # 直接返回給用戶
-```
-
-### B. git_lib 整合範例
-
-```python
-# cli/plugin/release.py (修改後)
-
-from scripts.git_lib import GitOps, CommitManager
-
-class ReleaseCommands:
-    def __init__(self, project_dir: Path):
-        self.project_dir = project_dir
-        self.git = GitOps(project_dir)
-        self.commit_mgr = CommitManager(self.git)
-    
-    def _git_commit(self, message: str) -> None:
-        """統一使用 git_lib 提交"""
-        self.git.stage(["."])
-        self.commit_mgr.commit_with_coauthor(
-            message=message,
-            coauthor="Claude Opus 4.5 <noreply@anthropic.com>"
-        )
-    
-    def _check_git_status(self) -> None:
-        """統一使用 git_lib 檢查"""
-        if self.git.has_changes():
-            changed = self.git.get_changed_files()
-            raise DirtyWorkspaceError(changed)
-```
-
-### C. 配置分層載入範例
-
-```python
-# cli/plugin/dev.py
-
-class DevCommands:
-    def _load_watch_config(self, debounce_ms: Optional[int] = None) -> dict:
-        """分層載入 watch 配置"""
-        # Layer 1: 全域預設
-        global_cfg = yaml.safe_load(
-            (self.project_dir / "shared/plugin/config.yaml").read_text()
-        )["watch"]
-        
-        # Layer 2: 專案級配置
-        project_cfg_path = self.dev_config_dir / "watch.config.json"
-        if project_cfg_path.exists():
-            project_cfg = json.load(project_cfg_path.open())
-            global_cfg.update(project_cfg)
-        
-        # Layer 3: 環境變數
-        if env_debounce := os.getenv("PLUGIN_WATCH_DEBOUNCE"):
-            global_cfg["debounce_ms"] = int(env_debounce)
-        
-        # Layer 4: 命令行參數（最高優先）
-        if debounce_ms is not None:
-            global_cfg["debounce_ms"] = debounce_ms
-        
-        return global_cfg
-```
-
----
-
-**報告完成** | 字數：5800+ | 設計深度：架構/介面/整合/狀態/測試/效能/安全/擴展
-
+*由系統架構師視角產出*
