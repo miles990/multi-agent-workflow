@@ -1,0 +1,127 @@
+# plugin-dev 驗證規則配置
+
+version: "1.0.0"
+
+# 驗證規則
+rules:
+  # 必要檔案檢查
+  required_files:
+    - path: plugin.json
+      severity: error
+      message: "plugin.json 不存在"
+      fix: null
+
+    - path: skills/
+      type: directory
+      severity: error
+      message: "skills/ 目錄不存在"
+      fix: "mkdir -p skills/"
+
+  # plugin.json 欄位檢查
+  plugin_json_fields:
+    required:
+      - name
+      - version
+    optional:
+      - description
+      - author
+      - repository
+
+  # SKILL.md frontmatter 檢查
+  skill_frontmatter:
+    required:
+      - name
+      - version
+      - description
+    optional:
+      - triggers
+      - context
+      - agent
+      - allowed-tools
+      - model
+
+  # 版本一致性檢查
+  version_consistency:
+    files:
+      - path: plugin.json
+        json_path: "$.version"
+      - path: marketplace.json
+        json_path: "$.plugins[0].version"
+      - path: CLAUDE.md
+        pattern: "v(\\d+\\.\\d+\\.\\d+)"
+    severity: warning
+    fix: "使用 /plugin-dev validate --fix 自動修復"
+
+# 嚴重程度
+severity_levels:
+  error:
+    exit_code: 1
+    symbol: "✗"
+    color: red
+
+  warning:
+    exit_code: 0  # 在 --strict 模式下變為 1
+    symbol: "⚠"
+    color: yellow
+
+  info:
+    exit_code: 0
+    symbol: "ℹ"
+    color: blue
+
+# 錯誤碼
+error_codes:
+  E001:
+    message: "plugin.json 不存在"
+    severity: error
+
+  E002:
+    message: "plugin.json JSON 格式無效"
+    severity: error
+
+  E003:
+    message: "skills/ 目錄不存在"
+    severity: error
+
+  E004:
+    message: "未找到 SKILL.md 檔案"
+    severity: error
+
+  W001:
+    message: "版本不一致"
+    severity: warning
+
+  W002:
+    message: "SKILL.md 缺少必要欄位"
+    severity: warning
+
+  W003:
+    message: "未定義觸發器"
+    severity: warning
+
+# 自動修復規則
+auto_fix:
+  version_mismatch:
+    source: plugin.json
+    targets:
+      - marketplace.json
+      - CLAUDE.md
+    action: update_version
+
+  missing_frontmatter_field:
+    action: add_default_field
+    defaults:
+      description: "TODO: 添加描述"
+      version: "1.0.0"
+
+# 排除規則
+exclude:
+  directories:
+    - __pycache__/
+    - .git/
+    - .plugin-dev/
+    - node_modules/
+
+  files:
+    - "*.pyc"
+    - ".DS_Store"

@@ -33,6 +33,7 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 | `/multi-review [impl-path]` | 程式碼審查 | REVIEW |
 | `/multi-verify [review-path]` | 驗證測試 | VERIFY |
 | `/status` | 工作流狀態 | - |
+| `/plugin-dev [command]` | Plugin 開發工作流 | - |
 
 ### 執行模式
 
@@ -1051,9 +1052,80 @@ Phase 4: 移除舊代碼
 - 比較重構前後的行為
 - 監控 Hook 執行日誌
 
+### 25. plugin-dev Skill 開發經驗（v2.5）
+
+**Skill 整合模式**：
+- 工具型 Skill 不需要 MAP-REDUCE
+- 使用 `context: shared`（不需要 fork）
+- 使用 `model: haiku`（輕量級操作）
+
+**CLI 入口點設計**：
+```python
+# cli/plugin/__main__.py
+# 統一的命令行入口
+python -m cli.plugin <command> [options]
+```
+
+**命令路由**：
+```yaml
+# skills/plugin-dev/config/commands.yaml
+commands:
+  sync:
+    cli_module: cli.plugin.dev
+    cli_command: sync
+  release:
+    cli_module: cli.plugin.release
+    cli_command: release
+```
+
+**Skill + Python CLI 雙層架構**：
+```
+Skill Layer (SKILL.md)
+    ↓ 調用
+Python CLI Layer (cli/plugin/)
+    ↓ 使用
+Shared Modules (scripts/git_lib/, shared/plugin/)
+```
+
+**優點**：
+- Skill 提供友善介面
+- Python CLI 提供可測試的邏輯
+- 共用模組避免重複
+
+**Fallback 策略**：
+```bash
+# Skill 不可用時，使用 Shell 腳本
+./scripts/plugin/sync-to-cache.sh
+./scripts/plugin/publish.sh
+```
+
+**Dogfooding 要點**：
+- 始終保留獨立的 fallback 腳本
+- 新功能在 feature 分支開發
+- 充分測試後才合併
+
 ## Plugin 開發工作流（v2.4 新增）
 
-### 快速開始
+### /plugin-dev Skill（推薦）
+
+```bash
+# 同步到快取
+/plugin-dev sync
+
+# 驗證結構
+/plugin-dev validate
+
+# 查看狀態
+/plugin-dev status
+
+# 啟動開發模式（熱載入）
+/plugin-dev watch
+
+# 發布新版本
+/plugin-dev release patch
+```
+
+### Shell 腳本（Fallback）
 
 ```bash
 # 啟動開發模式（熱載入）
@@ -1069,25 +1141,27 @@ Phase 4: 移除舊代碼
 ### 版本管理
 
 ```bash
-# 查看當前版本
+# 使用 Skill
+/plugin-dev version                    # 查看當前版本
+/plugin-dev version bump patch         # 升級 patch
+/plugin-dev version check              # 檢查一致性
+
+# 使用 Shell 腳本
 ./scripts/plugin/bump-version.sh --dry-run
-
-# 升級版本
-./scripts/plugin/bump-version.sh patch   # Bug 修復
-./scripts/plugin/bump-version.sh minor   # 新功能
-./scripts/plugin/bump-version.sh major   # 破壞性變更
-
-# 生成變更日誌
+./scripts/plugin/bump-version.sh patch
 ./scripts/plugin/generate-changelog.sh
 ```
 
 ### 發布流程
 
 ```bash
-# 模擬發布（不實際變更）
-./scripts/plugin/publish.sh --dry-run
+# 使用 Skill（推薦）
+/plugin-dev release patch --dry-run    # 預覽
+/plugin-dev release patch              # 發布
+/plugin-dev release --resume           # 從中斷恢復
 
-# 正式發布
+# 使用 Shell 腳本
+./scripts/plugin/publish.sh --dry-run
 ./scripts/plugin/publish.sh patch
 ```
 

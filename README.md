@@ -72,6 +72,7 @@
 | **review** | `/multi-review` | 多視角程式碼審查 | ✅ Ready |
 | **verify** | `/multi-verify` | 多視角驗證測試 | ✅ Ready |
 | **orchestrate** | `/orchestrate` | 端到端編排 | ✅ Ready |
+| **plugin-dev** | `/plugin-dev` | Plugin 開發工作流 | ✅ Ready |
 
 ## Quick Start
 
@@ -440,44 +441,65 @@ git clone https://github.com/miles990/multi-agent-workflow.git
 cd multi-agent-workflow
 
 # Start development mode (hot-reload)
-./scripts/plugin/dev-watch.sh
+/plugin-dev watch
+# Or: ./scripts/plugin/dev-watch.sh
 ```
 
-### Development Workflow
+### Development Workflow (using /plugin-dev Skill)
 
 ```bash
-# 1. Make changes to skills/ or shared/
+# 1. Sync to Claude Code cache
+/plugin-dev sync
 
-# 2. Changes auto-sync to Claude Code cache
-#    Or manual sync:
-./scripts/plugin/sync-to-cache.sh
+# 2. Validate structure
+/plugin-dev validate
 
-# 3. Reload Claude Code to test changes
+# 3. Check status
+/plugin-dev status
 
-# 4. Validate before committing
-./scripts/plugin/validate-plugin.sh
+# 4. Start watch mode (auto-sync on file changes)
+/plugin-dev watch
 ```
 
 ### Release Workflow
 
 ```bash
 # 1. Dry-run to preview
-./scripts/plugin/publish.sh --dry-run
+/plugin-dev release patch --dry-run
 
 # 2. Release
-./scripts/plugin/publish.sh patch   # Bug fixes
-./scripts/plugin/publish.sh minor   # New features
-./scripts/plugin/publish.sh major   # Breaking changes
+/plugin-dev release patch   # Bug fixes
+/plugin-dev release minor   # New features
+/plugin-dev release major   # Breaking changes
+
+# 3. Resume from interruption
+/plugin-dev release --resume
 ```
 
 ### Version Management
 
 ```bash
-# Bump version
-./scripts/plugin/bump-version.sh [major|minor|patch]
+# Show current version
+/plugin-dev version
 
-# Generate changelog
-./scripts/plugin/generate-changelog.sh
+# Bump version
+/plugin-dev version bump patch
+
+# Check consistency
+/plugin-dev version check
+```
+
+### Shell Scripts (Fallback)
+
+```bash
+# Sync
+./scripts/plugin/sync-to-cache.sh
+
+# Watch
+./scripts/plugin/dev-watch.sh
+
+# Release
+./scripts/plugin/publish.sh patch
 ```
 
 ### Testing
@@ -493,7 +515,14 @@ python -m pytest tests/plugin/ --cov=cli/plugin
 ### Project Structure
 
 ```
+skills/plugin-dev/    # /plugin-dev Skill
+├── SKILL.md          # Main definition
+├── 00-quickstart/    # Quick start guide
+├── 01-commands/      # Command documentation
+└── config/           # Command config
+
 cli/plugin/           # Python CLI modules
+├── __main__.py       # CLI entry point
 ├── cache.py          # CacheManager
 ├── version.py        # VersionManager
 ├── dev.py            # DevCommands
@@ -533,6 +562,14 @@ tests/plugin/         # Tests (73 tests)
 - [self-evolving-agent](https://github.com/miles990/self-evolving-agent) — 自我進化 Agent 框架
 
 ## Changelog
+
+### v2.5.0 (2026-02-01)
+- **plugin-dev Skill**
+  - 新增 `/plugin-dev` Skill：統一的 Plugin 開發工作流入口
+  - 命令：sync, watch, validate, status, version, release
+  - 統一 CLI 入口：`python -m cli.plugin <command>`
+  - Skill + Python CLI 雙層架構（可測試、可 fallback）
+  - Dogfooding：用 plugin-dev 開發 plugin-dev
 
 ### v2.4.0 (2026-02-01)
 - **Plugin 開發工作流系統**

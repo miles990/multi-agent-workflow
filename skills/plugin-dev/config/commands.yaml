@@ -1,0 +1,144 @@
+# plugin-dev 命令配置
+# 定義命令到 Python CLI 的映射
+
+version: "1.0.0"
+
+# 執行模式對應
+execution_profiles:
+  express:
+    model: haiku
+    verbose: false
+    timeout_ms: 30000
+
+  default:
+    model: haiku
+    verbose: false
+    timeout_ms: 60000
+
+  quality:
+    model: sonnet
+    verbose: true
+    timeout_ms: 120000
+
+# 命令定義
+commands:
+  sync:
+    description: 同步源碼到 Claude Code 快取
+    cli_module: cli.plugin.dev
+    cli_command: sync
+    options:
+      - name: force
+        short: f
+        type: boolean
+        default: false
+        description: 強制全量同步
+      - name: dry-run
+        short: n
+        type: boolean
+        default: false
+        description: 預覽變更
+      - name: verbose
+        short: v
+        type: boolean
+        default: false
+        description: 詳細輸出
+
+  watch:
+    description: 監控模式
+    cli_module: cli.plugin.dev
+    cli_command: watch
+    options:
+      - name: debounce
+        type: integer
+        default: 500
+        description: 防抖動時間（毫秒）
+      - name: no-initial
+        type: boolean
+        default: false
+        description: 不執行初始同步
+      - name: background
+        type: boolean
+        default: false
+        description: 背景執行
+
+  validate:
+    description: 驗證 Plugin 結構
+    cli_module: cli.plugin.release
+    cli_command: validate
+    options:
+      - name: strict
+        type: boolean
+        default: false
+        description: 嚴格模式
+      - name: fix
+        type: boolean
+        default: false
+        description: 自動修復
+
+  status:
+    description: 查看快取和版本狀態
+    cli_module: cli.plugin.dev
+    cli_command: status
+    options:
+      - name: json
+        type: boolean
+        default: false
+        description: JSON 格式輸出
+
+  version:
+    description: 版本管理
+    cli_module: cli.plugin.version
+    cli_command: ""
+    subcommands:
+      bump:
+        description: 升級版本
+        args:
+          - name: level
+            type: string
+            required: true
+            choices: [patch, minor, major]
+      check:
+        description: 檢查版本一致性
+    options:
+      - name: dry-run
+        type: boolean
+        default: false
+        description: 預覽變更
+
+  release:
+    description: 完整發布流程
+    cli_module: cli.plugin.release
+    cli_command: release
+    options:
+      - name: dry-run
+        type: boolean
+        default: false
+        description: 預覽發布流程
+      - name: resume
+        type: boolean
+        default: false
+        description: 從中斷點恢復
+      - name: yes
+        short: y
+        type: boolean
+        default: false
+        description: 跳過確認
+      - name: skip-tests
+        type: boolean
+        default: false
+        description: 跳過測試
+
+# 通用選項
+global_options:
+  - name: help
+    short: h
+    type: boolean
+    description: 顯示幫助
+
+# Fallback 腳本
+fallback_scripts:
+  sync: scripts/plugin/sync-to-cache.sh
+  watch: scripts/plugin/dev-watch.sh
+  validate: scripts/plugin/validate-plugin.sh
+  version: scripts/plugin/bump-version.sh
+  release: scripts/plugin/publish.sh
