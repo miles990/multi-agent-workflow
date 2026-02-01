@@ -1,0 +1,104 @@
+# 執行階段配置模板
+skill: {{skill_name}}
+version: {{version}}
+
+# 執行階段定義
+phases:
+  - id: phase-0
+    name: {{階段名稱}}
+    description: {{階段說明}}
+    required: true
+    timeout: 300  # 秒
+    dependencies: []
+
+  - id: phase-1
+    name: {{階段名稱}}
+    description: {{階段說明}}
+    required: true
+    timeout: 600
+    dependencies: [phase-0]
+
+  - id: phase-2
+    name: {{階段名稱}}
+    description: {{階段說明}}
+    required: true
+    timeout: 300
+    dependencies: [phase-1]
+
+  - id: phase-3-map
+    name: MAP（並行執行）
+    description: 多視角並行分析
+    required: true
+    timeout: 1800
+    dependencies: [phase-2]
+    parallel: true
+    agents:
+      - id: {{perspective_1}}
+        type: {{agent_type}}
+        model: sonnet
+        output: perspectives/{{perspective_1}}.md
+      - id: {{perspective_2}}
+        type: {{agent_type}}
+        model: sonnet
+        output: perspectives/{{perspective_2}}.md
+      - id: {{perspective_3}}
+        type: {{agent_type}}
+        model: haiku
+        output: perspectives/{{perspective_3}}.md
+      - id: {{perspective_4}}
+        type: {{agent_type}}
+        model: haiku
+        output: perspectives/{{perspective_4}}.md
+
+  - id: phase-4-reduce
+    name: REDUCE（匯總整合）
+    description: 整合所有視角的分析結果
+    required: true
+    timeout: 600
+    dependencies: [phase-3-map]
+
+  - id: phase-5
+    name: {{階段名稱}}
+    description: {{階段說明}}
+    required: true
+    timeout: 300
+    dependencies: [phase-4-reduce]
+
+# 錯誤處理
+error_handling:
+  - phase: all
+    on_timeout:
+      action: fail
+      notify: true
+  - phase: phase-3-map
+    on_agent_failure:
+      action: continue  # 至少 2 個 Agent 成功即可繼續
+      min_success: 2
+  - phase: all
+    on_error:
+      action: fail
+      cleanup: true
+
+# 檢查點
+checkpoints:
+  - id: CP1
+    name: 工作流初始化
+    phase: pre-execution
+    script: scripts/hooks/init_workflow.py
+    required: true
+
+  - id: CP2
+    name: Agent 狀態追蹤
+    phase: phase-3-map
+    auto: true
+
+  - id: CP3
+    name: Agent 狀態追蹤
+    phase: phase-3-map
+    auto: true
+
+  - id: CP4
+    name: Task Commit
+    phase: post-execution
+    auto: true
+    trigger: write_to_memory

@@ -1,6 +1,6 @@
 # Multi-Agent Workflow
 
-[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/miles990/multi-agent-workflow)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/miles990/multi-agent-workflow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple.svg)](https://claude.ai/code)
 
@@ -270,7 +270,14 @@ multi-agent-workflow/
 │   ├── review/                   # ✅ Ready
 │   ├── verify/                   # ✅ Ready
 │   └── orchestrate/              # ✅ Ready
+├── scripts/                      # 開發工具
+│   ├── create-skill.sh           # Skill 腳手架工具
+│   └── validate-skills.sh        # Skill 結構驗證
 ├── shared/                       # 共用模組
+│   ├── skill-structure/          # Skill 結構規範 (v2.3 新增)
+│   │   ├── STANDARD.md           # 結構規範文件
+│   │   ├── CLAUDE.md             # AI 自動載入說明
+│   │   └── templates/            # 模板檔案
 │   ├── coordination/
 │   │   ├── map-phase.md          # 並行執行
 │   │   └── reduce-phase.md       # 整合匯總
@@ -314,6 +321,7 @@ multi-agent-workflow/
 |--------|-------------|------|
 | **research** | 多視角研究 | [→](./skills/research/SKILL.md) |
 | **orchestrate** | 端到端編排 | [→](./skills/orchestrate/SKILL.md) |
+| **Skill Structure** | Skill 結構規範 | [→](./shared/skill-structure/STANDARD.md) |
 | **Map Phase** | 並行執行 | [→](./shared/coordination/map-phase.md) |
 | **Reduce Phase** | 整合匯總 | [→](./shared/coordination/reduce-phase.md) |
 | **Cross Validation** | 交叉驗證 | [→](./shared/synthesis/cross-validation.md) |
@@ -331,6 +339,97 @@ multi-agent-workflow/
 | **Error Codes** | 錯誤碼定義 | [→](./shared/errors/error-codes.md) |
 | **Troubleshooting** | 錯誤排除指南 | [→](./docs/troubleshooting/) |
 
+## Development Tools
+
+### 建立新 Skill
+
+使用腳手架工具快速建立符合規範的 Skill 結構：
+
+```bash
+# 互動模式（引導式）
+./scripts/create-skill.sh
+
+# 非互動模式（CI/自動化）
+./scripts/create-skill.sh --non-interactive \
+  --name my-skill \
+  --desc "Skill 描述" \
+  --version 1.0.0
+```
+
+產生的結構：
+```
+skills/my-skill/
+├── SKILL.md                    # 主要定義檔（frontmatter）
+├── 00-quickstart/
+│   └── _base/usage.md          # 快速開始指南
+└── 01-perspectives/
+    └── _base/default-perspectives.md  # 視角定義
+```
+
+### 驗證 Skill 結構
+
+使用驗證工具確保所有 Skills 符合標準：
+
+```bash
+# 驗證所有 Skills
+./scripts/validate-skills.sh
+
+# 驗證單一 Skill
+./scripts/validate-skills.sh research
+
+# CI 模式（嚴格，有退出碼）
+./scripts/validate-skills.sh --ci
+```
+
+驗證項目：
+- SKILL.md 存在且 frontmatter 完整（name, description, version）
+- 00-quickstart/_base/usage.md 存在
+- 01-perspectives/_base/default-perspectives.md 存在
+
+詳細規範請參考 [Skill 結構標準](./shared/skill-structure/STANDARD.md)。
+
+### 查詢視角定義
+
+查詢集中管理的視角定義：
+
+```bash
+# 列出所有視角
+./scripts/list-perspectives.sh
+
+# 按類別過濾
+./scripts/list-perspectives.sh --category plan
+
+# 按 skill 過濾
+./scripts/list-perspectives.sh --skill implement
+
+# 顯示視角詳細資訊
+./scripts/list-perspectives.sh --show tdd-enforcer
+
+# 顯示預設組合
+./scripts/list-perspectives.sh --preset standard
+```
+
+### 查詢配置索引
+
+查詢集中管理的配置索引：
+
+```bash
+# 列出所有配置類別
+./scripts/get-config.sh --list-categories
+
+# 列出某類別的配置
+./scripts/get-config.sh --category skill-config
+
+# 搜尋配置
+./scripts/get-config.sh --search "tdd"
+
+# 顯示配置詳情
+./scripts/get-config.sh --show skills/implement/SKILL.md
+
+# 顯示配置間的引用關係
+./scripts/get-config.sh --relations
+```
+
 ## Core Design Principles
 
 | Principle | Description |
@@ -342,12 +441,20 @@ multi-agent-workflow/
 | **Memory Integration** | 與 evolve Checkpoint 對應 |
 | **Shared Modules** | shared/ 避免重複程式碼 |
 | **Unified Entry** | 單一 plugin，7 個 skill |
+| **Standard Structure** | 所有 Skill 遵循統一結構規範 |
 
 ## Related Projects
 
 - [self-evolving-agent](https://github.com/miles990/self-evolving-agent) — 自我進化 Agent 框架
 
 ## Changelog
+
+### v2.3.0 (2026-02-01)
+- **Skill 結構規範化**
+  - 新增 `shared/skill-structure/STANDARD.md` 定義標準結構
+  - 新增 `scripts/create-skill.sh` 腳手架工具（互動/非互動模式）
+  - 新增 `scripts/validate-skills.sh` 驗證工具（含 CI 模式）
+  - 統一所有 Skill 目錄結構
 
 ### v2.2.0 (2026-01-25)
 - 新增 TASKS 階段（在 PLAN 和 IMPLEMENT 之間）

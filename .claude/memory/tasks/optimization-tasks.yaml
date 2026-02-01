@@ -1,0 +1,175 @@
+workflow_id: "orchestrate_20260201_115945_58f243d0"
+source_plan: ".claude/memory/plans/optimization-plan.md"
+version: "1.0.0"
+total_estimated_hours: 64
+target_version: "2.4.0"
+
+tasks:
+  # ========== Phase 1: 結構規範化 (3 天) ==========
+  - id: "P1-T1"
+    title: "定義 Skill 標準結構"
+    description: |
+      建立 Skill 標準結構規範文件和模板：
+      1. 建立 shared/skill-structure/ 目錄
+      2. 編寫 STANDARD.md 定義必須/建議/可選檔案
+      3. 建立模板檔案
+      4. 編寫 CLAUDE.md 自動載入說明
+    depends_on: []
+    estimated_hours: 4
+    phase: "P1"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "shared/skill-structure/STANDARD.md"
+      - "shared/skill-structure/CLAUDE.md"
+      - "shared/skill-structure/templates/*.template"
+
+  - id: "P1-T2"
+    title: "建立 Skill 腳手架工具"
+    description: |
+      開發 create-skill.sh 腳手架工具，支援互動式和非互動模式
+    depends_on: ["P1-T1"]
+    estimated_hours: 8
+    phase: "P1"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "scripts/create-skill.sh"
+
+  - id: "P1-T3"
+    title: "建立結構驗證工具"
+    description: |
+      開發 validate-skills.sh 驗證工具
+    depends_on: ["P1-T1"]
+    estimated_hours: 8
+    phase: "P1"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "scripts/validate-skills.sh"
+
+  - id: "P1-T4"
+    title: "Phase 1 文檔和整合"
+    description: |
+      更新 README.md 和整合到 CI
+    depends_on: ["P1-T2", "P1-T3"]
+    estimated_hours: 4
+    phase: "P1"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "README.md（更新）"
+
+  # ========== Phase 2: 視角系統集中化 (3 天) ==========
+  - id: "P2-T1"
+    title: "設計視角目錄結構"
+    description: |
+      設計 catalog.yaml 結構（categories, perspectives, presets）
+    depends_on: ["P1-T4"]
+    estimated_hours: 4
+    phase: "P2"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "shared/perspectives/catalog.yaml（結構設計）"
+
+  - id: "P2-T2"
+    title: "提取和遷移現有視角"
+    description: |
+      從現有 Skills 提取視角定義並遷移到 catalog.yaml
+    depends_on: ["P2-T1"]
+    estimated_hours: 8
+    phase: "P2"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "shared/perspectives/catalog.yaml（完整填充）"
+
+  - id: "P2-T3"
+    title: "更新 Skills 為引用模式"
+    description: |
+      將 6 個核心 Skills 改為引用 catalog.yaml
+    depends_on: ["P2-T2"]
+    estimated_hours: 8
+    phase: "P2"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "skills/*/01-perspectives/_base/default-perspectives.md"
+
+  - id: "P2-T4"
+    title: "更新視角系統文檔和工具"
+    description: |
+      完成視角系統文檔和查詢工具
+    depends_on: ["P2-T3"]
+    estimated_hours: 4
+    phase: "P2"
+    priority: "P0"
+    status: "completed"
+    deliverables:
+      - "shared/perspectives/CLAUDE.md"
+      - "scripts/list-perspectives.sh"
+
+  # ========== Phase 3: 配置系統優化 (2 天) ==========
+  - id: "P3-T1"
+    title: "分析現有配置檔案"
+    description: |
+      分析和分類所有配置檔案
+    depends_on: ["P2-T4"]
+    estimated_hours: 4
+    phase: "P3"
+    priority: "P1"
+    status: "completed"
+
+  - id: "P3-T2"
+    title: "建立配置索引"
+    description: |
+      建立 INDEX.yaml 配置索引
+    depends_on: ["P3-T1"]
+    estimated_hours: 4
+    phase: "P3"
+    priority: "P1"
+    status: "completed"
+    deliverables:
+      - "shared/config/INDEX.yaml"
+
+  - id: "P3-T3"
+    title: "建立配置查詢工具"
+    description: |
+      開發 get-config.sh 配置查詢工具
+    depends_on: ["P3-T2"]
+    estimated_hours: 4
+    phase: "P3"
+    priority: "P1"
+    status: "completed"
+    deliverables:
+      - "scripts/get-config.sh"
+
+  - id: "P3-T4"
+    title: "Phase 3 文檔更新"
+    description: |
+      完成配置系統文檔
+    depends_on: ["P3-T3"]
+    estimated_hours: 4
+    phase: "P3"
+    priority: "P1"
+    status: "completed"
+    deliverables:
+      - "shared/config/CLAUDE.md"
+
+  # ========== 整合驗收 ==========
+  - id: "P4-T1"
+    title: "整合測試和回歸驗證"
+    description: |
+      執行完整整合測試和回歸驗證
+    depends_on: ["P3-T4"]
+    estimated_hours: 4
+    phase: "P4"
+    priority: "P0"
+    status: "completed"
+
+# 任務依賴關係圖（DAG）
+dependency_graph: |
+  P1-T1 ──┬──> P1-T2 ──┐
+          │           ├──> P1-T4 ──> P2-T1 ──> P2-T2 ──> P2-T3 ──> P2-T4 ──> P3-T1 ──> P3-T2 ──> P3-T3 ──> P3-T4 ──> P4-T1
+          └──> P1-T3 ──┘

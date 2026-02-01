@@ -1,0 +1,612 @@
+# Configuration Index for multi-agent-workflow
+# ===========================================
+# 統一配置索引：集中管理所有配置檔案的元資料和位置
+#
+# 用途：
+# 1. 快速查找配置檔案位置
+# 2. 了解配置分類和用途
+# 3. 識別配置之間的關聯
+
+version: "1.0.0"
+last_updated: "2026-02-01"
+generated_by: "P3-T1 + P3-T2 Configuration Analysis"
+
+# =============================================================================
+# 分類定義
+# =============================================================================
+
+categories:
+  - id: skill-config
+    description: "Skill 定義和 frontmatter - 定義各 Skill 的觸發條件、工具權限、執行流程"
+    icon: "lightning"
+    count: 10
+
+  - id: perspective-config
+    description: "視角配置 - 定義各階段可用的視角、模型路由、組合規則"
+    icon: "eye"
+    count: 5
+
+  - id: quality-config
+    description: "品質控制配置 - 品質閘門、評分標準、TDD 強制、回退策略"
+    icon: "shield"
+    count: 6
+
+  - id: coordination-config
+    description: "協調配置 - 並行執行、依賴偵測、階段傳遞、Context 管理"
+    icon: "arrows"
+    count: 8
+
+  - id: integration-config
+    description: "整合配置 - 外部工具整合、Hooks 設定、Commit 規則"
+    icon: "plug"
+    count: 3
+
+  - id: metrics-config
+    description: "指標配置 - 執行指標、品質指標、效率指標定義"
+    icon: "chart"
+    count: 1
+
+  - id: schema-config
+    description: "Schema 定義 - 資料結構驗證、任務格式定義"
+    icon: "file"
+    count: 1
+
+  - id: expertise-config
+    description: "專業知識框架 - 安全、架構、測試、效能專業知識"
+    icon: "brain"
+    count: 4
+
+  - id: plugin-config
+    description: "Plugin 配置 - 插件元資料、marketplace 設定"
+    icon: "puzzle"
+    count: 2
+
+# =============================================================================
+# 配置條目
+# =============================================================================
+
+entries:
+
+  # ---------------------------------------------------------------------------
+  # SKILL-CONFIG: Skill 定義
+  # ---------------------------------------------------------------------------
+
+  - path: skills/research/SKILL.md
+    type: skill-config
+    description: "多 Agent 並行研究框架 - 多視角同時研究，智能匯總成完整報告"
+    keys:
+      - name: research
+      - version: "3.2.0"
+      - triggers: [multi-research, parallel-research, 多角度研究]
+      - context: fork
+      - agent: Explore
+      - model: sonnet
+      - allowed-tools: [Read, Grep, Glob, WebFetch, Write, Bash]
+    references:
+      - shared/config/model-routing.yaml
+      - shared/quality/gates.yaml
+      - shared/config/early-termination.yaml
+      - shared/integration/context7.yaml
+
+  - path: skills/plan/SKILL.md
+    type: skill-config
+    description: "多 Agent 並行規劃框架 - 多視角同時設計，共識驅動實作計劃"
+    keys:
+      - name: plan
+      - version: "3.2.0"
+      - triggers: [multi-plan, parallel-plan, 多角度規劃]
+      - context: fork
+      - agent: Plan
+      - model: sonnet
+      - allowed-tools: [Read, Grep, Glob, Write, Bash]
+    references:
+      - shared/config/model-routing.yaml
+      - shared/quality/gates.yaml
+      - shared/quality/early-detection.yaml
+
+  - path: skills/tasks/SKILL.md
+    type: skill-config
+    description: "多 Agent 任務分解框架 - 將計劃轉化為可執行的 DAG 任務清單"
+    keys:
+      - name: tasks
+      - version: "3.2.0"
+      - triggers: [multi-tasks, task-decomposition, 任務分解]
+      - context: fork
+      - agent: general-purpose
+      - model: sonnet
+      - allowed-tools: [Read, Grep, Glob, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet]
+    references:
+      - shared/config/model-routing.yaml
+      - shared/quality/tdd-enforcement.yaml
+      - shared/tasks/dependency-detection.yaml
+      - shared/quality/gates.yaml
+      - skills/tasks/config/schema.yaml
+
+  - path: skills/implement/SKILL.md
+    type: skill-config
+    description: "多 Agent 監督式實作框架 - TDD 驅動、即時審查、品質守護"
+    keys:
+      - name: implement
+      - version: "3.1.0"
+      - triggers: [multi-implement, parallel-implement, 監督實作]
+      - context: fork
+      - agent: general-purpose
+      - model: sonnet
+      - allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
+    references:
+      - shared/config/model-routing.yaml
+      - shared/quality/tdd-enforcement.yaml
+      - shared/quality/gates.yaml
+      - shared/perspectives/expertise-frameworks/security.yaml
+
+  - path: skills/review/SKILL.md
+    type: skill-config
+    description: "多 Agent 並行審查框架 - 多視角程式碼審查，問題分類與優先排序"
+    keys:
+      - name: review
+      - version: "3.1.0"
+      - triggers: [multi-review, code-review, 程式碼審查]
+      - context: fork
+      - agent: Explore
+      - model: sonnet
+      - allowed-tools: [Read, Grep, Glob, Bash, Write]
+    references:
+      - shared/config/model-routing.yaml
+      - shared/quality/scoring.yaml
+      - shared/quality/gates.yaml
+      - shared/quality/rollback-strategy.yaml
+
+  - path: skills/verify/SKILL.md
+    type: skill-config
+    description: "多 Agent 並行驗證框架 - 多視角測試驗證，驗收標準確認"
+    keys:
+      - name: verify
+      - version: "3.1.0"
+      - triggers: [multi-verify, verification, 驗證測試]
+      - context: fork
+      - agent: general-purpose
+      - model: sonnet
+      - allowed-tools: [Read, Bash, Grep, Glob, Write]
+    references:
+      - shared/config/model-routing.yaml
+      - shared/quality/gates.yaml
+      - shared/config/early-termination.yaml
+      - shared/quality/rollback-strategy.yaml
+      - shared/perspectives/expertise-frameworks/testing.yaml
+
+  - path: skills/orchestrate/SKILL.md
+    type: skill-config
+    description: "端到端工作流編排器 - File-Based Handoff + 智能並行決策"
+    keys:
+      - name: orchestrate
+      - version: "3.4.0"
+      - triggers: [orchestrate, workflow, 全流程, e2e]
+      - allowed-tools: [Read, Write, Bash, Glob, Grep, Skill, Task, TaskCreate, TaskUpdate, TaskList, TaskGet]
+    references:
+      - shared/quality/gates.yaml
+      - shared/quality/rollback-strategy.yaml
+      - shared/config/early-termination.yaml
+      - shared/config/execution-profiles.yaml
+      - shared/config/context-freshness.yaml
+      - shared/config/parallel-execution.yaml
+
+  - path: skills/status/SKILL.md
+    type: skill-config
+    description: "工作流狀態查看器 - 顯示執行進度、任務列表、DAG 可視化"
+    keys:
+      - name: status
+      - version: "1.1.0"
+      - triggers: [status, 狀態, 進度, progress]
+      - allowed-tools: [Read, Bash, Glob, Grep, TaskList, TaskGet]
+    references: []
+
+  - path: skills/memory-commit/SKILL.md
+    type: skill-config
+    description: "智能 commit .claude/memory/ 目錄的變更（含任務追蹤）"
+    keys:
+      - name: memory-commit
+      - version: "1.0.0"
+      - triggers: [memory-commit, mc]
+      - allowed-tools: [Bash, Glob, Grep, Read]
+    references: []
+
+  - path: skills/setup-workflow/SKILL.md
+    type: skill-config
+    description: "一鍵配置 multi-agent-workflow 規範執行機制"
+    keys:
+      - name: setup-workflow
+      - version: "1.0.0"
+      - triggers: [setup-workflow, setup-wf]
+      - allowed-tools: [Bash, Read, Write, Edit, Glob]
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # PERSPECTIVE-CONFIG: 視角配置
+  # ---------------------------------------------------------------------------
+
+  - path: shared/perspectives/catalog.yaml
+    type: perspective-config
+    description: "統一視角目錄 - 集中管理所有視角定義，避免重複和不一致"
+    keys:
+      - version: "1.0"
+      - categories: [research, plan, tasks, implement, review, verify, cross-cutting]
+      - perspectives: 30+
+      - presets: [quick, standard, deep, custom]
+      - metadata: [severity_levels, model_tiers, research_methods]
+      - composition_rules: [mutually_exclusive, recommended_pairs, dependencies]
+      - dynamic_adjustments: [topic_boosts, context_adjustments]
+      - output_templates: [perspective_report, synthesis_report]
+    references:
+      - shared/perspectives/expertise-frameworks/
+
+  - path: shared/perspectives/expertise-frameworks/security.yaml
+    type: expertise-config
+    description: "安全專業知識框架 - OWASP Top 10 和 CWE Top 25"
+    keys:
+      - version: "1.0"
+      - owasp_top_10: 10 items
+      - cwe_top_25: 10 items
+      - thresholds: [critical, high, medium]
+      - security_checklist: [authentication, authorization, data_protection, input_validation]
+    references: []
+
+  - path: shared/perspectives/expertise-frameworks/architecture.yaml
+    type: expertise-config
+    description: "架構專業知識框架 - SOLID、Clean Architecture、設計模式"
+    keys:
+      - version: "1.0"
+      - principles: [solid, clean_architecture]
+      - design_patterns: [creational, structural, behavioral]
+      - scalability: [horizontal, vertical, data]
+      - maintainability: [code_quality, documentation, testing]
+      - anti_patterns: 5 items
+    references: []
+
+  - path: shared/perspectives/expertise-frameworks/testing.yaml
+    type: expertise-config
+    description: "測試專業知識框架 - TDD、測試金字塔、最佳實踐"
+    keys:
+      - version: "1.0"
+      - testing_pyramid: [unit, integration, e2e]
+      - tdd_process: [red, green, refactor]
+      - coverage: [thresholds, metrics, exclusions]
+      - best_practices: [naming, structure, isolation, maintenance]
+      - anti_patterns: 4 items
+    references: []
+
+  - path: shared/perspectives/expertise-frameworks/performance.yaml
+    type: expertise-config
+    description: "效能專業知識框架 - 指標、優化策略、測試類型"
+    keys:
+      - version: "1.0"
+      - metrics: [response_time, throughput, resource_utilization]
+      - optimization_strategies: [caching, database, code, frontend]
+      - testing_types: [load_test, stress_test, spike_test, soak_test, scalability_test]
+      - anti_patterns: 3 items
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # QUALITY-CONFIG: 品質控制配置
+  # ---------------------------------------------------------------------------
+
+  - path: shared/quality/gates.yaml
+    type: quality-config
+    description: "品質閘門配置 - 6 階段完整品質閘門定義"
+    keys:
+      - version: "1.0"
+      - gates: [RESEARCH, PLAN, TASKS, IMPLEMENT, REVIEW, VERIFY]
+      - pass_criteria: [mandatory, recommended]
+      - quality_score_thresholds: {RESEARCH: 70, PLAN: 75, TASKS: 80, IMPLEMENT: 80, REVIEW: 75, VERIFY: 85}
+      - gate_behavior: [on_mandatory_fail, on_recommended_fail, on_score_below_threshold]
+    references: []
+
+  - path: shared/quality/scoring.yaml
+    type: quality-config
+    description: "品質評分配置 - 統一的輸出品質評分框架"
+    keys:
+      - version: "1.0"
+      - dimensions: [completeness, consistency, actionability]
+      - weights: {completeness: 30, consistency: 30, actionability: 40}
+      - thresholds: {passing: 70, good: 80, excellent: 90}
+      - grades: [A, B, C, D, F]
+      - stage_adjustments: 6 stages
+    references: []
+
+  - path: shared/quality/tdd-enforcement.yaml
+    type: quality-config
+    description: "TDD 強制配置 - 確保測試驅動開發流程被嚴格遵守"
+    keys:
+      - version: "1.0"
+      - tasks_stage_validation: [T-F tasks have TEST tasks, TEST blocks T-F]
+      - implement_stage_validation: [pre_task_gate, post_task_gate]
+      - test_file_patterns: [typescript, javascript, python]
+      - violations: [BLOCKER, HIGH, MEDIUM]
+      - exemptions: [infrastructure_only, documentation_only, config_file]
+    references: []
+
+  - path: shared/quality/rollback-strategy.yaml
+    type: quality-config
+    description: "智慧回退策略配置 - 根據問題類型決定回退到哪個階段"
+    keys:
+      - version: "1.0"
+      - iteration_rules: [iteration_1_2, iteration_3, iteration_4, iteration_5_plus]
+      - loop_detection: [same_error_twice, oscillating_between_stages, infinite_loop_prevention]
+      - error_type_routing: [test_failure, dependency_error, architecture_conflict, requirement_unclear]
+      - preserve_on_rollback: [always_keep, selectively_keep]
+    references: []
+
+  - path: shared/quality/completeness-checklist.yaml
+    type: quality-config
+    description: "完整性檢查清單配置 - 分層檢查清單 + 自動驗證"
+    keys:
+      - version: "1.0"
+      - layers: [L1_mandatory, L2_recommended, L3_optional]
+      - cross_validation: [perspective_coverage, requirement_tracing, terminology_consistency]
+      - stage_specific: 6 stages
+    references: []
+
+  - path: shared/quality/early-detection.yaml
+    type: quality-config
+    description: "早期攔截配置 - 在早期階段攔截潛在問題"
+    keys:
+      - version: "1.0"
+      - plan_stage_checks: [security, architecture, maintainability]
+      - tasks_stage_auto_generate: [security_check_task, edge_case_task, error_handling_task]
+      - detection_keywords: [security_sensitive, data_handling, external_integration]
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # COORDINATION-CONFIG: 協調配置
+  # ---------------------------------------------------------------------------
+
+  - path: shared/config/parallel-execution.yaml
+    type: coordination-config
+    description: "智能並行執行策略 - File-Based Handoff + Context 保護"
+    keys:
+      - version: "1.1"
+      - handoff_protocol: file_based
+      - parallelism: {max_concurrent_tasks: 2}
+      - complexity_based_adjustment: [simple, medium, complex]
+      - dependency_analysis: [file_overlap, module_dependency, test_coverage]
+      - batching_strategy: dependency_aware
+      - context_protection: [safe, caution, warning, critical]
+      - context_limit_recovery: defined
+    references: []
+
+  - path: shared/config/execution-profiles.yaml
+    type: coordination-config
+    description: "執行模式配置 - express/default/quality 三種模式"
+    keys:
+      - version: "1.0"
+      - profiles: [default, express, quality]
+      - default: {perspectives: 4, model_override: null}
+      - express: {perspectives: 1, model_override: haiku}
+      - quality: {perspectives: 4, model_override: opus}
+    references:
+      - shared/config/model-routing.yaml
+
+  - path: shared/config/model-routing.yaml
+    type: coordination-config
+    description: "模型路由配置 - 根據任務複雜度選擇最適合的模型"
+    keys:
+      - version: "1.0"
+      - models: [opus, sonnet, haiku]
+      - routing: {RESEARCH, PLAN, TASKS, IMPLEMENT, REVIEW, VERIFY}
+      - upgrade_rules: [error_count, complexity_score, security_sensitive]
+      - critical_decisions: always_opus
+    references: []
+
+  - path: shared/config/context-budget.yaml
+    type: coordination-config
+    description: "Context 預算分配 - Token 使用量控制"
+    keys:
+      - version: "1.0"
+      - budget_allocation: {total: 100000, available: 77000}
+      - reserved: [system_prompt, tools_description, safety_margin, user_history]
+      - per_stage_allocation: 6 stages
+      - overflow_handling: compress_oldest_first
+      - monitoring: [check_interval, warning_threshold, critical_threshold]
+    references: []
+
+  - path: shared/config/context-freshness.yaml
+    type: coordination-config
+    description: "上下文新鮮機制 - Task = Fresh Context 原則"
+    keys:
+      - version: "2.0"
+      - strategy: inline_injection
+      - prompt_structure: [required, optional, never_include]
+      - quality_curve: defined
+    references: []
+
+  - path: shared/config/stage-handoff.yaml
+    type: coordination-config
+    description: "跨階段傳遞協議 - 階段間資訊傳遞規則"
+    keys:
+      - version: "1.0"
+      - include: [stage_summary, key_decisions, blockers, artifacts_paths, quality_score, next_stage_hints]
+      - exclude: [full_analysis, all_perspectives, reasoning_steps]
+      - lazy_load: [explicit_reference, error_debugging, quality_review]
+    references: []
+
+  - path: shared/config/early-termination.yaml
+    type: coordination-config
+    description: "早期終止配置 - 根據中間結果決定是否提前完成或停止"
+    keys:
+      - version: "1.0"
+      - success_early_stop: [RESEARCH, PLAN, REVIEW, VERIFY]
+      - failure_early_stop: [any_stage, IMPLEMENT]
+      - progressive_depth: [level_1, level_2, level_3]
+      - never_terminate: [any_blocker_exists, quality_score < 80, tdd_compliance < 95, security_issues_unresolved]
+    references: []
+
+  - path: shared/config/thinking-triggers.yaml
+    type: coordination-config
+    description: "擴展思考觸發配置 - 各階段擴展思考觸發條件"
+    keys:
+      - version: "1.0"
+      - stage_thinking: {RESEARCH: recommended, PLAN: recommended, TASKS: false, IMPLEMENT: false, REVIEW: recommended, VERIFY: false}
+      - usage: [keyword, keyboard_shortcut, environment_variable]
+      - token_budget: {default: 5000, extended: 10000, maximum: 32000}
+      - thinking_prompts: [architecture_analysis, risk_assessment, integration_review]
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # INTEGRATION-CONFIG: 整合配置
+  # ---------------------------------------------------------------------------
+
+  - path: shared/integration/context7.yaml
+    type: integration-config
+    description: "Context7 整合配置 - 外部文檔知識整合"
+    keys:
+      - version: "1.0"
+      - enabled: true
+      - provider: context7
+      - tools: [resolve_library, query_docs]
+      - triggers: [automatic, manual]
+      - keywords: [frontend, backend, database, testing, tools]
+      - query_strategy: {max_queries_per_stage: 3, cache: enabled}
+    references: []
+
+  - path: shared/communication/hooks-settings.json
+    type: integration-config
+    description: "Claude Code Hooks 配置範例 - PreToolUse, PostToolUse, SubagentStart, SubagentStop"
+    keys:
+      - hooks: [PreToolUse, PostToolUse, SubagentStart, SubagentStop, SessionStart]
+    references: []
+
+  - path: shared/config/commit-settings.yaml
+    type: integration-config
+    description: "Task 完成後的 Git Commit 設定"
+    keys:
+      - task_commit: {enabled: true, include_memory: false, include_logs: false}
+      - exclude_patterns: [*.pyc, __pycache__/, .pytest_cache/, *.egg-info/, .DS_Store, *.log]
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # METRICS-CONFIG: 指標配置
+  # ---------------------------------------------------------------------------
+
+  - path: shared/metrics/schema.yaml
+    type: metrics-config
+    description: "Multi-Agent Workflow 指標定義 - 執行、品質、效率指標"
+    keys:
+      - version: "1.0.0"
+      - execution: [duration_sec, agent_success_rate, retry_count, token_usage]
+      - quality: [issues_found, by_severity, false_positive_rate]
+      - efficiency: [first_pass_success, rollback_count, total_iterations, pass_at_k]
+      - stage_template: defined
+      - workflow_metrics: defined
+      - action_logs: defined
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # SCHEMA-CONFIG: Schema 定義
+  # ---------------------------------------------------------------------------
+
+  - path: skills/tasks/config/schema.yaml
+    type: schema-config
+    description: "tasks.yaml Schema 定義 - TASKS skill 的主要輸出格式"
+    keys:
+      - $schema: "http://json-schema.org/draft-07/schema#"
+      - required: [version, metadata, tasks, execution_plan]
+      - task_types: [feature, refactor, test, prevention, rollback, monitoring]
+      - priority_definitions: [P0, P1, P2]
+      - task_id_patterns: [T-F-*, T-R-*, TEST-*, RISK-*]
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # PLUGIN-CONFIG: Plugin 配置
+  # ---------------------------------------------------------------------------
+
+  - path: plugin.json
+    type: plugin-config
+    description: "Plugin 主配置 - 名稱、版本、關鍵字"
+    keys:
+      - name: multi-agent-workflow
+      - version: "2.3.1"
+      - keywords: [multi-agent, workflow, parallel-agents, map-reduce]
+    references: []
+
+  - path: .claude-plugin/marketplace.json
+    type: plugin-config
+    description: "Plugin Marketplace 配置"
+    keys: []
+    references: []
+
+  # ---------------------------------------------------------------------------
+  # OTHER-CONFIG: 其他配置
+  # ---------------------------------------------------------------------------
+
+  - path: shared/config/chunking.yaml
+    type: coordination-config
+    description: "大任務分塊處理配置"
+    keys:
+      - version: "1.0"
+      - auto_chunk_triggers: [estimated_tokens, file_count, task_count, complexity_score]
+      - strategies: [by_module, by_priority, by_dependency]
+      - chunk_processing: {parallel_limit: 4}
+      - size_limits: {max: 30000, min: 5000}
+    references: []
+
+  - path: shared/config/prompt-loading.yaml
+    type: coordination-config
+    description: "分層載入機制 - 控制 Prompt 大小"
+    keys:
+      - version: "1.0"
+      - loading_strategy: [level_0, level_1, level_2, level_3]
+      - optimization: [cache_frequently_used, preload_next_stage, compress_on_threshold]
+    references: []
+
+  - path: shared/config/result-compression.yaml
+    type: coordination-config
+    description: "Subagent 結果壓縮規則"
+    keys:
+      - version: "1.0"
+      - compression_rules: [perspective_report, stage_output, error_report, decision_record]
+    references: []
+
+  - path: shared/tasks/dependency-detection.yaml
+    type: coordination-config
+    description: "多層依賴分析配置 - 偵測顯式和隱含依賴"
+    keys:
+      - version: "1.0"
+      - detection_layers: [L1_explicit, L2_file_overlap, L3_semantic, L4_environment]
+      - conflict_detection: [circular_dependency, parallel_same_file_modification, resource_contention]
+      - auto_fix: [add_missing_dependency, reorder_parallel_to_sequential]
+    references: []
+
+# =============================================================================
+# 配置關聯圖
+# =============================================================================
+#
+# orchestrate/SKILL.md
+#     ├── execution-profiles.yaml ──→ model-routing.yaml
+#     ├── parallel-execution.yaml
+#     ├── early-termination.yaml
+#     ├── context-freshness.yaml
+#     └── gates.yaml ──→ scoring.yaml
+#                   └── rollback-strategy.yaml
+#
+# research/SKILL.md, plan/SKILL.md, tasks/SKILL.md, implement/SKILL.md, review/SKILL.md, verify/SKILL.md
+#     ├── model-routing.yaml
+#     ├── gates.yaml
+#     └── [skill-specific configs]
+#
+# catalog.yaml
+#     └── expertise-frameworks/*.yaml
+
+# =============================================================================
+# 使用說明
+# =============================================================================
+#
+# 1. 查找配置：使用 entries[].path 定位配置檔案
+# 2. 了解用途：查看 entries[].description 了解配置用途
+# 3. 識別依賴：查看 entries[].references 了解相關配置
+# 4. 按分類瀏覽：使用 categories[].id 過濾相關配置
+#
+# 範例查詢（使用 yq）：
+#   # 列出所有 skill-config
+#   yq '.entries[] | select(.type == "skill-config") | .path' INDEX.yaml
+#
+#   # 查找特定配置的引用
+#   yq '.entries[] | select(.path == "shared/quality/gates.yaml") | .references' INDEX.yaml

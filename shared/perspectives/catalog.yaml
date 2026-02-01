@@ -1,0 +1,1629 @@
+# Perspective Catalog
+# ===================
+# 統一視角目錄：集中管理所有視角定義，避免重複和不一致
+#
+# 設計原則：
+# 1. 單一事實來源 - 所有視角定義集中於此
+# 2. 可擴充性 - 支援新增分類和視角
+# 3. 可繼承性 - 支援視角繼承和組合
+# 4. 可篩選性 - 支援按 Skill、分類、標籤篩選
+
+version: "1.0"
+last_updated: "2026-02-01"
+
+# =============================================================================
+# 元資料定義
+# =============================================================================
+
+metadata:
+  # 視角嚴重程度定義（用於建議優先級）
+  severity_levels:
+    - id: critical
+      description: "必須處理，阻擋發布"
+      color: "#FF0000"
+    - id: high
+      description: "應該處理，影響品質"
+      color: "#FFA500"
+    - id: medium
+      description: "建議處理，可延後"
+      color: "#FFFF00"
+    - id: low
+      description: "參考資訊"
+      color: "#00FF00"
+
+  # 模型等級定義（用於智能路由）
+  model_tiers:
+    - id: opus
+      description: "最高等級，用於複雜決策和衝突解決"
+      use_cases: ["衝突仲裁", "最終決策", "創意發想"]
+    - id: sonnet
+      description: "標準等級，用於深度分析"
+      use_cases: ["架構分析", "安全審計", "整合審查"]
+    - id: haiku
+      description: "輕量等級，用於快速任務"
+      use_cases: ["格式檢查", "簡單分解", "趨勢調查"]
+
+  # 研究方法定義
+  research_methods:
+    - id: deep
+      description: "進行深度思考和分析，不需要搜尋外部資源"
+      agent_type: "general-purpose"
+    - id: search
+      description: "搜尋網路或程式碼庫以獲取最新資訊"
+      agent_type: "general-purpose"
+    - id: explore
+      description: "探索程式碼庫，分析現有實作"
+      agent_type: "Explore"
+    - id: observe
+      description: "觀察和監督，提供即時回饋"
+      agent_type: "general-purpose"
+
+# =============================================================================
+# 視角分類定義
+# =============================================================================
+
+categories:
+  # -------------------------------------------------------------------------
+  # research - 研究階段視角
+  # -------------------------------------------------------------------------
+  - id: research
+    name: 研究分析
+    description: "用於研究調查階段的視角，專注於收集和分析資訊"
+    icon: "magnifying_glass"
+    applicable_skills:
+      - research
+
+  # -------------------------------------------------------------------------
+  # plan - 規劃階段視角
+  # -------------------------------------------------------------------------
+  - id: plan
+    name: 計劃規劃
+    description: "用於計劃制定階段的視角，專注於架構設計和風險評估"
+    icon: "blueprint"
+    applicable_skills:
+      - plan
+
+  # -------------------------------------------------------------------------
+  # tasks - 任務分解視角
+  # -------------------------------------------------------------------------
+  - id: tasks
+    name: 任務分解
+    description: "用於任務拆分階段的視角，專注於工作分解和依賴分析"
+    icon: "list"
+    applicable_skills:
+      - tasks
+
+  # -------------------------------------------------------------------------
+  # implement - 實作階段視角
+  # -------------------------------------------------------------------------
+  - id: implement
+    name: 實作監督
+    description: "用於實作階段的視角，專注於程式碼品質和最佳實踐"
+    icon: "hammer"
+    applicable_skills:
+      - implement
+
+  # -------------------------------------------------------------------------
+  # review - 審查階段視角
+  # -------------------------------------------------------------------------
+  - id: review
+    name: 程式碼審查
+    description: "用於程式碼審查階段的視角，專注於品質和整合問題"
+    icon: "magnifying_glass"
+    applicable_skills:
+      - review
+
+  # -------------------------------------------------------------------------
+  # verify - 驗證階段視角
+  # -------------------------------------------------------------------------
+  - id: verify
+    name: 驗證測試
+    description: "用於驗證階段的視角，專注於功能正確性和邊界測試"
+    icon: "checkmark"
+    applicable_skills:
+      - verify
+
+  # -------------------------------------------------------------------------
+  # cross-cutting - 跨階段視角
+  # -------------------------------------------------------------------------
+  - id: cross-cutting
+    name: 跨領域視角
+    description: "可在多個階段使用的通用視角"
+    icon: "star"
+    applicable_skills:
+      - research
+      - plan
+      - tasks
+      - implement
+      - review
+      - verify
+
+# =============================================================================
+# 視角定義
+# =============================================================================
+#
+# 每個視角包含：
+#   - id: 唯一識別碼（用於引用）
+#   - name: 顯示名稱（人類可讀）
+#   - category: 所屬分類（對應 categories.id）
+#   - focus: 關注重點（簡短描述）
+#   - responsibilities: 職責列表（詳細說明該視角負責什麼）
+#   - output_format: 輸出格式建議（該視角應產出什麼格式的報告）
+#   - model_tier: 建議使用的模型等級（opus/sonnet/haiku）
+#   - method: 研究/工作方法（deep/search/explore/observe）
+#   - priority_weight: 優先權重（0-1，用於衝突解決時的權重）
+#   - tags: 標籤（用於篩選和匹配）
+#   - triggers: 觸發條件（自動啟用的關鍵字）
+#   - extends: 繼承自哪個視角（可選，用於視角繼承）
+#   - applicable_skills: 適用的 Skills（覆蓋分類預設值）
+
+perspectives:
+  # ===========================================================================
+  # RESEARCH 研究階段視角
+  # ===========================================================================
+
+  - id: architecture
+    name: 架構分析師
+    category: research
+    focus: "系統結構和設計模式分析"
+    responsibilities:
+      - 識別系統組件與模組劃分
+      - 評估設計模式適用性
+      - 分析可擴展性考量
+      - 識別技術債務風險
+      - 分析依賴關係
+    output_format:
+      sections:
+        - name: 結構分解
+          description: "識別主要組件和模組"
+        - name: 設計模式
+          description: "適用的設計模式及理由"
+        - name: 擴展性
+          description: "支持未來擴展的設計"
+        - name: 權衡取捨
+          description: "不同架構選擇的 trade-offs"
+      deliverables:
+        - "核心洞察（3-5 點）"
+        - "架構建議"
+        - "潛在風險"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.9
+    tags:
+      - technical
+      - structure
+      - design
+    triggers:
+      - "架構"
+      - "architecture"
+      - "系統設計"
+      - "system design"
+      - "模組"
+      - "module"
+
+  - id: cognitive
+    name: 認知科學研究員
+    category: research
+    focus: "方法論和思維模式分析"
+    responsibilities:
+      - 定義核心概念
+      - 建立思維模型和框架
+      - 識別認知偏誤
+      - 設計學習路徑
+      - 分析知識遷移模式
+    output_format:
+      sections:
+        - name: 核心概念
+          description: "關鍵術語和概念定義"
+        - name: 思維框架
+          description: "適用的認知框架"
+        - name: 心智模型
+          description: "建立正確心智模型的方法"
+        - name: 常見誤區
+          description: "需要避免的認知偏誤"
+      deliverables:
+        - "概念圖譜"
+        - "關鍵洞察"
+        - "學習建議"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.8
+    tags:
+      - methodology
+      - learning
+      - cognitive
+
+  - id: workflow
+    name: 工作流設計師
+    category: research
+    focus: "執行流程和整合策略"
+    responsibilities:
+      - 設計執行步驟
+      - 規劃工具整合策略
+      - 識別自動化機會
+      - 發現效率瓶頸
+      - 設計團隊協作模式
+    output_format:
+      sections:
+        - name: 流程設計
+          description: "最佳執行步驟"
+        - name: 工具整合
+          description: "需要的工具及整合方式"
+        - name: 自動化
+          description: "可自動化的部分"
+        - name: 協作
+          description: "團隊有效協作方式"
+      deliverables:
+        - "流程圖（文字描述）"
+        - "關鍵步驟"
+        - "整合建議"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.7
+    tags:
+      - process
+      - automation
+      - integration
+
+  - id: industry
+    name: 業界實踐研究員
+    category: research
+    focus: "現有框架和最佳實踐調查"
+    responsibilities:
+      - 調查現有框架和工具
+      - 分析成功案例
+      - 總結失敗教訓
+      - 追蹤市場趨勢
+      - 收集社群最佳實踐
+    output_format:
+      sections:
+        - name: 現有方案
+          description: "市場上的解決方案"
+        - name: 案例研究
+          description: "成功案例的關鍵因素"
+        - name: 常見問題
+          description: "實務中常遇到的問題"
+        - name: 趨勢
+          description: "未來發展方向"
+      deliverables:
+        - "方案比較表"
+        - "案例分析"
+        - "實踐建議"
+    model_tier: haiku
+    method: search
+    priority_weight: 0.6
+    tags:
+      - industry
+      - best-practices
+      - trends
+
+  # ===========================================================================
+  # PLAN 規劃階段視角
+  # ===========================================================================
+
+  - id: architect
+    name: 系統架構師
+    category: plan
+    focus: "技術可行性和組件設計"
+    responsibilities:
+      - 評估技術可行性
+      - 設計組件結構
+      - 定義介面規範
+      - 選擇技術棧
+      - 規劃系統整合
+    output_format:
+      sections:
+        - name: 技術評估
+          description: "技術方案可行性分析"
+        - name: 組件設計
+          description: "系統組件劃分和職責"
+        - name: 介面定義
+          description: "模組間介面規範"
+        - name: 技術選型
+          description: "技術棧選擇及理由"
+      deliverables:
+        - "架構圖"
+        - "組件清單"
+        - "介面規格"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.95
+    tags:
+      - architecture
+      - design
+      - technical
+
+  - id: risk-analyst
+    name: 風險分析師
+    category: plan
+    focus: "潛在風險和失敗場景識別"
+    responsibilities:
+      - 識別潛在風險
+      - 分析失敗場景
+      - 評估風險影響
+      - 制定緩解策略
+      - 設計回滾計劃
+    output_format:
+      sections:
+        - name: 風險識別
+          description: "潛在風險清單"
+        - name: 影響分析
+          description: "風險發生的影響評估"
+        - name: 緩解策略
+          description: "降低風險的措施"
+        - name: 回滾計劃
+          description: "失敗時的恢復方案"
+      deliverables:
+        - "風險矩陣"
+        - "緩解計劃"
+        - "應急方案"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.9
+    tags:
+      - risk
+      - mitigation
+      - planning
+
+  - id: estimator
+    name: 估算專家
+    category: plan
+    focus: "工作量評估和優先順序"
+    responsibilities:
+      - 評估工作量
+      - 規劃時程
+      - 配置資源
+      - 設定優先順序
+      - 識別關鍵路徑
+    output_format:
+      sections:
+        - name: 工作量估算
+          description: "各模組工作量評估"
+        - name: 時程規劃
+          description: "開發時程安排"
+        - name: 資源配置
+          description: "人力和資源分配"
+        - name: 優先順序
+          description: "開發優先級建議"
+      deliverables:
+        - "估算表格"
+        - "甘特圖描述"
+        - "里程碑定義"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.7
+    tags:
+      - estimation
+      - planning
+      - schedule
+
+  - id: ux-advocate
+    name: UX 倡導者
+    category: plan
+    focus: "使用者體驗和 API 設計"
+    responsibilities:
+      - 評估使用者體驗
+      - 設計 API 易用性
+      - 收集使用者需求
+      - 設計互動流程
+      - 確保無障礙性
+    output_format:
+      sections:
+        - name: 使用者需求
+          description: "使用者核心需求分析"
+        - name: 體驗設計
+          description: "使用者體驗建議"
+        - name: API 易用性
+          description: "API 設計易用性評估"
+        - name: 互動流程
+          description: "使用者互動流程設計"
+      deliverables:
+        - "使用者故事"
+        - "API 設計建議"
+        - "體驗優化點"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.6
+    tags:
+      - ux
+      - api-design
+      - usability
+
+  # ===========================================================================
+  # TASKS 任務分解視角
+  # ===========================================================================
+
+  - id: dependency-analyst
+    name: 依賴分析師
+    category: tasks
+    focus: "任務依賴和執行順序分析"
+    responsibilities:
+      - 分析任務依賴關係
+      - 確定執行順序
+      - 識別關鍵路徑
+      - 發現並行機會
+      - 識別阻塞點
+    output_format:
+      sections:
+        - name: 依賴圖
+          description: "任務間依賴關係"
+        - name: 執行順序
+          description: "建議的執行順序"
+        - name: 關鍵路徑
+          description: "影響總時程的關鍵任務"
+        - name: 並行機會
+          description: "可並行執行的任務組"
+      deliverables:
+        - "依賴關係圖"
+        - "執行順序表"
+        - "關鍵路徑分析"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.9
+    tags:
+      - dependency
+      - scheduling
+      - critical-path
+
+  - id: task-decomposer
+    name: 任務分解師
+    category: tasks
+    focus: "功能任務分解和工作量估算"
+    responsibilities:
+      - 將計劃分解為可執行任務
+      - 確保任務粒度適當（10-60 分鐘）
+      - 定義驗收標準
+      - 識別檔案影響範圍
+      - 應用 INVEST 原則
+    output_format:
+      sections:
+        - name: 任務清單
+          description: "分解後的任務列表"
+        - name: 驗收標準
+          description: "每個任務的完成條件"
+        - name: 檔案影響
+          description: "需建立或修改的檔案"
+        - name: 工作量估算
+          description: "每個任務的時間估算"
+      deliverables:
+        - "任務 YAML 定義"
+        - "驗收清單"
+        - "檔案清單"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.8
+    tags:
+      - decomposition
+      - estimation
+      - planning
+
+  - id: test-planner
+    name: 測試規劃師
+    category: tasks
+    focus: "TDD 對應和測試策略"
+    responsibilities:
+      - 規劃測試策略
+      - 對應 TDD 測試任務
+      - 設定覆蓋目標
+      - 識別測試優先級
+      - 設計測試資料
+    output_format:
+      sections:
+        - name: 測試策略
+          description: "整體測試方法"
+        - name: TDD 任務
+          description: "測試先行的任務對應"
+        - name: 覆蓋目標
+          description: "測試覆蓋率目標"
+        - name: 測試資料
+          description: "測試資料準備需求"
+      deliverables:
+        - "測試計劃"
+        - "TDD 任務清單"
+        - "覆蓋率目標"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.7
+    tags:
+      - testing
+      - tdd
+      - coverage
+
+  - id: risk-preventor
+    name: 風險預防師
+    category: tasks
+    focus: "風險任務識別和預防措施"
+    responsibilities:
+      - 識別高風險任務
+      - 制定預防措施
+      - 設計回滾計劃
+      - 設定檢查點
+      - 定義失敗處理流程
+    output_format:
+      sections:
+        - name: 風險任務
+          description: "高風險任務識別"
+        - name: 預防措施
+          description: "降低風險的措施"
+        - name: 回滾計劃
+          description: "失敗時的恢復方案"
+        - name: 檢查點
+          description: "風險監控點設置"
+      deliverables:
+        - "風險任務標記"
+        - "預防措施清單"
+        - "回滾腳本需求"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.6
+    tags:
+      - risk
+      - prevention
+      - rollback
+
+  # ===========================================================================
+  # IMPLEMENT 實作階段視角
+  # ===========================================================================
+
+  - id: tdd-enforcer
+    name: TDD 守護者
+    category: implement
+    focus: "測試先行和覆蓋率監督"
+    responsibilities:
+      - 確保測試先於實作
+      - 監控測試覆蓋率
+      - 驗證測試品質
+      - 識別遺漏的測試案例
+      - 推動紅-綠-重構循環
+    output_format:
+      sections:
+        - name: TDD 檢查
+          description: "測試先行狀態"
+        - name: 覆蓋率
+          description: "當前覆蓋率狀態"
+        - name: 測試品質
+          description: "測試案例品質評估"
+        - name: 遺漏測試
+          description: "建議補充的測試"
+      deliverables:
+        - "TDD 遵循報告"
+        - "覆蓋率報告"
+        - "測試建議"
+    model_tier: haiku
+    method: observe
+    priority_weight: 0.9
+    tags:
+      - tdd
+      - testing
+      - quality
+
+  - id: performance-optimizer
+    name: 效能優化師
+    category: implement
+    focus: "時間複雜度和記憶體效能"
+    responsibilities:
+      - 分析時間複雜度
+      - 監控記憶體使用
+      - 識別效能瓶頸
+      - 建議優化方案
+      - 驗證效能改善
+    output_format:
+      sections:
+        - name: 複雜度分析
+          description: "時間/空間複雜度評估"
+        - name: 效能瓶頸
+          description: "識別的效能問題"
+        - name: 優化建議
+          description: "效能改善方案"
+        - name: 基準測試
+          description: "效能測試建議"
+      deliverables:
+        - "效能分析報告"
+        - "優化建議清單"
+        - "基準測試結果"
+    model_tier: sonnet
+    method: observe
+    priority_weight: 0.7
+    tags:
+      - performance
+      - optimization
+      - efficiency
+    triggers:
+      - "效能"
+      - "performance"
+      - "優化"
+      - "optimize"
+      - "慢"
+      - "slow"
+
+  - id: security-auditor
+    name: 安全審計員
+    category: implement
+    focus: "OWASP 和安全最佳實踐"
+    responsibilities:
+      - 執行 OWASP Top 10 檢查
+      - 驗證輸入驗證
+      - 檢查認證授權
+      - 識別安全漏洞
+      - 建議安全改善
+    output_format:
+      sections:
+        - name: OWASP 檢查
+          description: "OWASP Top 10 符合度"
+        - name: 漏洞識別
+          description: "發現的安全問題"
+        - name: 安全建議
+          description: "安全改善建議"
+        - name: 合規狀態
+          description: "安全合規檢查結果"
+      deliverables:
+        - "安全審計報告"
+        - "漏洞清單"
+        - "修復建議"
+    model_tier: sonnet
+    method: observe
+    priority_weight: 0.95
+    tags:
+      - security
+      - owasp
+      - audit
+    triggers:
+      - "安全"
+      - "security"
+      - "auth"
+      - "認證"
+      - "授權"
+      - "密碼"
+      - "password"
+    # 引用專業知識框架
+    expertise_framework: "@shared/perspectives/expertise-frameworks/security.yaml"
+
+  - id: maintainer
+    name: 維護性專家
+    category: implement
+    focus: "可讀性和重構友善度"
+    responsibilities:
+      - 評估程式碼可讀性
+      - 檢查命名規範
+      - 識別重構機會
+      - 確保文檔完整
+      - 評估技術債務
+    output_format:
+      sections:
+        - name: 可讀性
+          description: "程式碼可讀性評估"
+        - name: 命名規範
+          description: "命名一致性檢查"
+        - name: 重構機會
+          description: "建議的重構點"
+        - name: 技術債務
+          description: "識別的技術債務"
+      deliverables:
+        - "可維護性報告"
+        - "重構建議"
+        - "技術債務清單"
+    model_tier: haiku
+    method: observe
+    priority_weight: 0.6
+    tags:
+      - maintainability
+      - readability
+      - refactoring
+
+  # ===========================================================================
+  # REVIEW 審查階段視角
+  # ===========================================================================
+
+  - id: code-quality
+    name: 程式碼品質審查員
+    category: review
+    focus: "風格一致性和設計模式"
+    responsibilities:
+      - 檢查命名規範
+      - 驗證程式碼結構
+      - 評估可讀性
+      - 確認 SOLID 原則遵循
+      - 識別反模式
+    output_format:
+      sections:
+        - name: 命名檢查
+          description: "命名規範符合度"
+        - name: 結構評估
+          description: "程式碼結構分析"
+        - name: SOLID 檢查
+          description: "SOLID 原則遵循度"
+        - name: 反模式
+          description: "識別的反模式"
+      deliverables:
+        - "品質報告"
+        - "改善建議"
+        - "反模式清單"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.8
+    tags:
+      - quality
+      - style
+      - patterns
+
+  - id: test-coverage
+    name: 測試覆蓋審查員
+    category: review
+    focus: "測試品質和邊界案例"
+    responsibilities:
+      - 評估測試覆蓋率
+      - 驗證測試品質
+      - 識別遺漏的邊界測試
+      - 檢查測試可維護性
+      - 評估測試效能
+    output_format:
+      sections:
+        - name: 覆蓋率
+          description: "測試覆蓋率報告"
+        - name: 測試品質
+          description: "測試案例品質評估"
+        - name: 邊界測試
+          description: "邊界案例覆蓋狀態"
+        - name: 測試維護
+          description: "測試可維護性評估"
+      deliverables:
+        - "覆蓋率報告"
+        - "測試品質報告"
+        - "補充測試建議"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.7
+    tags:
+      - testing
+      - coverage
+      - quality
+
+  - id: documentation
+    name: 文檔審查員
+    category: review
+    focus: "API 文檔和註解品質"
+    responsibilities:
+      - 檢查 API 文檔完整性
+      - 評估註解品質
+      - 驗證 README 更新
+      - 確認範例程式碼
+      - 檢查變更日誌
+    output_format:
+      sections:
+        - name: API 文檔
+          description: "API 文檔完整性"
+        - name: 註解品質
+          description: "程式碼註解評估"
+        - name: README
+          description: "README 更新狀態"
+        - name: 範例程式
+          description: "範例程式碼品質"
+      deliverables:
+        - "文檔審查報告"
+        - "文檔補充建議"
+        - "範例更新需求"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.5
+    tags:
+      - documentation
+      - api-docs
+      - readme
+
+  - id: integration
+    name: 整合審查員
+    category: review
+    focus: "向後相容和 API 契約"
+    responsibilities:
+      - 評估向後相容性
+      - 驗證 API 契約
+      - 檢查依賴衝突
+      - 確認版本相容
+      - 分析整合風險
+    output_format:
+      sections:
+        - name: 向後相容
+          description: "向後相容性評估"
+        - name: API 契約
+          description: "API 契約變更分析"
+        - name: 依賴檢查
+          description: "依賴衝突識別"
+        - name: 整合風險
+          description: "整合風險評估"
+      deliverables:
+        - "相容性報告"
+        - "Breaking Changes 清單"
+        - "遷移建議"
+    model_tier: sonnet
+    method: explore
+    priority_weight: 0.9
+    tags:
+      - integration
+      - compatibility
+      - api-contract
+
+  # ===========================================================================
+  # VERIFY 驗證階段視角
+  # ===========================================================================
+
+  - id: functional-tester
+    name: 功能測試員
+    category: verify
+    focus: "核心功能和 Happy Path 驗證"
+    responsibilities:
+      - 驗證核心功能
+      - 執行 Happy Path 測試
+      - 確認使用案例
+      - 驗證需求符合度
+      - 執行端對端測試
+    output_format:
+      sections:
+        - name: 功能驗證
+          description: "核心功能測試結果"
+        - name: Happy Path
+          description: "正常流程測試結果"
+        - name: 使用案例
+          description: "使用案例驗證狀態"
+        - name: 需求符合
+          description: "需求符合度評估"
+      deliverables:
+        - "功能測試報告"
+        - "使用案例驗證結果"
+        - "問題清單"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.8
+    tags:
+      - functional
+      - testing
+      - happy-path
+
+  - id: edge-case-hunter
+    name: 邊界獵人
+    category: verify
+    focus: "極端輸入和錯誤處理"
+    responsibilities:
+      - 識別邊界條件
+      - 測試極端輸入
+      - 驗證錯誤處理
+      - 執行壓力測試
+      - 探索異常場景
+    output_format:
+      sections:
+        - name: 邊界條件
+          description: "邊界條件測試結果"
+        - name: 極端輸入
+          description: "極端輸入處理評估"
+        - name: 錯誤處理
+          description: "錯誤處理完整性"
+        - name: 壓力測試
+          description: "壓力測試結果"
+      deliverables:
+        - "邊界測試報告"
+        - "發現的問題"
+        - "改善建議"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.9
+    tags:
+      - edge-case
+      - boundary
+      - error-handling
+
+  - id: regression-checker
+    name: 回歸檢查員
+    category: verify
+    focus: "現有功能和向後相容驗證"
+    responsibilities:
+      - 執行回歸測試
+      - 驗證現有功能
+      - 檢查副作用
+      - 確認向後相容
+      - 驗證遷移路徑
+    output_format:
+      sections:
+        - name: 回歸測試
+          description: "回歸測試結果"
+        - name: 現有功能
+          description: "現有功能影響評估"
+        - name: 副作用
+          description: "識別的副作用"
+        - name: 相容性
+          description: "向後相容性驗證"
+      deliverables:
+        - "回歸測試報告"
+        - "影響分析"
+        - "副作用清單"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.85
+    tags:
+      - regression
+      - compatibility
+      - side-effects
+
+  - id: acceptance-validator
+    name: 驗收驗證員
+    category: verify
+    focus: "需求符合度和 DoD 確認"
+    responsibilities:
+      - 驗證需求符合度
+      - 確認 Definition of Done
+      - 評估發布就緒度
+      - 執行驗收測試
+      - 簽核發布
+    output_format:
+      sections:
+        - name: 需求符合
+          description: "需求符合度檢查"
+        - name: DoD 確認
+          description: "Definition of Done 狀態"
+        - name: 發布就緒
+          description: "發布就緒度評估"
+        - name: 驗收結果
+          description: "驗收測試結果"
+      deliverables:
+        - "驗收報告"
+        - "DoD 檢查清單"
+        - "發布建議"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.95
+    tags:
+      - acceptance
+      - dod
+      - release
+
+  # ===========================================================================
+  # 深度模式額外視角（各 Skill 專用）
+  # ===========================================================================
+
+  # Tasks Skill 深度模式視角
+  - id: parallel-optimizer
+    name: 並行效率優化師
+    category: tasks
+    focus: "並行執行優化、資源利用、瓶頸消除"
+    responsibilities:
+      - 識別並行執行機會
+      - 優化資源利用率
+      - 消除執行瓶頸
+      - 設計並行策略
+      - 評估並行效益
+    output_format:
+      sections:
+        - name: 並行機會
+          description: "可並行執行的任務組"
+        - name: 資源分析
+          description: "資源利用和衝突分析"
+        - name: 瓶頸識別
+          description: "執行瓶頸和解決方案"
+        - name: 效益評估
+          description: "並行化預期效益"
+      deliverables:
+        - "並行執行圖"
+        - "資源配置建議"
+        - "時間節省估算"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.5
+    tags:
+      - parallel
+      - optimization
+      - efficiency
+    applicable_skills:
+      - tasks
+
+  - id: doc-planner
+    name: 文檔任務規劃師
+    category: tasks
+    focus: "文檔任務規劃、知識傳承、團隊溝通"
+    responsibilities:
+      - 規劃文檔任務
+      - 識別文檔需求
+      - 設計知識傳承策略
+      - 規劃 API 文檔
+      - 確保文檔與程式碼同步
+    output_format:
+      sections:
+        - name: 文檔清單
+          description: "需要建立的文檔列表"
+        - name: 文檔優先級
+          description: "文檔優先順序"
+        - name: 同步策略
+          description: "文檔與程式碼同步方式"
+        - name: 模板建議
+          description: "建議的文檔模板"
+      deliverables:
+        - "DOC-* 任務清單"
+        - "文檔模板需求"
+        - "文檔驗收標準"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.4
+    tags:
+      - documentation
+      - planning
+      - knowledge
+    applicable_skills:
+      - tasks
+
+  # Implement Skill 深度模式視角
+  - id: i18n-specialist
+    name: 國際化專家
+    category: implement
+    focus: "多語言支援、本地化、文化適應"
+    responsibilities:
+      - 確保多語言支援
+      - 設計本地化策略
+      - 處理文化差異
+      - 管理翻譯流程
+      - 確保 Unicode 正確處理
+    output_format:
+      sections:
+        - name: 國際化檢查
+          description: "i18n 實作評估"
+        - name: 本地化需求
+          description: "L10n 需求識別"
+        - name: 文化適應
+          description: "文化差異處理"
+        - name: 翻譯管理
+          description: "翻譯流程建議"
+      deliverables:
+        - "i18n 審計報告"
+        - "翻譯鍵值清單"
+        - "本地化建議"
+    model_tier: haiku
+    method: observe
+    priority_weight: 0.4
+    tags:
+      - i18n
+      - l10n
+      - internationalization
+      - localization
+    triggers:
+      - "i18n"
+      - "國際化"
+      - "多語言"
+      - "翻譯"
+      - "本地化"
+    applicable_skills:
+      - implement
+      - review
+
+  # Verify Skill 深度模式視角
+  - id: performance-tester
+    name: 效能測試員
+    category: verify
+    focus: "負載測試、壓力測試、效能基準"
+    responsibilities:
+      - 執行負載測試
+      - 執行壓力測試
+      - 建立效能基準
+      - 識別效能瓶頸
+      - 驗證 SLA 合規
+    output_format:
+      sections:
+        - name: 負載測試
+          description: "負載測試結果"
+        - name: 壓力測試
+          description: "壓力測試結果"
+        - name: 效能基準
+          description: "效能基準建立"
+        - name: SLA 驗證
+          description: "SLA 符合度"
+      deliverables:
+        - "效能測試報告"
+        - "瓶頸分析"
+        - "優化建議"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.7
+    tags:
+      - performance
+      - load-testing
+      - stress-testing
+      - benchmarking
+    triggers:
+      - "效能測試"
+      - "performance test"
+      - "負載"
+      - "load"
+      - "壓力"
+      - "stress"
+    applicable_skills:
+      - verify
+
+  - id: security-tester
+    name: 安全測試員
+    category: verify
+    focus: "滲透測試、漏洞掃描、安全驗證"
+    responsibilities:
+      - 執行滲透測試
+      - 執行漏洞掃描
+      - 驗證安全修復
+      - 測試認證授權
+      - 驗證資料保護
+    output_format:
+      sections:
+        - name: 滲透測試
+          description: "滲透測試結果"
+        - name: 漏洞掃描
+          description: "漏洞掃描報告"
+        - name: 認證授權
+          description: "認證授權測試"
+        - name: 資料保護
+          description: "資料保護驗證"
+      deliverables:
+        - "安全測試報告"
+        - "漏洞清單"
+        - "修復驗證結果"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.85
+    tags:
+      - security
+      - penetration-testing
+      - vulnerability
+      - audit
+    triggers:
+      - "安全測試"
+      - "security test"
+      - "滲透"
+      - "penetration"
+      - "漏洞"
+      - "vulnerability"
+    applicable_skills:
+      - verify
+
+  # ===========================================================================
+  # CROSS-CUTTING 跨領域視角
+  # ===========================================================================
+
+  - id: data-architect
+    name: 資料架構師
+    category: cross-cutting
+    focus: "資料庫設計、資料遷移、資料一致性"
+    responsibilities:
+      - 設計實體關係
+      - 規劃資料遷移
+      - 確保資料一致性
+      - 優化查詢效能
+      - 設計快取策略
+    output_format:
+      sections:
+        - name: 資料模型
+          description: "實體關係設計評估"
+        - name: 資料遷移
+          description: "遷移計劃和風險"
+        - name: 資料一致性
+          description: "一致性保證機制"
+        - name: 效能考量
+          description: "查詢和寫入效能"
+      deliverables:
+        - "資料模型圖"
+        - "遷移腳本需求"
+        - "效能優化建議"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.8
+    tags:
+      - database
+      - data-model
+      - migration
+    triggers:
+      - "database"
+      - "db"
+      - "sql"
+      - "nosql"
+      - "migration"
+      - "schema"
+      - "資料庫"
+      - "遷移"
+    applicable_skills:
+      - plan
+      - tasks
+      - review
+
+  - id: ops-engineer
+    name: 維運工程師
+    category: cross-cutting
+    focus: "部署、監控、可靠性"
+    responsibilities:
+      - 設計部署流程
+      - 規劃監控策略
+      - 確保系統可靠性
+      - 設計告警機制
+      - 規劃災難恢復
+    output_format:
+      sections:
+        - name: 部署
+          description: "部署流程設計"
+        - name: 監控
+          description: "監控指標和告警"
+        - name: 可靠性
+          description: "SLA 和可用性保證"
+        - name: 災難恢復
+          description: "DR 計劃"
+      deliverables:
+        - "部署文檔"
+        - "監控配置"
+        - "運維手冊"
+    model_tier: haiku
+    method: deep
+    priority_weight: 0.7
+    tags:
+      - ops
+      - deployment
+      - monitoring
+      - reliability
+    triggers:
+      - "deploy"
+      - "部署"
+      - "monitoring"
+      - "監控"
+      - "devops"
+      - "運維"
+    applicable_skills:
+      - plan
+      - implement
+      - verify
+
+  - id: accessibility-specialist
+    name: 無障礙專家
+    category: cross-cutting
+    focus: "WCAG 合規和無障礙設計"
+    responsibilities:
+      - 確保 WCAG 合規
+      - 評估無障礙性
+      - 設計包容性介面
+      - 測試輔助技術相容
+      - 建議改善方案
+    output_format:
+      sections:
+        - name: WCAG 合規
+          description: "WCAG 2.1 符合度"
+        - name: 無障礙評估
+          description: "無障礙性問題識別"
+        - name: 輔助技術
+          description: "輔助技術相容性"
+        - name: 改善建議
+          description: "無障礙改善方案"
+      deliverables:
+        - "無障礙審計報告"
+        - "問題清單"
+        - "修復建議"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.5
+    tags:
+      - accessibility
+      - wcag
+      - a11y
+    triggers:
+      - "accessibility"
+      - "a11y"
+      - "無障礙"
+      - "wcag"
+    applicable_skills:
+      - review
+      - verify
+
+  - id: compliance-checker
+    name: 合規檢查員
+    category: cross-cutting
+    focus: "法規遵循和隱私保護"
+    responsibilities:
+      - 確保法規遵循
+      - 評估隱私保護
+      - 檢查資料處理合規
+      - 驗證同意機制
+      - 審計日誌完整性
+    output_format:
+      sections:
+        - name: 法規遵循
+          description: "相關法規符合度"
+        - name: 隱私保護
+          description: "個資保護評估"
+        - name: 資料處理
+          description: "資料處理合規性"
+        - name: 審計日誌
+          description: "審計追蹤完整性"
+      deliverables:
+        - "合規報告"
+        - "隱私影響評估"
+        - "改善建議"
+    model_tier: sonnet
+    method: deep
+    priority_weight: 0.6
+    tags:
+      - compliance
+      - privacy
+      - gdpr
+      - regulations
+    triggers:
+      - "compliance"
+      - "合規"
+      - "gdpr"
+      - "privacy"
+      - "隱私"
+      - "個資"
+    applicable_skills:
+      - plan
+      - review
+      - verify
+
+# =============================================================================
+# 預設組合（Presets）
+# =============================================================================
+#
+# 定義不同深度的視角組合，用於快速選擇
+
+presets:
+  # ---------------------------------------------------------------------------
+  # 快速模式：2 視角，用於簡單任務或初步評估
+  # ---------------------------------------------------------------------------
+  quick:
+    description: "快速評估，選擇 2 個核心視角"
+    perspective_count: 2
+    selection_strategy: "highest_priority_weight"
+    by_skill:
+      research:
+        perspectives: [architecture, industry]
+        rationale: "核心結構 + 實務參考"
+      plan:
+        perspectives: [architect, risk-analyst]
+        rationale: "技術可行性 + 風險評估"
+      tasks:
+        perspectives: [dependency-analyst, task-decomposer]
+        rationale: "依賴分析 + 任務分解"
+      implement:
+        perspectives: [tdd-enforcer, security-auditor]
+        rationale: "測試保證 + 安全審計"
+      review:
+        perspectives: [code-quality, integration]
+        rationale: "品質檢查 + 整合評估"
+      verify:
+        perspectives: [functional-tester, acceptance-validator]
+        rationale: "功能驗證 + 驗收確認"
+
+  # ---------------------------------------------------------------------------
+  # 標準模式：4 視角，用於一般任務
+  # ---------------------------------------------------------------------------
+  standard:
+    description: "標準深度，使用 4 個視角全面覆蓋"
+    perspective_count: 4
+    selection_strategy: "default_set"
+    by_skill:
+      research:
+        perspectives: [architecture, cognitive, workflow, industry]
+        rationale: "理論層（架構+認知）+ 實踐層（工作流+業界）"
+      plan:
+        perspectives: [architect, risk-analyst, estimator, ux-advocate]
+        rationale: "技術+風險+估算+體驗 完整規劃"
+      tasks:
+        perspectives: [dependency-analyst, task-decomposer, test-planner, risk-preventor]
+        rationale: "依賴+分解+測試+風險 完整任務規劃"
+      implement:
+        perspectives: [tdd-enforcer, performance-optimizer, security-auditor, maintainer]
+        rationale: "TDD+效能+安全+維護 全方位監督"
+      review:
+        perspectives: [code-quality, test-coverage, documentation, integration]
+        rationale: "品質+測試+文檔+整合 全面審查"
+      verify:
+        perspectives: [functional-tester, edge-case-hunter, regression-checker, acceptance-validator]
+        rationale: "功能+邊界+回歸+驗收 完整驗證"
+
+  # ---------------------------------------------------------------------------
+  # 深度模式：6 視角，用於複雜或高風險任務
+  # ---------------------------------------------------------------------------
+  deep:
+    description: "深度分析，使用 6 個視角（含跨領域或專用視角）"
+    perspective_count: 6
+    selection_strategy: "default_plus_cross_cutting"
+    by_skill:
+      research:
+        perspectives: [architecture, cognitive, workflow, industry, data-architect, ops-engineer]
+        rationale: "標準 4 視角 + 資料架構 + 維運考量"
+      plan:
+        perspectives: [architect, risk-analyst, estimator, ux-advocate, data-architect, compliance-checker]
+        rationale: "標準 4 視角 + 資料設計 + 合規檢查"
+      tasks:
+        perspectives: [dependency-analyst, task-decomposer, test-planner, risk-preventor, parallel-optimizer, doc-planner]
+        rationale: "標準 4 視角 + 並行優化 + 文檔規劃"
+      implement:
+        perspectives: [tdd-enforcer, performance-optimizer, security-auditor, maintainer, i18n-specialist, accessibility-specialist]
+        rationale: "標準 4 視角 + 國際化 + 無障礙"
+      review:
+        perspectives: [code-quality, test-coverage, documentation, integration, security-auditor, compliance-checker]
+        rationale: "標準 4 視角 + 安全審查 + 合規確認"
+      verify:
+        perspectives: [functional-tester, edge-case-hunter, regression-checker, acceptance-validator, performance-tester, security-tester]
+        rationale: "標準 4 視角 + 效能測試 + 安全測試"
+
+  # ---------------------------------------------------------------------------
+  # 自訂模式：完全由使用者指定
+  # ---------------------------------------------------------------------------
+  custom:
+    description: "自訂組合，由使用者指定視角列表"
+    perspective_count: null  # 無限制
+    selection_strategy: "user_specified"
+    by_skill: {}  # 使用者自行指定
+
+# =============================================================================
+# 視角組合規則
+# =============================================================================
+
+composition_rules:
+  # ---------------------------------------------------------------------------
+  # 互斥規則：這些視角不應同時使用
+  # ---------------------------------------------------------------------------
+  mutually_exclusive: []  # 目前無互斥視角
+
+  # ---------------------------------------------------------------------------
+  # 建議組合：這些視角一起使用效果更好
+  # ---------------------------------------------------------------------------
+  recommended_pairs:
+    - [architect, risk-analyst]
+    - [tdd-enforcer, security-auditor]
+    - [functional-tester, edge-case-hunter]
+    - [code-quality, test-coverage]
+    - [data-architect, ops-engineer]
+    - [parallel-optimizer, dependency-analyst]
+    - [performance-tester, performance-optimizer]
+    - [security-tester, security-auditor]
+    - [i18n-specialist, accessibility-specialist]
+    - [doc-planner, documentation]
+
+  # ---------------------------------------------------------------------------
+  # 必要依賴：使用某視角時，建議同時使用另一個
+  # ---------------------------------------------------------------------------
+  dependencies:
+    task-decomposer:
+      suggests: [dependency-analyst]
+      reason: "任務分解需要依賴分析結果"
+    test-planner:
+      suggests: [task-decomposer]
+      reason: "測試規劃需要任務清單"
+
+# =============================================================================
+# 動態調整規則
+# =============================================================================
+
+dynamic_adjustments:
+  # ---------------------------------------------------------------------------
+  # 主題匹配：根據主題關鍵字調整視角權重
+  # ---------------------------------------------------------------------------
+  topic_boosts:
+    - pattern: "安全|security|auth|認證|授權|password|密碼"
+      boost:
+        security-auditor: 1.5
+        compliance-checker: 1.2
+
+    - pattern: "效能|performance|優化|optimize|slow|慢"
+      boost:
+        performance-optimizer: 1.5
+
+    - pattern: "資料庫|database|db|sql|migration|遷移"
+      boost:
+        data-architect: 1.5
+
+    - pattern: "部署|deploy|devops|ci/cd|監控|monitoring"
+      boost:
+        ops-engineer: 1.5
+
+    - pattern: "無障礙|accessibility|a11y|wcag"
+      boost:
+        accessibility-specialist: 1.5
+
+    - pattern: "合規|compliance|gdpr|privacy|隱私|個資"
+      boost:
+        compliance-checker: 1.5
+
+    - pattern: "i18n|國際化|多語言|翻譯|本地化|l10n"
+      boost:
+        i18n-specialist: 1.5
+
+    - pattern: "負載|load|壓力|stress|效能測試|performance test"
+      boost:
+        performance-tester: 1.5
+
+    - pattern: "滲透|penetration|漏洞|vulnerability|安全測試|security test"
+      boost:
+        security-tester: 1.5
+
+    - pattern: "並行|parallel|concurrent|效率|efficiency"
+      boost:
+        parallel-optimizer: 1.3
+
+    - pattern: "文檔|documentation|doc|readme|api-doc"
+      boost:
+        doc-planner: 1.3
+
+  # ---------------------------------------------------------------------------
+  # 上下文調整：根據專案上下文調整
+  # ---------------------------------------------------------------------------
+  context_adjustments:
+    high_risk_project:
+      boost:
+        risk-analyst: 1.3
+        risk-preventor: 1.3
+        security-auditor: 1.3
+
+    data_intensive:
+      boost:
+        data-architect: 1.5
+        performance-optimizer: 1.2
+
+    user_facing:
+      boost:
+        ux-advocate: 1.3
+        accessibility-specialist: 1.3
+        functional-tester: 1.2
+
+# =============================================================================
+# 輸出格式模板
+# =============================================================================
+
+output_templates:
+  # ---------------------------------------------------------------------------
+  # 視角報告標準模板
+  # ---------------------------------------------------------------------------
+  perspective_report:
+    format: markdown
+    template: |
+      # {perspective.name} 報告
+
+      **視角 ID**: {perspective.id}
+      **執行時間**: {timestamp}
+      **主題**: {topic}
+
+      ## 核心發現
+
+      {core_findings}
+
+      ## 詳細分析
+
+      {detailed_analysis}
+
+      ## 建議
+
+      {recommendations}
+
+      ## 信心度
+
+      {confidence_level}
+
+      ---
+      *由 {perspective.name} 視角產出*
+
+  # ---------------------------------------------------------------------------
+  # 綜合報告模板（多視角合成）
+  # ---------------------------------------------------------------------------
+  synthesis_report:
+    format: markdown
+    template: |
+      # 綜合分析報告
+
+      **主題**: {topic}
+      **執行時間**: {timestamp}
+      **使用視角**: {perspectives_used}
+
+      ## 執行摘要
+
+      {executive_summary}
+
+      ## 共識發現
+
+      {consensus_findings}
+
+      ## 分歧觀點
+
+      {divergent_views}
+
+      ## 綜合建議
+
+      {consolidated_recommendations}
+
+      ## 附錄：各視角報告
+
+      {individual_reports}
