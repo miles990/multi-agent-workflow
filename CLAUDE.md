@@ -537,6 +537,126 @@ if git.has_changes():
 | 測試覆蓋率 | 0% → 80%+（55 tests） |
 | 新 hook 開發時間 | -70% |
 
+### 10. Plugin 開發注意事項
+
+**源碼 vs Cache 位置**：
+```
+源碼倉庫：/Users/user/Workspace/multi-agent-workflow
+Cache：   ~/.claude/plugins/cache/multi-agent-workflow/...
+```
+
+- Claude Code 載入 plugin 時會複製到 cache
+- **修改 cache 不會影響源碼**，記得同步回源碼倉庫
+- 開發完成後執行 `git status` 確認變更在源碼倉庫
+
+**sys.path 設定**：
+```python
+# Hook 檔案需要正確設定 import 路徑
+sys.path.insert(0, str(Path(__file__).parent.parent))  # git_lib 目錄
+sys.path.insert(0, str(Path(__file__).parent))         # 同層模組
+```
+
+### 11. subprocess 與 Git 互動技巧
+
+**stdout/stderr 處理**：
+```python
+result = subprocess.run(cmd, capture_output=True, text=True)
+# result.stdout 可能是 None，需要防禦性處理
+stdout = result.stdout if result.stdout else ""
+```
+
+**Pathspec Magic 字元限制**：
+```python
+# ❌ 錯誤：:! 後面跟 _ 開頭會被誤解析
+pathspecs = [":!__pycache__/"]  # Git 報錯：未實現的神奇前綴 '_'
+
+# ✅ 正確：使用 :(exclude) 完整語法
+pathspecs = [":(exclude)__pycache__/"]
+```
+
+**git add 不支援排除語法**：
+```python
+# ❌ git add 無法直接使用排除
+git add -- . ':!.claude/memory/'  # 會失敗
+
+# ✅ 解決方案：先 add 再 reset
+git add -- .
+git reset HEAD -- .claude/memory/
+```
+
+### 12. 測試驅動重構
+
+**pytest fixtures 活用**：
+```python
+@pytest.fixture
+def git_repo(tmp_path):
+    """建立臨時 git repo"""
+    repo = tmp_path / "test_repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, ...)
+    subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=repo, ...)
+    return repo
+
+@pytest.fixture
+def workflow_project(git_repo):
+    """建立帶 workflow 結構的專案"""
+    # 建立 .claude/workflow/ 結構
+    # 建立 .claude/memory/ 結構
+    return git_repo
+```
+
+**分層測試策略**：
+1. **單元測試**：測試單一類別（GitExecutor, GitOps）
+2. **整合測試**：測試多個類別協作（WorkflowCommitFacade）
+3. **端到端測試**：模擬完整工作流程
+
+**測試隔離**：
+- 使用 `tmp_path` fixture 確保每個測試有獨立目錄
+- 每個測試初始化獨立的 git repo
+- 避免測試間的狀態污染
+
+### 13. 多視角研究價值
+
+**研究階段發現的問題**：
+
+| 視角 | 發現 |
+|------|------|
+| 架構 | DRY 違反嚴重（5 處重複）、缺乏抽象層 |
+| 工作流 | Hook 雙軌制混亂（templates/ vs scripts/hooks/）|
+| 業界實踐 | 推薦 subprocess + 抽象層（零依賴）|
+| 認知科學 | OCP 3/10、DIP 2/10（最差）|
+
+**4 視角一致認同**：
+- 需要統一的 `_get_current_workflow_id()` 實作
+- 需要 Git 操作抽象層
+- Commit message 格式應統一
+
+**視角特有洞察**：
+- 架構視角：建議 `scripts/git_lib/` 目錄結構
+- 認知視角：建議 Facade Pattern 降低認知負擔 87%
+- 業界視角：建議 subprocess + 抽象層（不引入 GitPython）
+
+### 14. 重構安全策略
+
+**分階段重構**：
+```
+Phase 1: 建立新模組（不修改現有代碼）
+Phase 2: 撰寫測試確保行為正確
+Phase 3: 逐步替換舊實作
+Phase 4: 移除舊代碼
+```
+
+**向後相容**：
+- 新模組應能獨立運作
+- 舊 Hook 可逐步遷移
+- 保留原有 API 語義
+
+**驗證檢查點**：
+- 每個 Phase 完成後執行完整測試
+- 比較重構前後的行為
+- 監控 Hook 執行日誌
+
 ## 關鍵文檔
 
 | 模組 | 路徑 |
