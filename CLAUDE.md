@@ -260,10 +260,229 @@ IMPLEMENT/REVIEW/VERIFY 階段在 `.worktrees/{feature-id}/` 執行。
 | REVIEW | ≥ 75 | 無 BLOCKER、HIGH ≤ 2 |
 | VERIFY | ≥ 85 | 功能+回歸測試 100% 通過、驗收標準滿足 |
 
+## 開發工具
+
+### Skill 腳手架
+
+快速建立符合規範的 Skill 結構：
+
+```bash
+# 互動模式
+./scripts/create-skill.sh
+
+# 非互動模式（CI/自動化）
+./scripts/create-skill.sh --non-interactive \
+  --name my-skill \
+  --desc "Skill 描述" \
+  --version 1.0.0
+```
+
+### 結構驗證
+
+確保所有 Skills 符合標準結構：
+
+```bash
+./scripts/validate-skills.sh          # 驗證所有
+./scripts/validate-skills.sh research # 驗證單一
+./scripts/validate-skills.sh --ci     # CI 模式
+```
+
+### 視角查詢
+
+查詢集中管理的 33 個視角定義：
+
+```bash
+./scripts/list-perspectives.sh                    # 列出全部
+./scripts/list-perspectives.sh --category plan    # 按類別
+./scripts/list-perspectives.sh --skill implement  # 按 Skill
+./scripts/list-perspectives.sh --show tdd-enforcer # 詳情
+./scripts/list-perspectives.sh --preset standard  # 預設組合
+```
+
+### 配置查詢
+
+查詢集中管理的 37 個配置索引：
+
+```bash
+./scripts/get-config.sh --list-categories         # 列出類別
+./scripts/get-config.sh --category skill-config   # 按類別
+./scripts/get-config.sh --search "tdd"            # 搜尋
+./scripts/get-config.sh --show skills/implement/SKILL.md # 詳情
+./scripts/get-config.sh --relations               # 引用關係
+```
+
+## 開發經驗與技巧
+
+### 1. Skill 結構規範化
+
+**問題**：各 Skill 結構不一致，難以維護和擴展。
+
+**解決方案**：
+- 定義標準結構（`shared/skill-structure/STANDARD.md`）
+- 腳手架工具自動生成符合規範的結構
+- 驗證工具確保一致性
+
+**必要結構**：
+```
+skills/{skill-name}/
+├── SKILL.md                              # 必須：frontmatter (name, description, version)
+├── 00-quickstart/_base/usage.md          # 必須：快速開始
+└── 01-perspectives/_base/default-perspectives.md  # 必須：視角定義
+```
+
+**最佳實踐**：
+- 新建 Skill 時使用 `create-skill.sh`
+- 提交前執行 `validate-skills.sh --ci`
+- 輕量級工具型 Skill 也需要基本結構（可簡化內容）
+
+### 2. 視角系統集中化
+
+**問題**：33 個視角分散在各 Skill 目錄，存在重複定義和不一致。
+
+**解決方案**：
+- 集中管理於 `shared/perspectives/catalog.yaml`
+- 各 Skill 改為引用模式
+- 提供查詢工具快速查找
+
+**catalog.yaml 結構**：
+```yaml
+metadata:
+  severity_levels: [critical, high, medium, low]
+  model_tiers: [opus, sonnet, haiku]
+
+categories:
+  - id: research
+    description: 研究分析視角
+    applicable_skills: [research]
+
+perspectives:
+  - id: architecture
+    name: 架構分析師
+    category: research
+    focus: 系統結構、設計模式
+    model_tier: sonnet
+    priority_weight: 0.9
+
+presets:
+  quick: { perspectives: 2 }
+  standard: { perspectives: 4 }
+  deep: { perspectives: 6 }
+```
+
+**引用模式**（在 `default-perspectives.md`）：
+```yaml
+perspectives:
+  source: shared/perspectives/catalog.yaml
+  filter:
+    category: implement
+  preset: standard
+```
+
+### 3. 配置系統優化
+
+**問題**：37 個配置檔案分散，難以找到和理解關係。
+
+**解決方案**：
+- 建立配置索引 `shared/config/INDEX.yaml`
+- 分類管理（skill/perspective/quality/coordination/...）
+- 記錄配置間的引用關係
+
+**配置分類**：
+| 類別 | 數量 | 說明 |
+|------|------|------|
+| skill-config | 10 | Skill 定義 |
+| perspective-config | 5 | 視角配置 |
+| quality-config | 6 | 品質閘門 |
+| coordination-config | 8 | 並行協調 |
+| integration-config | 3 | 外部整合 |
+| expertise-config | 4 | 專業框架 |
+
+### 4. 並行 Agent 開發技巧
+
+**任務獨立性判斷**：
+- 無共享狀態 → 可並行
+- 有依賴關係 → 順序執行
+- DAG 分析確定執行順序
+
+**背景任務管理**：
+```bash
+# 啟動背景任務
+Task(run_in_background: true)
+
+# 檢查狀態
+TaskOutput(task_id, block: false)
+
+# 等待完成
+TaskOutput(task_id, block: true)
+```
+
+**最佳實踐**：
+- 獨立任務盡量並行啟動
+- 長時間任務使用背景模式
+- 定期檢查背景任務狀態
+
+### 5. DRY 原則實踐
+
+**識別重複**：
+- 多個 Skill 有相似的視角定義 → 集中到 catalog.yaml
+- 多個地方有相同的配置邏輯 → 提取到 shared/
+- 重複的腳本邏輯 → 抽取成工具函數
+
+**抽象層級**：
+```
+具體實現 (skills/)
+    ↓ 引用
+共用模組 (shared/)
+    ↓ 使用
+基礎工具 (scripts/)
+```
+
+### 6. SOLID 原則應用
+
+| 原則 | 應用 |
+|------|------|
+| **S**ingle Responsibility | 每個 Skill 只負責一個階段 |
+| **O**pen/Closed | 通過 presets 擴展，不修改核心邏輯 |
+| **L**iskov Substitution | 視角可互換，遵循相同介面 |
+| **I**nterface Segregation | 小而專注的配置檔案 |
+| **D**ependency Inversion | Skills 依賴 shared/ 抽象，不依賴具體實現 |
+
+### 7. 文檔即代碼
+
+**每個目錄都有 CLAUDE.md**：
+- 自動載入說明
+- 使用範例
+- 配置參考
+
+**文檔更新時機**：
+- 新功能完成後立即更新
+- 結構變更後更新 README.md
+- 經驗總結後更新 CLAUDE.md
+
+### 8. 錯誤處理模式
+
+**腳本錯誤處理**：
+```bash
+set -euo pipefail  # 嚴格模式
+
+# 檢查前置條件
+[ -f "$file" ] || { echo "Error: $file not found"; exit 1; }
+
+# 正確的退出碼
+exit 0  # 成功
+exit 1  # 失敗
+```
+
+**Agent 錯誤處理**：
+- 明確的錯誤訊息
+- 建議的修復步驟
+- 適當的退出狀態
+
 ## 關鍵文檔
 
 | 模組 | 路徑 |
 |------|------|
+| **Skills** | |
 | 編排器 | [skills/orchestrate/SKILL.md](./skills/orchestrate/SKILL.md) |
 | 研究框架 | [skills/research/SKILL.md](./skills/research/SKILL.md) |
 | 規劃框架 | [skills/plan/SKILL.md](./skills/plan/SKILL.md) |
@@ -272,10 +491,18 @@ IMPLEMENT/REVIEW/VERIFY 階段在 `.worktrees/{feature-id}/` 執行。
 | 審查框架 | [skills/review/SKILL.md](./skills/review/SKILL.md) |
 | 驗證框架 | [skills/verify/SKILL.md](./skills/verify/SKILL.md) |
 | 狀態查看 | [skills/status/SKILL.md](./skills/status/SKILL.md) |
+| **協調模組** | |
 | 並行執行 | [shared/coordination/map-phase.md](./shared/coordination/map-phase.md) |
 | 整合匯總 | [shared/coordination/reduce-phase.md](./shared/coordination/reduce-phase.md) |
+| **品質與配置** | |
 | 品質閘門 | [shared/quality/gates.yaml](./shared/quality/gates.yaml) |
 | 執行模式 | [shared/config/execution-profiles.yaml](./shared/config/execution-profiles.yaml) |
 | 上下文新鮮 | [shared/config/context-freshness.yaml](./shared/config/context-freshness.yaml) |
 | Commit 設定 | [shared/config/commit-settings.yaml](./shared/config/commit-settings.yaml) |
 | 錯誤碼 | [shared/errors/error-codes.md](./shared/errors/error-codes.md) |
+| **開發規範（v2.3 新增）** | |
+| Skill 結構標準 | [shared/skill-structure/STANDARD.md](./shared/skill-structure/STANDARD.md) |
+| 視角目錄 | [shared/perspectives/catalog.yaml](./shared/perspectives/catalog.yaml) |
+| 視角系統說明 | [shared/perspectives/CLAUDE.md](./shared/perspectives/CLAUDE.md) |
+| 配置索引 | [shared/config/INDEX.yaml](./shared/config/INDEX.yaml) |
+| 配置系統說明 | [shared/config/CLAUDE.md](./shared/config/CLAUDE.md) |
