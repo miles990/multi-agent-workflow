@@ -1,0 +1,103 @@
+# Plugin Configuration
+# Central configuration for plugin development workflow
+
+# Plugin metadata defaults
+metadata:
+  marketplace: multi-agent-workflow
+  author: miles990
+  license: MIT
+
+# Cache configuration
+cache:
+  base_path: ~/.claude/plugins/cache
+  keep_versions: 3
+  sync_mode: incremental  # incremental | full | timestamp
+
+# Sync configuration
+sync:
+  # Patterns to include in sync (relative to project root)
+  include:
+    - skills/**/*
+    - shared/**/*
+    - templates/**/*
+    - plugin.json
+    - .claude-plugin/**/*
+    - CLAUDE.md
+    - LICENSE
+
+  # Patterns to exclude from sync
+  exclude:
+    - __pycache__
+    - "*.pyc"
+    - "*.pyo"
+    - .git
+    - .gitignore
+    - .pytest_cache
+    - .coverage
+    - "*.egg-info"
+    - tests
+    - .plugin-dev
+    - .claude/workflow
+    - .claude/memory
+    - cli
+    - scripts
+    - docs
+    - agents
+    - "*.md"  # Most markdown files
+    - "!SKILL.md"  # Except SKILL.md
+    - "!CLAUDE.md"  # Except CLAUDE.md
+
+# Watch configuration
+watch:
+  debounce_ms: 500
+  poll_interval_s: 2
+
+  # Preferred tools by platform
+  tools:
+    darwin: fswatch
+    linux: inotifywait
+    windows: polling
+
+# Version management
+version:
+  # Files containing version information
+  files:
+    - plugin.json
+    - .claude-plugin/marketplace.json
+
+  # Version declaration patterns in markdown
+  markdown_patterns:
+    - "> .+ v\\d+\\.\\d+\\.\\d+"
+
+# Release configuration
+release:
+  # Pre-release validation checks
+  validation:
+    required:
+      - plugin_json_valid
+      - skills_have_skill_md
+      - version_consistent
+    optional:
+      - tests_pass
+      - lint_pass
+
+  # Git configuration
+  git:
+    tag_prefix: v
+    commit_types:
+      major: release
+      minor: feat
+      patch: fix
+
+  # Changelog configuration
+  changelog:
+    file: CHANGELOG.md
+    categories:
+      - breaking: "⚠️ BREAKING CHANGES"
+      - feat: "✨ Features"
+      - fix: "🐛 Bug Fixes"
+      - docs: "📚 Documentation"
+      - refactor: "♻️ Refactoring"
+      - test: "🧪 Tests"
+      - perf: "⚡ Performance"
+      - chore: "🔧 Chores"

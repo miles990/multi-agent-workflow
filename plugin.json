@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-workflow",
   "description": "Multi-Agent Workflow - 多視角並行工作流生態系（研究、規劃、任務分解、實作、審查、驗證）",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "author": {
     "name": "miles990"
   },

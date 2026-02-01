@@ -1,0 +1,87 @@
+# Cache Policy Configuration
+# Defines how plugin cache is managed
+
+# Cache location
+location:
+  base: ~/.claude/plugins/cache
+  structure: "{marketplace}/{plugin_name}/{version}/"
+
+# Retention policy
+retention:
+  # Number of versions to keep
+  keep_versions: 3
+
+  # Auto-clean old versions
+  auto_clean: true
+
+  # Clean on sync
+  clean_on_sync: false
+
+# Sync modes
+sync_modes:
+  incremental:
+    description: "Hash-based incremental sync"
+    check_method: sha256
+    recommended: true
+
+  full:
+    description: "Full sync (delete and copy)"
+    check_method: none
+    use_cases:
+      - initial_sync
+      - version_switch
+      - recovery
+
+  timestamp:
+    description: "Modification time based"
+    check_method: mtime
+    faster: true
+    less_accurate: true
+
+# Default sync mode
+default_mode: incremental
+
+# Exclude patterns (in addition to sync.exclude)
+exclude:
+  # Large files
+  max_file_size_mb: 10
+
+  # Binary patterns
+  binary_patterns:
+    - "*.exe"
+    - "*.dll"
+    - "*.so"
+    - "*.dylib"
+    - "*.zip"
+    - "*.tar.gz"
+
+  # Development artifacts
+  dev_artifacts:
+    - node_modules
+    - venv
+    - .venv
+    - __pycache__
+    - "*.pyc"
+    - .git
+    - .svn
+
+# Validation
+validation:
+  # Required files in cache
+  required_files:
+    - plugin.json
+    - skills/
+
+  # Required skill files
+  required_skill_files:
+    - SKILL.md
+
+# Recovery
+recovery:
+  # Auto-repair corrupted cache
+  auto_repair: true
+
+  # Repair strategies
+  strategies:
+    - clean_and_resync
+    - restore_from_backup

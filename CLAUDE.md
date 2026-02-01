@@ -1,6 +1,6 @@
 # Multi-Agent Workflow
 
-> 多視角並行工作流生態系 v2.3.2
+> 多視角並行工作流生態系 v2.4.0
 
 ## 專案概述
 
@@ -637,6 +637,74 @@ def workflow_project(git_repo):
 - 認知視角：建議 Facade Pattern 降低認知負擔 87%
 - 業界視角：建議 subprocess + 抽象層（不引入 GitPython）
 
+### 15. Plugin 開發工作流設計（v2.4）
+
+**問題**：開發 Plugin 時需要手動複製到 Claude Code cache，效率低下。
+
+**解決方案**：建立完整的開發工作流系統
+
+**目錄結構**：
+```
+cli/plugin/           # Python CLI 模組
+├── cache.py          # CacheManager - 快取管理
+├── version.py        # VersionManager - 版本控制
+├── dev.py            # DevCommands - 開發工作流
+└── release.py        # ReleaseCommands - 發布流程
+
+scripts/plugin/       # Shell 腳本
+├── sync-to-cache.sh  # 同步到快取
+├── dev-watch.sh      # 熱載入監控
+├── validate-plugin.sh # Plugin 驗證
+├── bump-version.sh   # 版本升級
+├── generate-changelog.sh # 變更日誌
+└── publish.sh        # 發布流程
+
+shared/plugin/        # 配置
+├── config.yaml       # 主配置
+├── cache-policy.yaml # 快取策略
+└── version-strategy.yaml # 版本策略
+```
+
+**設計模式**：
+- **Facade Pattern**：`ReleaseCommands` 封裝複雜發布流程
+- **Strategy Pattern**：同步模式（incremental/full/timestamp）
+- **Template Method**：發布步驟可覆寫
+
+**增量同步**：
+```python
+# Hash-based 增量同步
+def sync():
+    source_manifest = get_file_manifest(source)
+    cache_manifest = load_cache_map()
+    added, modified, deleted = compare(source_manifest, cache_manifest)
+    # 只同步變更的檔案
+```
+
+**測試覆蓋**：73 個測試，覆蓋：
+- CacheManager（15 tests）
+- VersionManager（26 tests）
+- DevCommands（15 tests）
+- ReleaseCommands（17 tests）
+
+### 16. 語義化版本最佳實踐
+
+**版本組件**：
+- `MAJOR`：破壞性變更（API 改變、Skill 移除）
+- `MINOR`：新功能（新 Skill、新命令）
+- `PATCH`：Bug 修復、文檔更新
+
+**自動偵測破壞性變更**：
+- Git commit 包含 "BREAKING CHANGE:"
+- plugin.json 必要欄位變更
+- Skill 參數變更
+
+**變更日誌分類**：
+- ⚠️ BREAKING CHANGES
+- ✨ Features
+- 🐛 Bug Fixes
+- 📚 Documentation
+- ♻️ Refactoring
+
 ### 14. 重構安全策略
 
 **分階段重構**：
@@ -656,6 +724,83 @@ Phase 4: 移除舊代碼
 - 每個 Phase 完成後執行完整測試
 - 比較重構前後的行為
 - 監控 Hook 執行日誌
+
+## Plugin 開發工作流（v2.4 新增）
+
+### 快速開始
+
+```bash
+# 啟動開發模式（熱載入）
+./scripts/plugin/dev-watch.sh
+
+# 手動同步到快取
+./scripts/plugin/sync-to-cache.sh
+
+# 驗證 Plugin 結構
+./scripts/plugin/validate-plugin.sh
+```
+
+### 版本管理
+
+```bash
+# 查看當前版本
+./scripts/plugin/bump-version.sh --dry-run
+
+# 升級版本
+./scripts/plugin/bump-version.sh patch   # Bug 修復
+./scripts/plugin/bump-version.sh minor   # 新功能
+./scripts/plugin/bump-version.sh major   # 破壞性變更
+
+# 生成變更日誌
+./scripts/plugin/generate-changelog.sh
+```
+
+### 發布流程
+
+```bash
+# 模擬發布（不實際變更）
+./scripts/plugin/publish.sh --dry-run
+
+# 正式發布
+./scripts/plugin/publish.sh patch
+```
+
+**發布流程**：
+1. 驗證 Plugin 結構
+2. 執行測試
+3. 檢查 Git 狀態
+4. 升級版本
+5. 生成變更日誌
+6. Git commit + tag
+7. 推送到遠端
+
+### 核心模組
+
+| 模組 | 路徑 | 用途 |
+|------|------|------|
+| CacheManager | `cli/plugin/cache.py` | 快取管理 |
+| VersionManager | `cli/plugin/version.py` | 版本控制 |
+| DevCommands | `cli/plugin/dev.py` | 開發工作流 |
+| ReleaseCommands | `cli/plugin/release.py` | 發布流程 |
+
+### 配置檔案
+
+| 檔案 | 用途 |
+|------|------|
+| `shared/plugin/config.yaml` | 主配置 |
+| `shared/plugin/cache-policy.yaml` | 快取策略 |
+| `shared/plugin/version-strategy.yaml` | 版本策略 |
+| `.plugin-dev/watch.config.json` | 監控配置 |
+
+### 測試
+
+```bash
+# 執行 Plugin 測試
+python -m pytest tests/plugin/ -v
+
+# 測試覆蓋率
+python -m pytest tests/plugin/ --cov=cli/plugin
+```
 
 ## 關鍵文檔
 

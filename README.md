@@ -1,6 +1,6 @@
 # Multi-Agent Workflow
 
-[![Version](https://img.shields.io/badge/version-2.3.2-blue.svg)](https://github.com/miles990/multi-agent-workflow)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](https://github.com/miles990/multi-agent-workflow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple.svg)](https://claude.ai/code)
 
@@ -430,6 +430,91 @@ skills/my-skill/
 ./scripts/get-config.sh --relations
 ```
 
+## For Plugin Developers
+
+### Development Setup
+
+```bash
+# Clone repository
+git clone https://github.com/miles990/multi-agent-workflow.git
+cd multi-agent-workflow
+
+# Start development mode (hot-reload)
+./scripts/plugin/dev-watch.sh
+```
+
+### Development Workflow
+
+```bash
+# 1. Make changes to skills/ or shared/
+
+# 2. Changes auto-sync to Claude Code cache
+#    Or manual sync:
+./scripts/plugin/sync-to-cache.sh
+
+# 3. Reload Claude Code to test changes
+
+# 4. Validate before committing
+./scripts/plugin/validate-plugin.sh
+```
+
+### Release Workflow
+
+```bash
+# 1. Dry-run to preview
+./scripts/plugin/publish.sh --dry-run
+
+# 2. Release
+./scripts/plugin/publish.sh patch   # Bug fixes
+./scripts/plugin/publish.sh minor   # New features
+./scripts/plugin/publish.sh major   # Breaking changes
+```
+
+### Version Management
+
+```bash
+# Bump version
+./scripts/plugin/bump-version.sh [major|minor|patch]
+
+# Generate changelog
+./scripts/plugin/generate-changelog.sh
+```
+
+### Testing
+
+```bash
+# Run all plugin tests
+python -m pytest tests/plugin/ -v
+
+# With coverage
+python -m pytest tests/plugin/ --cov=cli/plugin
+```
+
+### Project Structure
+
+```
+cli/plugin/           # Python CLI modules
+├── cache.py          # CacheManager
+├── version.py        # VersionManager
+├── dev.py            # DevCommands
+└── release.py        # ReleaseCommands
+
+scripts/plugin/       # Shell scripts
+├── sync-to-cache.sh
+├── dev-watch.sh
+├── validate-plugin.sh
+├── bump-version.sh
+├── generate-changelog.sh
+└── publish.sh
+
+shared/plugin/        # Configuration
+├── config.yaml
+├── cache-policy.yaml
+└── version-strategy.yaml
+
+tests/plugin/         # Tests (73 tests)
+```
+
 ## Core Design Principles
 
 | Principle | Description |
@@ -448,6 +533,18 @@ skills/my-skill/
 - [self-evolving-agent](https://github.com/miles990/self-evolving-agent) — 自我進化 Agent 框架
 
 ## Changelog
+
+### v2.4.0 (2026-02-01)
+- **Plugin 開發工作流系統**
+  - 新增 `cli/plugin/` 模組：CacheManager, VersionManager, DevCommands, ReleaseCommands
+  - 新增 `scripts/plugin/` 腳本：sync-to-cache, dev-watch, validate, bump-version, changelog, publish
+  - 新增 `shared/plugin/` 配置：config.yaml, cache-policy.yaml, version-strategy.yaml
+  - 熱載入開發模式（fswatch/inotifywait/polling）
+  - 增量同步（Hash-based）
+  - 語義化版本管理
+  - 自動變更日誌生成
+  - 一鍵發布流程
+  - 73 個測試覆蓋
 
 ### v2.3.2 (2026-02-01)
 - **Git 操作統一模組**

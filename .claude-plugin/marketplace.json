@@ -11,7 +11,7 @@
       "name": "multi-agent-workflow",
       "source": "./",
       "description": "多 Agent 並行工作流生態系：RESEARCH → PLAN → IMPLEMENT → REVIEW → VERIFY",
-      "version": "2.0.0",
+      "version": "2.4.0",
       "keywords": [
         "multi-agent",
         "workflow",

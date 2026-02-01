@@ -1,0 +1,16 @@
+{
+  "debounce_ms": 500,
+  "exclude_patterns": [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    ".pytest_cache",
+    "tests",
+    ".plugin-dev"
+  ],
+  "include_patterns": [
+    "skills/**/*",
+    "shared/**/*",
+    "templates/**/*"
+  ]
+}
