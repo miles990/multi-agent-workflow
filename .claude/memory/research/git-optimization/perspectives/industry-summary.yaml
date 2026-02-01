@@ -1,0 +1,232 @@
+research:
+  topic: Git Workflow Best Practices - Industry Perspective
+  date: 2026-02-01
+  status: completed
+
+key_findings:
+  workflow_choice:
+    recommendation: Trunk-Based Development
+    rationale:
+      - "CI/CD 必備實踐"
+      - "小而頻繁的更新"
+      - "主幹隨時可部署"
+      - "減少合併衝突"
+      - "2026 主流趨勢"
+    alternatives:
+      git_flow: "複雜，逐漸式微，適合大型企業定期發布"
+      github_flow: "簡單，適合小團隊單版本產品"
+
+  worktree_practices:
+    key_principle: "Treat worktrees as temporary"
+    use_cases:
+      - name: "並行 AI 開發"
+        impact: "Teams report completing work in hours that previously took days"
+        example: "incident.io runs 4-5 Claude Code agents in parallel"
+      - name: "緊急修復"
+        benefit: "不打斷當前工作"
+      - name: "程式碼審查"
+        benefit: "獨立審查環境"
+    best_practices:
+      - "建立臨時，使用後刪除"
+      - "有意義的目錄命名"
+      - "定期清理 (git worktree prune)"
+      - "獨立環境設置 (npm install)"
+    limitations:
+      - "同一分支不能在兩個 worktrees 中檢出"
+      - "每個 worktree 需獨立環境"
+
+  python_git_libraries:
+    recommendation: "pygit2 (primary) + GitPython (fallback)"
+    comparison:
+      pygit2:
+        performance: "最快 (libgit2 C bindings)"
+        pros: ["最佳效能", "進階功能", "跨平台穩定"]
+        cons: ["學習曲線陡峭", "需編譯 C 擴展"]
+        use_case: "高效能、進階操作"
+      gitpython:
+        performance: "慢"
+        pros: ["API 簡單", "文檔完善", "易學習"]
+        cons: ["效能較差", "Windows 問題"]
+        use_case: "快速原型、簡單操作"
+      dulwich:
+        performance: "中等"
+        pros: ["純 Python", "部署簡單"]
+        cons: ["效能一般", "文檔較少"]
+        use_case: "受限環境、無法編譯"
+
+  hook_framework:
+    recommendation: "pre-commit (Python framework)"
+    url: "https://pre-commit.com/"
+    principles:
+      - name: "選擇最佳工具，避免重複"
+        example: "Python linting: 只用 Ruff"
+      - name: "五大類別 Hooks"
+        categories: ["Guard Rails", "Formatters", "Code Checkers", "Code Correctors", "Git Helpers"]
+      - name: "注重效能"
+        strategy: ["只檢查變更檔案", "使用快速工具", "平行執行"]
+    essential_hooks:
+      - "trailing-whitespace"
+      - "check-yaml, check-json"
+      - "check-added-large-files"
+      - "gitleaks (security)"
+      - "ruff (Python linting)"
+      - "mypy (type checking)"
+      - "conventional-pre-commit (commit message)"
+
+  automation_best_practices:
+    commit_frequency: "頻繁提交 (AI Agent: 每完成任務即提交)"
+    avoid_infinite_loop:
+      - "提交訊息標記 [skip ci]"
+      - "檢查 commit author"
+      - "使用特定分支"
+    conventional_commits: true
+    commit_format: "<type>(<scope>): <subject>"
+    types: ["feat", "fix", "docs", "style", "refactor", "perf", "test", "chore"]
+    ci_cd_integration:
+      - "Workflow 觸發事件 (push, PR, schedule, manual)"
+      - "並發控制 (cancel-in-progress)"
+      - "測試策略 (unit/integration/e2e)"
+
+  conflict_resolution:
+    prevention_first: true
+    strategies:
+      git_rerere:
+        enabled: true
+        description: "自動重用過去的衝突解決方案"
+      merge_strategies:
+        - "git merge -X ours (優先我們的版本)"
+        - "git merge -X theirs (優先他們的版本)"
+      prevention:
+        - "短期分支 (< 2 天)"
+        - "每日合併 main"
+        - "標準化程式碼格式"
+        - "模組化設計"
+
+  rollback_strategies:
+    public_branches: "git revert (保留歷史，安全)"
+    private_branches: "git reset (修改歷史，危險)"
+    gitops_rollback:
+      enabled: true
+      tools: ["ArgoCD", "FluxCD"]
+      benefits: ["全自動故障轉移", "Git 歷史追溯", "聲明式配置"]
+
+ai_agent_recommendations:
+  tech_stack:
+    workflow: "Trunk-Based Development"
+    branching: "main + short-lived feature branches (< 2 days)"
+    parallel_dev: "Git Worktree (one per agent)"
+    python_lib: "pygit2 (primary) + GitPython (fallback)"
+    hooks: "pre-commit framework"
+    automation: "GitHub Actions"
+    conflict: "Git rerere + short-lived branches"
+    rollback: "Git revert + GitOps"
+
+  workflow_example:
+    steps:
+      - "建立 worktree: git worktree add .agents/agent-123 -b agent-123/feature main"
+      - "Agent 執行任務"
+      - "Pre-commit hooks 自動檢查"
+      - "推送到遠端: git push -u origin agent-123/feature"
+      - "建立 PR: gh pr create"
+      - "CI/CD 自動測試"
+      - "自動/人工合併: gh pr merge --squash"
+      - "清理 worktree: git worktree remove .agents/agent-123"
+
+  monitoring_metrics:
+    - metric: "分支平均壽命"
+      target: "< 2 days"
+    - metric: "衝突解決時間"
+      target: "< 1 hour"
+    - metric: "CI/CD 成功率"
+      target: "> 95%"
+    - metric: "Worktree 清理率"
+      target: "100%"
+
+implementation_roadmap:
+  phase_1:
+    name: "基礎架構"
+    duration: "第 1 週"
+    tasks:
+      - "設置 Trunk-Based 分支策略"
+      - "配置 pre-commit hooks"
+      - "建立 GitHub Actions CI/CD"
+  
+  phase_2:
+    name: "工具整合"
+    duration: "第 2 週"
+    tasks:
+      - "實作 pygit2 抽象層"
+      - "建立 Worktree 管理腳本"
+      - "啟用 Git rerere"
+  
+  phase_3:
+    name: "自動化優化"
+    duration: "第 3-4 週"
+    tasks:
+      - "自動化衝突解決 (簡單情況)"
+      - "GitOps 回滾機制"
+      - "監控與告警系統"
+  
+  phase_4:
+    name: "持續改進"
+    duration: "ongoing"
+    tasks:
+      - "分析衝突模式，優化 Agent 協作"
+      - "效能調優"
+      - "團隊培訓與文檔"
+
+success_metrics:
+  quantitative:
+    - "部署頻率: 每週 1 次 → 每日多次"
+    - "變更前置時間: 數天 → 數小時"
+    - "平均修復時間: 數小時 → 分鐘級"
+    - "變更失敗率: < 5%"
+  qualitative:
+    - "Agent 可獨立完成 Git 操作"
+    - "衝突解決自動化率 > 80%"
+    - "開發者滿意度提升"
+    - "程式碼品質穩定"
+
+risks_and_mitigation:
+  - risk: "Worktree 忘記清理"
+    mitigation: "定期掃描腳本 + 告警"
+  - risk: "pygit2 安裝失敗"
+    mitigation: "GitPython fallback"
+  - risk: "自動提交循環"
+    mitigation: "[skip ci] 標記 + author 檢查"
+  - risk: "衝突無法自動解決"
+    mitigation: "人工介入 SOP + 通知機制"
+
+sources:
+  workflow:
+    - "https://get.assembla.com/blog/trunk-based-development-vs-git-flow/"
+    - "https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development"
+    - "https://mergify.com/blog/trunk-based-development-vs-gitflow-which-branching-model-actually-works"
+  worktree:
+    - "https://www.datacamp.com/tutorial/git-worktree-tutorial"
+    - "https://git-scm.com/docs/git-worktree"
+    - "https://revs.runtime-revolution.com/multitasking-with-cursor-using-git-worktree-for-parallel-branch-development-7505499a1bfc"
+  python_libs:
+    - "https://github.com/iterative/dvc/issues/2215"
+    - "https://piptrends.com/compare/gitpython-vs-pygit2-vs-pygit2-vs-dulwich-vs-gitdb"
+    - "https://www.legendu.net/misc/blog/git-implementations-and-bindings-in-python/"
+  hooks:
+    - "https://pre-commit.com/"
+    - "https://github.com/pre-commit/pre-commit-hooks"
+    - "https://gatlenculp.medium.com/effortless-code-quality-the-ultimate-pre-commit-hooks-guide-for-2025-57ca501d9835"
+  automation:
+    - "https://medium.com/@bhumikadasari0/a-beginners-guide-to-git-workflow-and-implementing-ci-cd-with-github-actions-040b4e03635e"
+    - "https://graphite.dev/guides/in-depth-guide-ci-cd-best-practices"
+    - "https://www.freecodecamp.org/news/automate-cicd-with-github-actions-streamline-workflow/"
+  conflict_resolution:
+    - "https://copyprogramming.com/howto/git-conflict-rename-rename"
+    - "https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts"
+    - "https://www.chucksacademy.com/en/topic/git-conflicts/conflict-resolution-automation"
+  rollback:
+    - "https://www.aviator.co/blog/automated-failover-and-git-rollback-strategies-with-gitops-and-argo-rollouts/"
+    - "https://hokstadconsulting.com/blog/gitops-rollbacks-automating-disaster-recovery"
+    - "https://www.atlassian.com/git/tutorials/undoing-changes/git-revert"
+  ai_agents:
+    - "https://github.blog/ai-and-ml/github-copilot/how-to-build-reliable-ai-workflows-with-agentic-primitives-and-context-engineering/"
+    - "https://githubnext.com/projects/agentic-workflows/"
+    - "https://www.qodo.ai/blog/agentic-workflows-in-ai-development/"

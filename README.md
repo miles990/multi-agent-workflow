@@ -1,6 +1,6 @@
 # Multi-Agent Workflow
 
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/miles990/multi-agent-workflow)
+[![Version](https://img.shields.io/badge/version-2.3.2-blue.svg)](https://github.com/miles990/multi-agent-workflow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple.svg)](https://claude.ai/code)
 
@@ -448,6 +448,14 @@ skills/my-skill/
 - [self-evolving-agent](https://github.com/miles990/self-evolving-agent) — 自我進化 Agent 框架
 
 ## Changelog
+
+### v2.3.2 (2026-02-01)
+- **Git 操作統一模組**
+  - 新增 `scripts/git_lib/` 模組，統一所有 Git 操作
+  - 消除重複代碼（`_get_current_workflow_id()` 等 65 行重複）
+  - 實作 Facade Pattern，簡化 Hook 開發
+  - 55 個單元測試，覆蓋率 80%+
+  - Hook 代碼減少 54%
 
 ### v2.3.0 (2026-02-01)
 - **Skill 結構規範化**

@@ -1,6 +1,6 @@
 # Multi-Agent Workflow
 
-> 多視角並行工作流生態系 v2.3.1
+> 多視角並行工作流生態系 v2.3.2
 
 ## 專案概述
 
@@ -477,6 +477,65 @@ exit 1  # 失敗
 - 明確的錯誤訊息
 - 建議的修復步驟
 - 適當的退出狀態
+
+### 9. Git 操作統一模組（v2.3.2）
+
+**問題**：Git 操作分散在多個 Hook 檔案，存在大量重複代碼：
+- `_get_current_workflow_id()` 重複 5 次（65 行）
+- Co-Author 字串重複 16+ 次
+- Commit message 格式不一致
+- 直接呼叫 subprocess，缺乏抽象層
+
+**解決方案**：建立 `scripts/git_lib/` 統一模組
+
+**模組結構**：
+```
+scripts/git_lib/
+├── __init__.py           # 公開 API
+├── exceptions.py         # 自訂例外
+├── executor.py           # GitExecutor - 底層命令執行
+├── operations.py         # GitOps - 基本 Git 操作
+├── context.py            # WorkflowContext - 狀態管理
+├── config.py             # ConfigManager - 設定管理
+├── commit.py             # CommitManager - Commit 業務邏輯
+└── facade.py             # WorkflowCommitFacade - 簡化入口
+```
+
+**使用方式**：
+```python
+# 簡單使用（Hooks 推薦）
+from git_lib import WorkflowCommitFacade
+
+facade = WorkflowCommitFacade(project_dir)
+facade.auto_commit_after_task("add feature", success=True)
+facade.auto_commit_memory("research", "api-design")
+
+# 進階使用
+from git_lib import GitOps, CommitManager, WorkflowContext
+
+git = GitOps(project_dir)
+if git.has_changes():
+    git.stage(["."])
+    git.commit("feat(api): add endpoint")
+```
+
+**設計模式**：
+- **Facade Pattern**：`WorkflowCommitFacade` 提供簡化入口
+- **Repository Pattern**：`GitOps` 封裝 Git 操作
+- **Strategy Pattern**：`ConfigManager` 支援可配置的 commit type
+
+**Git Pathspec 注意事項**：
+- 使用 `:(exclude)` 而非 `:!` 排除路徑
+- `:!` 後面跟 `_` 開頭的路徑會解析錯誤（如 `__pycache__/`）
+- 正確寫法：`:(exclude)__pycache__/`
+
+**效益**：
+| 指標 | 改善 |
+|------|------|
+| Hook 代碼行數 | -54%（546 → 250 行）|
+| 重複代碼 | -95% |
+| 測試覆蓋率 | 0% → 80%+（55 tests） |
+| 新 hook 開發時間 | -70% |
 
 ## 關鍵文檔
 
