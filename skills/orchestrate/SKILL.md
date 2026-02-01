@@ -99,8 +99,30 @@ End for
     ↓
 Phase 4: 完成
     ├── 生成報告
-    └── 更新 Memory
+    ├── 更新 Memory
+    └── 驗證變更已 commit（見下方 Fallback）
 ```
+
+### Phase 4 Fallback：手動 Commit
+
+如果自動 checkpoint commit 沒有觸發（例如 hooks 未配置），手動執行：
+
+```bash
+# 檢查是否有未 commit 的變更
+git status
+
+# 如果有變更，手動 commit
+git add -A
+git commit -m "chore(workflow): complete {workflow-id}"
+```
+
+**自動 Commit 觸發時機**：
+- 寫入 `synthesis.md` → RESEARCH 完成
+- 寫入 `implementation-plan.md` → PLAN 完成
+- 寫入 `tasks.yaml` → TASKS 完成
+- 寫入 `summary.md` → IMPLEMENT 完成
+- 寫入 `review-summary.md` → REVIEW 完成
+- 寫入 `verify-summary.md` → VERIFY 完成
 
 ## 智慧回退機制
 

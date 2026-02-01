@@ -124,6 +124,43 @@ class CommitManager:
         # Commit
         return self.git.commit(message)
 
+    def commit_all_changes(
+        self,
+        message: str,
+        include_memory: bool = True,
+    ) -> Optional[CommitResult]:
+        """Commit 所有變更
+
+        用於檢查點 commit，包含所有相關變更。
+
+        Args:
+            message: commit message
+            include_memory: 是否包含 .claude/memory/
+
+        Returns:
+            CommitResult 或 None（無變更）
+        """
+        # 建立 pathspecs
+        pathspecs = ["."]
+        if not include_memory:
+            pathspecs.append(":(exclude).claude/memory/")
+        # 排除 logs
+        pathspecs.append(":(exclude).claude/workflow/")
+        pathspecs.append(":(exclude).claude/logs/")
+
+        # 檢查變更
+        if not self.git.has_changes(pathspecs):
+            return None
+
+        # Stage
+        self.git.stage(pathspecs)
+
+        # 加入 Co-Author
+        full_message = f"{message}\n\n{self.config.get_co_author()}"
+
+        # Commit
+        return self.git.commit(full_message)
+
     def _build_pathspecs(
         self, include_memory: bool, include_logs: bool, exclude_patterns: List[str]
     ) -> List[str]:

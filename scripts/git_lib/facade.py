@@ -120,3 +120,54 @@ class WorkflowCommitFacade:
         """
         settings = self.config.get_commit_settings()
         return settings.get("enabled", True)
+
+    def auto_commit_checkpoint(self, checkpoint_file: str) -> Optional[CommitResult]:
+        """檢查點檔案自動 commit
+
+        當寫入工作流階段的檢查點檔案時自動觸發 commit。
+        這解決了 context compaction 後直接 Write 而沒有 SubagentStop 事件的問題。
+
+        Args:
+            checkpoint_file: 檢查點檔案路徑
+
+        Returns:
+            CommitResult 或 None（無變更或未啟用）
+        """
+        # 檢查 checkpoint commit 是否啟用
+        settings = self.config.get_commit_settings()
+        checkpoint_settings = settings.get("checkpoint_commit", {})
+        if not checkpoint_settings.get("enabled", True):
+            return None
+
+        # 從檔案路徑推斷階段
+        stage = self._detect_stage_from_checkpoint(checkpoint_file)
+
+        # 建立 commit message
+        message = f"chore(checkpoint): complete {stage}"
+
+        return self.commit_manager.commit_all_changes(
+            message=message,
+            include_memory=True,
+        )
+
+    def _detect_stage_from_checkpoint(self, checkpoint_file: str) -> str:
+        """從檢查點檔案路徑推斷工作流階段
+
+        Args:
+            checkpoint_file: 檢查點檔案路徑
+
+        Returns:
+            階段名稱
+        """
+        file_name = Path(checkpoint_file).name.lower()
+
+        stage_map = {
+            "synthesis.md": "research",
+            "implementation-plan.md": "plan",
+            "tasks.yaml": "tasks",
+            "summary.md": "implement",
+            "review-summary.md": "review",
+            "verify-summary.md": "verify",
+        }
+
+        return stage_map.get(file_name, "workflow")

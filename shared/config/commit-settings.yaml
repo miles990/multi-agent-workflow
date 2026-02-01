@@ -21,3 +21,20 @@ task_commit:
     - "*.egg-info/"
     - ".DS_Store"
     - "*.log"
+
+# 檢查點 Commit 設定
+# 由 PostToolUse Write hook 使用
+# 解決 context compaction 後直接 Write 沒有 SubagentStop 事件的問題
+checkpoint_commit:
+  # 是否啟用檢查點 commit
+  enabled: true
+
+  # 檢查點檔案模式（寫入這些檔案時觸發 commit）
+  # 每個模式對應一個工作流階段的完成標誌
+  patterns:
+    - "**/synthesis.md"           # RESEARCH 階段完成
+    - "**/implementation-plan.md" # PLAN 階段完成
+    - "**/tasks.yaml"             # TASKS 階段完成
+    - "**/summary.md"             # IMPLEMENT 階段完成
+    - "**/review-summary.md"      # REVIEW 階段完成
+    - "**/verify-summary.md"      # VERIFY 階段完成
