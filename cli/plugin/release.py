@@ -26,11 +26,11 @@ class ReleaseStep(Enum):
     TEST = "test"
     CHECK_GIT = "check_git"
     BUMP_VERSION = "bump_version"
+    UPDATE_MARKETPLACE = "update_marketplace"
     GENERATE_CHANGELOG = "generate_changelog"
     GIT_COMMIT = "git_commit"
     GIT_TAG = "git_tag"
     GIT_PUSH = "git_push"
-    UPDATE_MARKETPLACE = "update_marketplace"
     COMPLETE = "complete"
 
 
@@ -101,11 +101,11 @@ class ReleaseCommands:
         ReleaseStep.TEST,
         ReleaseStep.CHECK_GIT,
         ReleaseStep.BUMP_VERSION,
+        ReleaseStep.UPDATE_MARKETPLACE,
         ReleaseStep.GENERATE_CHANGELOG,
         ReleaseStep.GIT_COMMIT,
         ReleaseStep.GIT_TAG,
         ReleaseStep.GIT_PUSH,
-        ReleaseStep.UPDATE_MARKETPLACE,
         ReleaseStep.COMPLETE,
     ]
 
@@ -283,38 +283,38 @@ class ReleaseCommands:
                 progress.new_version = str(new_version)
             progress.completed_steps.append(ReleaseStep.BUMP_VERSION)
 
-            # Step 5: Generate changelog
+            # Step 5: Update marketplace (before commit)
+            log_step(ReleaseStep.UPDATE_MARKETPLACE, "Updating marketplace...")
+            if not dry_run:
+                self._update_marketplace(str(new_version))
+            progress.completed_steps.append(ReleaseStep.UPDATE_MARKETPLACE)
+
+            # Step 6: Generate changelog
             log_step(ReleaseStep.GENERATE_CHANGELOG, "Generating changelog...")
             changelog = self.version.generate_changelog(new_version=str(new_version))
             if not dry_run:
                 self.version.write_changelog(changelog)
             progress.completed_steps.append(ReleaseStep.GENERATE_CHANGELOG)
 
-            # Step 6: Git commit
+            # Step 7: Git commit
             log_step(ReleaseStep.GIT_COMMIT, "Creating git commit...")
             if not dry_run:
                 commit_msg = self.version.suggest_commit_message(bump_level, new_version)
                 self._git_commit(commit_msg)
             progress.completed_steps.append(ReleaseStep.GIT_COMMIT)
 
-            # Step 7: Git tag
+            # Step 8: Git tag
             log_step(ReleaseStep.GIT_TAG, f"Creating git tag v{new_version}...")
             progress.git_tag = f"v{new_version}"
             if not dry_run:
                 self._git_tag(progress.git_tag)
             progress.completed_steps.append(ReleaseStep.GIT_TAG)
 
-            # Step 8: Git push
+            # Step 9: Git push
             log_step(ReleaseStep.GIT_PUSH, "Pushing to remote...")
             if not dry_run:
                 self._git_push(progress.git_tag)
             progress.completed_steps.append(ReleaseStep.GIT_PUSH)
-
-            # Step 9: Update marketplace
-            log_step(ReleaseStep.UPDATE_MARKETPLACE, "Updating marketplace...")
-            if not dry_run:
-                self._update_marketplace(str(new_version))
-            progress.completed_steps.append(ReleaseStep.UPDATE_MARKETPLACE)
 
             # Complete
             log_step(ReleaseStep.COMPLETE, "Release complete!")
