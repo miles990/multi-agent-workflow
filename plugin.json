@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-workflow",
-  "description": "Multi-Agent Workflow - 多視角並行工作流生態系（研究、規劃、任務分解、實作、審查、驗證）",
-  "version": "2.4.0",
+  "description": "Multi-Agent Workflow - \u591a\u8996\u89d2\u4e26\u884c\u5de5\u4f5c\u6d41\u751f\u614b\u7cfb\uff08\u7814\u7a76\u3001\u898f\u5283\u3001\u4efb\u52d9\u5206\u89e3\u3001\u5be6\u4f5c\u3001\u5be9\u67e5\u3001\u9a57\u8b49\uff09",
+  "version": "2.4.1",
   "author": {
     "name": "miles990"
   },

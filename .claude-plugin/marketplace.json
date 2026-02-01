@@ -4,13 +4,13 @@
     "name": "miles990"
   },
   "metadata": {
-    "description": "Multi-Agent Workflow - 多視角並行工作流生態系（研究、規劃、實作、審查、驗證）"
+    "description": "Multi-Agent Workflow - \u591a\u8996\u89d2\u4e26\u884c\u5de5\u4f5c\u6d41\u751f\u614b\u7cfb\uff08\u7814\u7a76\u3001\u898f\u5283\u3001\u5be6\u4f5c\u3001\u5be9\u67e5\u3001\u9a57\u8b49\uff09"
   },
   "plugins": [
     {
       "name": "multi-agent-workflow",
       "source": "./",
-      "description": "多 Agent 並行工作流生態系：RESEARCH → PLAN → IMPLEMENT → REVIEW → VERIFY",
+      "description": "\u591a Agent \u4e26\u884c\u5de5\u4f5c\u6d41\u751f\u614b\u7cfb\uff1aRESEARCH \u2192 PLAN \u2192 IMPLEMENT \u2192 REVIEW \u2192 VERIFY",
       "version": "2.4.0",
       "keywords": [
         "multi-agent",
@@ -20,5 +20,6 @@
         "orchestrate"
       ]
     }
-  ]
+  ],
+  "version": "2.4.1"
 }
