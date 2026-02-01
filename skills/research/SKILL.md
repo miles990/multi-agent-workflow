@@ -4,7 +4,6 @@ version: 3.2.0
 description: 多 Agent 並行研究框架 - 多視角同時研究，智能匯總成完整報告
 triggers: [multi-research, parallel-research, 多角度研究]
 context: fork
-agent: Explore
 allowed-tools: [Read, Grep, Glob, WebFetch, Write, Bash]
 model: sonnet
 ---

@@ -250,6 +250,22 @@ Write → .claude/memory/{stage}/{id}/perspectives/{perspective_id}.md
 ### Git Worktree 隔離
 IMPLEMENT/REVIEW/VERIFY 階段在 `.worktrees/{feature-id}/` 執行。
 
+### 強制使用 Task 工具
+
+**所有程式碼修改必須透過 Task 工具執行**，確保：
+1. 自動 commit（SubagentStop / Post Task hook）
+2. 上下文隔離（Fresh Context）
+3. 進度追蹤（Task 狀態）
+
+| 操作類型 | 做法 | 自動 Commit |
+|---------|------|-------------|
+| 多步驟實作 | `Task({ subagent_type: "general-purpose" })` | ✅ |
+| 簡單修改 | `Task({ subagent_type: "general-purpose", model: "haiku" })` | ✅ |
+| 探索/研究 | `Task({ subagent_type: "Explore" })` | ✅ |
+| 規劃設計 | `Task({ subagent_type: "Plan" })` | ✅ |
+
+**禁止**：主對話直接使用 Edit/Write 修改程式碼（除非是緊急修復且立即手動 commit）。
+
 ## 品質閘門
 
 | 階段 | 通過分數 | 關鍵條件 |

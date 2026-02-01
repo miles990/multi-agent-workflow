@@ -223,6 +223,10 @@ mkdir -p .claude/memory/{tasks,research,plans,implement,review,workflows}
   ✓ 權限：12 個常用命令已允許
   ✓ Hooks：PostToolUse(Task), SubagentStop
 
+⚠️ 重要規範：
+  • 所有程式碼修改必須使用 Task 工具（確保自動 commit）
+  • 禁止主對話直接 Edit/Write 程式碼
+
 功能說明：
   • Task 完成後自動 commit 並運行測試
   • Subagent 結束時檢測 memory 變更

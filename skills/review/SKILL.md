@@ -4,7 +4,6 @@ version: 3.1.0
 description: 多 Agent 並行審查框架 - 多視角程式碼審查，問題分類與優先排序
 triggers: [multi-review, code-review, 程式碼審查]
 context: fork
-agent: Explore
 allowed-tools: [Read, Grep, Glob, Bash, Write]
 model: sonnet
 ---
