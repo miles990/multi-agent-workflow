@@ -1,6 +1,6 @@
 # Multi-Agent Workflow
 
-[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](https://github.com/miles990/multi-agent-workflow)
+[![Version](https://img.shields.io/badge/version-2.4.1-blue.svg)](https://github.com/miles990/multi-agent-workflow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple.svg)](https://claude.ai/code)
 

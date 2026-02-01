@@ -272,9 +272,12 @@ class ReleaseCommands:
 
             # Step 4: Bump version
             log_step(ReleaseStep.BUMP_VERSION, f"Bumping version ({bump_level.value})...")
+            old_version = str(self.version.get_current_version())
             if not dry_run:
                 new_version = self.version.bump(bump_level)
                 progress.new_version = str(new_version)
+                # Update README.md version badge
+                self._update_readme(old_version, str(new_version))
             else:
                 new_version = self.version.get_current_version().bump(bump_level)
                 progress.new_version = str(new_version)
@@ -484,6 +487,32 @@ class ReleaseCommands:
             with open(marketplace_path, "w") as f:
                 json.dump(data, f, indent=2)
                 f.write("\n")
+
+    def _update_readme(self, old_version: str, new_version: str) -> None:
+        """Update version in README.md.
+
+        Updates:
+        1. Version badge: version-X.Y.Z-blue.svg
+        2. Version history section header (if exists)
+
+        Args:
+            old_version: Current version string
+            new_version: New version string
+        """
+        import re
+
+        readme_path = self.project_dir / "README.md"
+        if not readme_path.exists():
+            return
+
+        content = readme_path.read_text()
+
+        # Update version badge
+        # Pattern: version-X.Y.Z-blue.svg or version-X.Y.Z-color.svg
+        badge_pattern = rf"(version-){re.escape(old_version)}(-\w+\.svg)"
+        content = re.sub(badge_pattern, rf"\g<1>{new_version}\g<2>", content)
+
+        readme_path.write_text(content)
 
     def _save_progress(self, progress: ReleaseProgress) -> None:
         """Save release progress for resume."""
