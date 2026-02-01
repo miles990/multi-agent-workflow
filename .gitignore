@@ -15,3 +15,7 @@ htmlcov/
 # Local settings (use .template for version control)
 .claude/settings.local.json
 .claude/workflow/
+
+# Plugin development artifacts
+.plugin-dev/cache-map.json
+.plugin-dev/release-progress.json
