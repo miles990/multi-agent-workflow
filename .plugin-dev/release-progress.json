@@ -1,0 +1,10 @@
+{
+  "current_step": "validate",
+  "completed_steps": [],
+  "failed_step": "validate",
+  "error": "Validation failed: Uncommitted changes: 3 files\n  \ud83d\udca1 Suggestion: Fix the issues and try again.",
+  "new_version": null,
+  "git_tag": null,
+  "started_at": "2026-02-01T15:12:13.555737",
+  "completed_at": null
+}
