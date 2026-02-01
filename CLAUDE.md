@@ -705,6 +705,332 @@ def sync():
 - 📚 Documentation
 - ♻️ Refactoring
 
+### 17. 跨平台檔案監控策略
+
+**問題**：不同平台有不同的檔案監控工具，需要優雅降級。
+
+**解決方案**：按優先順序嘗試多種工具
+```bash
+# 優先順序：fswatch (macOS) → inotifywait (Linux) → polling (通用)
+if command -v fswatch &> /dev/null; then
+    watch_with_fswatch
+elif command -v inotifywait &> /dev/null; then
+    watch_with_inotifywait
+else
+    watch_with_polling  # 通用備選
+fi
+```
+
+**fswatch 防抖動**：
+```bash
+fswatch --latency 0.5 ...  # 500ms 防抖動
+```
+
+**inotifywait 持續監控**：
+```bash
+inotifywait -r -m -e modify,create,delete --exclude '...' "$dir"
+```
+
+**Polling 備選**：
+```bash
+while true; do
+    current_hash=$(find ... | xargs md5sum | md5sum)
+    if [[ "$current_hash" != "$last_hash" ]]; then
+        sync_on_change
+    fi
+    sleep 2
+done
+```
+
+### 18. 增量同步與 Hash 比對
+
+**問題**：每次全量同步效率低下，尤其大型專案。
+
+**解決方案**：Hash-based 增量同步
+```python
+def sync(self, force: bool = False):
+    # 1. 載入上次同步的快取映射
+    cache_map = self._load_cache_map() if not force else {}
+
+    # 2. 遍歷來源檔案，計算 hash
+    for rel_path in files_to_sync:
+        file_hash = self.compute_hash(src_file)
+        cached_entry = cache_map.get(str(rel_path))
+
+        if not cached_entry:
+            added.append(str(rel_path))  # 新增
+        elif cached_entry.get("hash") != file_hash:
+            modified.append(str(rel_path))  # 修改
+        # else: 無變更，跳過
+
+    # 3. 找出已刪除的檔案
+    for cached_path in cache_map.keys():
+        if cached_path not in source_files:
+            deleted.append(cached_path)
+```
+
+**快取映射結構**（`.plugin-dev/cache-map.json`）：
+```json
+{
+  "skills/research/SKILL.md": {
+    "hash": "a1b2c3...",
+    "size": 12345,
+    "mtime": 1706789012.34
+  }
+}
+```
+
+**效益**：
+- 大型專案同步時間從 ~2s 降至 < 100ms
+- 減少不必要的檔案 I/O
+- 準確追蹤變更
+
+### 19. 發布流程狀態機設計
+
+**問題**：發布流程多步驟，任一步驟失敗需要能恢復。
+
+**解決方案**：狀態機 + 進度持久化
+```python
+class ReleaseStep(Enum):
+    VALIDATE = "validate"
+    TEST = "test"
+    CHECK_GIT = "check_git"
+    BUMP_VERSION = "bump_version"
+    GENERATE_CHANGELOG = "generate_changelog"
+    GIT_COMMIT = "git_commit"
+    GIT_TAG = "git_tag"
+    GIT_PUSH = "git_push"
+    COMPLETE = "complete"
+
+@dataclass
+class ReleaseProgress:
+    current_step: ReleaseStep
+    completed_steps: list[ReleaseStep]
+    failed_step: Optional[ReleaseStep] = None
+    error: Optional[str] = None
+```
+
+**失敗時自動保存進度**：
+```python
+try:
+    # 執行步驟...
+except Exception as e:
+    progress.failed_step = progress.current_step
+    progress.error = str(e)
+    self._save_progress(progress)  # 持久化到檔案
+    raise
+```
+
+**恢復執行**：
+```bash
+./scripts/plugin/publish.sh --resume
+```
+
+### 20. JSON 嵌套結構版本讀取
+
+**問題**：`marketplace.json` 的版本在嵌套結構中，直接 `.get("version")` 會失敗。
+
+**錯誤方式**：
+```python
+# ❌ 錯誤：假設 version 在頂層
+data = json.load(f)
+version = data.get("version", "unknown")  # 永遠返回 "unknown"
+```
+
+**正確方式**：
+```python
+# ✅ 正確：處理嵌套結構
+if "plugins" in data and data["plugins"]:
+    version = data["plugins"][0].get("version", "unknown")
+else:
+    version = data.get("version", "unknown")
+```
+
+**`marketplace.json` 結構**：
+```json
+{
+  "name": "multi-agent-workflow",
+  "plugins": [
+    {
+      "name": "multi-agent-workflow",
+      "version": "2.4.0"  // ← 版本在這裡
+    }
+  ]
+}
+```
+
+### 21. Git 遠端檢測與優雅降級
+
+**問題**：測試環境或新倉庫可能沒有設定遠端，直接 push 會報錯。
+
+**解決方案**：先檢測再執行
+```python
+def _git_push(self, tag: str) -> None:
+    # 先檢查遠端是否存在
+    result = subprocess.run(
+        ["git", "remote", "get-url", "origin"],
+        cwd=self.project_dir,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        # 無遠端，優雅跳過
+        return
+
+    # 有遠端，執行 push
+    subprocess.run(["git", "push", "origin", "HEAD"], ...)
+    subprocess.run(["git", "push", "origin", tag], ...)
+```
+
+**優雅錯誤訊息**：
+```python
+# 不是直接報錯，而是提示用戶手動處理
+if no_remote:
+    log_warning("No remote 'origin' configured")
+    log_info("Run manually: git push origin HEAD --tags")
+```
+
+### 22. Dataclass 活用與類型安全
+
+**問題**：複雜結果物件難以維護，欄位容易遺漏。
+
+**解決方案**：使用 `@dataclass` 強制類型
+```python
+from dataclasses import dataclass, field
+from typing import Optional
+
+@dataclass
+class SyncResult:
+    success: bool
+    source: Path
+    destination: Path
+    files_added: list[str] = field(default_factory=list)
+    files_modified: list[str] = field(default_factory=list)
+    files_deleted: list[str] = field(default_factory=list)
+    duration_ms: int = 0
+    error: Optional[str] = None
+
+    @property
+    def total_changes(self) -> int:
+        """計算屬性，自動更新"""
+        return len(self.files_added) + len(self.files_modified) + len(self.files_deleted)
+
+    def to_dict(self) -> dict:
+        """序列化方法"""
+        return { ... }
+```
+
+**優點**：
+- 類型提示 + IDE 自動完成
+- 預設值處理（`field(default_factory=list)`）
+- 計算屬性（`@property`）
+- 自動生成 `__init__`、`__repr__`
+
+### 23. Shell 腳本跨平台技巧
+
+**嚴格模式**：
+```bash
+set -euo pipefail  # 錯誤即停、未定義變數報錯、管道錯誤傳播
+```
+
+**顏色輸出跨平台**：
+```bash
+# 使用 ANSI escape codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo -e "${GREEN}✓${NC} Success"
+```
+
+**Python 解析 JSON（避免依賴 jq）**：
+```bash
+# 使用內建 python3 解析，避免額外依賴
+VERSION=$(python3 -c "import json; print(json.load(open('plugin.json'))['version'])")
+```
+
+**條件檢測工具**：
+```bash
+if command -v rsync &> /dev/null; then
+    sync_with_rsync
+else
+    sync_with_cp  # 備選
+fi
+```
+
+**安全的字串比較**：
+```bash
+# 使用 [[ ]] 而非 [ ]，更安全
+if [[ "$var" == "value" ]]; then
+    ...
+fi
+```
+
+### 24. 測試 Fixture 設計模式
+
+**分層 Fixture**：
+```python
+@pytest.fixture
+def temp_project(tmp_path):
+    """基礎：建立專案目錄結構"""
+    project_dir = tmp_path / "test-plugin"
+    project_dir.mkdir()
+    # 建立 plugin.json, skills/ 等
+    return project_dir
+
+@pytest.fixture
+def temp_cache(tmp_path):
+    """基礎：建立快取目錄"""
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    return cache_dir
+
+@pytest.fixture
+def cache_manager(temp_project, temp_cache):
+    """組合：建立 CacheManager 實例"""
+    return CacheManager(
+        project_dir=temp_project,
+        cache_base=temp_cache,
+    )
+
+@pytest.fixture
+def dev_commands(temp_project, temp_cache):
+    """組合：建立 DevCommands 實例"""
+    cache_manager = CacheManager(...)
+    return DevCommands(
+        project_dir=temp_project,
+        cache_manager=cache_manager,
+    )
+```
+
+**Git Fixture 完整初始化**：
+```python
+@pytest.fixture
+def temp_project_with_git(tmp_path):
+    project_dir = tmp_path / "test-plugin"
+    project_dir.mkdir()
+
+    # Git 初始化（必須設定 user 才能 commit）
+    subprocess.run(["git", "init"], cwd=project_dir, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@test.com"],
+        cwd=project_dir, capture_output=True
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Test"],
+        cwd=project_dir, capture_output=True
+    )
+
+    # 建立初始 commit（某些操作需要 HEAD 存在）
+    (project_dir / ".gitkeep").touch()
+    subprocess.run(["git", "add", "-A"], cwd=project_dir, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "Initial commit"],
+        cwd=project_dir, capture_output=True
+    )
+
+    return project_dir
+```
+
 ### 14. 重構安全策略
 
 **分階段重構**：
