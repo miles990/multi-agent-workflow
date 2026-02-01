@@ -1,0 +1,775 @@
+# plugin-dev Skill 任務清單 (DAG)
+#
+# 工作流 ID：orchestrate_20260201_144146_900673cd
+# 階段：TASKS
+# 日期：2026-02-01
+# 總點數：89 點
+# 里程碑：4 個
+
+metadata:
+  workflow_id: orchestrate_20260201_144146_900673cd
+  plan_source: .claude/memory/plans/plugin-dev-workflow/implementation-plan.md
+  total_points: 89
+  phases: 6
+  milestones:
+    - id: M1
+      name: MVP
+      week: 2
+      tasks: [1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5]
+      acceptance:
+        - /plugin-dev sync 可用
+        - /plugin-dev validate 可用
+        - /plugin-dev status 可用
+        - 測試覆蓋率 > 70%
+    - id: M2
+      name: 發布功能
+      week: 4
+      tasks: [3.1, 3.2, 3.3, 4.1, 4.2, 4.3, 4.4, 4.5]
+      acceptance:
+        - /plugin-dev release 可用
+        - git_lib 完整整合
+        - 支援 --dry-run 和 --resume
+    - id: M3
+      name: 完整功能
+      week: 6
+      tasks: [5.1, 5.2, 5.3]
+      acceptance:
+        - /plugin-dev watch 可用
+        - macOS/Linux 監控正常
+        - Windows polling 可用
+    - id: M4
+      name: Dogfooding 成熟
+      week: 8
+      tasks: [6.1, 6.2, 6.3]
+      acceptance:
+        - 完整文檔
+        - 新手 30 分鐘內上手
+        - 所有 P1 風險已緩解
+
+# ============================================
+# Phase 1: Skill 結構建立（13 點，Week 1）
+# ============================================
+
+tasks:
+  - id: "1.1"
+    phase: 1
+    subject: 建立 skills/plugin-dev/ 目錄結構
+    description: |
+      建立符合 Skill 結構標準的目錄：
+      - skills/plugin-dev/
+      - skills/plugin-dev/00-quickstart/_base/
+      - skills/plugin-dev/01-commands/_base/
+      - skills/plugin-dev/config/
+
+      參考：shared/skill-structure/STANDARD.md
+    points: 2
+    priority: P0
+    dependencies: []
+    tdd_tests:
+      - test_skill_directory_exists
+      - test_subdirectories_exist
+    acceptance:
+      - 目錄結構符合標準
+      - 通過 validate-skills.sh 驗證
+
+  - id: "1.2"
+    phase: 1
+    subject: 撰寫 SKILL.md frontmatter
+    description: |
+      撰寫 skills/plugin-dev/SKILL.md：
+
+      ```yaml
+      ---
+      name: plugin-dev
+      version: 1.0.0
+      description: Plugin 開發完整工作流 - 同步、監控、驗證、發布
+      triggers: [plugin-dev, plugin-workflow, plugin-sync, plugin-release]
+      context: shared
+      agent: general-purpose
+      allowed-tools: [Read, Write, Bash, Grep, Glob]
+      model: haiku
+      ---
+      ```
+
+      包含：
+      - 命令概覽
+      - 快速開始
+      - 執行流程說明
+    points: 3
+    priority: P0
+    dependencies: ["1.1"]
+    tdd_tests:
+      - test_skill_md_exists
+      - test_frontmatter_valid
+      - test_triggers_defined
+    acceptance:
+      - frontmatter 完整
+      - 命令說明清晰
+
+  - id: "1.3"
+    phase: 1
+    subject: 撰寫 00-quickstart/usage.md
+    description: |
+      撰寫快速開始指南：
+      - 30 秒上手
+      - 常用命令範例
+      - 開發模式說明
+      - 發布流程概述
+    points: 3
+    priority: P0
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_usage_md_exists
+      - test_usage_examples_valid
+    acceptance:
+      - 新手可在 30 分鐘內理解
+
+  - id: "1.4"
+    phase: 1
+    subject: 建立 01-commands/ 命令說明
+    description: |
+      為每個命令撰寫說明文檔：
+      - 01-commands/_base/sync.md
+      - 01-commands/_base/watch.md
+      - 01-commands/_base/validate.md
+      - 01-commands/_base/status.md
+      - 01-commands/_base/version.md
+      - 01-commands/_base/release.md
+
+      每個文檔包含：
+      - 命令格式
+      - 參數說明
+      - 使用範例
+      - 實作路徑
+    points: 3
+    priority: P1
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_command_docs_exist
+      - test_command_examples_valid
+    acceptance:
+      - 所有命令有文檔
+      - 範例可執行
+
+  - id: "1.5"
+    phase: 1
+    subject: 配置執行模式對應
+    description: |
+      建立 config/commands.yaml：
+      - express/default/quality 模式對應
+      - 命令到 Python CLI 的映射
+      - 參數轉換規則
+
+      建立 config/validation.yaml：
+      - 驗證規則定義
+      - 錯誤碼對應
+    points: 2
+    priority: P1
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_commands_yaml_valid
+      - test_validation_yaml_valid
+    acceptance:
+      - 配置檔案語法正確
+      - 模式對應完整
+
+# ============================================
+# Phase 2: 核心命令實作（21 點，Week 2）
+# ============================================
+
+  - id: "2.1"
+    phase: 2
+    subject: 實作 /plugin-dev sync 命令
+    description: |
+      在 SKILL.md 中實作 sync 命令：
+
+      1. 解析參數：--force, --dry-run, --verbose
+      2. 調用：python -m cli.plugin.dev sync [options]
+      3. 處理輸出：成功/失敗訊息格式化
+
+      整合現有 DevCommands.sync()
+    points: 5
+    priority: P0
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_sync_command_basic
+      - test_sync_force_option
+      - test_sync_dry_run
+      - test_sync_error_handling
+    acceptance:
+      - 可取代 scripts/plugin/sync-to-cache.sh
+      - 增量同步正常運作
+
+  - id: "2.2"
+    phase: 2
+    subject: 實作 /plugin-dev validate 命令
+    description: |
+      在 SKILL.md 中實作 validate 命令：
+
+      1. 解析參數：--strict, --fix
+      2. 調用：python -m cli.plugin.release validate [options]
+      3. 格式化驗證結果
+
+      整合現有 ReleaseCommands.validate()
+    points: 3
+    priority: P0
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_validate_basic
+      - test_validate_strict_mode
+      - test_validate_fix_option
+    acceptance:
+      - 檢測所有驗證規則
+      - 修復建議清晰
+
+  - id: "2.3"
+    phase: 2
+    subject: 實作 /plugin-dev status 命令
+    description: |
+      在 SKILL.md 中實作 status 命令：
+
+      1. 解析參數：--json
+      2. 聚合 CacheManager.status() + VersionManager.get_current_version()
+      3. 格式化輸出（視覺化或 JSON）
+
+      顯示：Plugin 名稱、版本、快取狀態、Skills 列表、最近發布
+    points: 3
+    priority: P0
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_status_basic
+      - test_status_json_output
+      - test_status_cache_info
+    acceptance:
+      - 資訊完整
+      - JSON 輸出可解析
+
+  - id: "2.4"
+    phase: 2
+    subject: 建立 Skill 框架類別
+    description: |
+      在 SKILL.md 中建立命令路由和參數解析框架：
+
+      1. 命令分發邏輯
+      2. 參數解析（長/短選項）
+      3. 錯誤處理和友善訊息
+      4. 輸出格式化（成功/警告/錯誤）
+
+      設計：
+      - 命令 → Python CLI 映射
+      - 統一的輸出格式
+      - 錯誤恢復建議
+    points: 5
+    priority: P0
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_command_routing
+      - test_argument_parsing
+      - test_error_formatting
+    acceptance:
+      - 所有命令可路由
+      - 錯誤訊息友善
+
+  - id: "2.5"
+    phase: 2
+    subject: 配置載入機制
+    description: |
+      建立 PluginConfig 類別：
+
+      ```python
+      class PluginConfig:
+          CONFIG_PATH = Path("shared/plugin/config.yaml")
+
+          @property
+          def cache_base(self) -> Path:
+              return Path(os.environ.get("PLUGIN_CACHE_BASE") or
+                         self._config["cache"]["base_path"]).expanduser()
+
+          @property
+          def watch_debounce(self) -> int:
+              return self._config.get("watch", {}).get("debounce_ms", 500)
+      ```
+
+      支援：
+      - 環境變數覆寫
+      - 預設值
+      - 驗證
+    points: 5
+    priority: P0
+    dependencies: ["1.2"]
+    tdd_tests:
+      - test_config_loading
+      - test_env_override
+      - test_default_values
+    acceptance:
+      - 配置可正確載入
+      - 環境變數生效
+
+# ============================================
+# Phase 3: git_lib 整合（13 點，Week 3）
+# ============================================
+
+  - id: "3.1"
+    phase: 3
+    subject: 建立 GitLibAdapter 適配層
+    description: |
+      建立適配器連接 cli/plugin/ 和 scripts/git_lib/：
+
+      ```python
+      from scripts.git_lib import GitOps, WorkflowCommitFacade
+
+      class GitLibAdapter:
+          def __init__(self, project_dir: Path):
+              self.git = GitOps(project_dir)
+              self.facade = WorkflowCommitFacade(project_dir)
+
+          def commit_release(self, version: str, files: list[str]):
+              self.git.stage(files)
+              self.git.commit(f"chore(release): v{version}")
+
+          def create_tag(self, version: str):
+              self.git.tag(f"v{version}")
+      ```
+    points: 5
+    priority: P1
+    dependencies: []
+    tdd_tests:
+      - test_adapter_creation
+      - test_commit_release
+      - test_create_tag
+      - test_push_with_tags
+    acceptance:
+      - 適配器可正常運作
+      - 與 git_lib 完全整合
+
+  - id: "3.2"
+    phase: 3
+    subject: 修改 release.py 使用 git_lib
+    description: |
+      重構 ReleaseCommands 使用 GitLibAdapter：
+
+      Before:
+      ```python
+      subprocess.run(["git", "add", "-A"], cwd=self.project_dir)
+      subprocess.run(["git", "commit", "-m", message], cwd=self.project_dir)
+      ```
+
+      After:
+      ```python
+      self.git_adapter.commit_release(version, ["plugin.json", "CHANGELOG.md"])
+      self.git_adapter.create_tag(version)
+      ```
+
+      保持行為一致性
+    points: 5
+    priority: P1
+    dependencies: ["3.1"]
+    tdd_tests:
+      - test_release_with_git_lib
+      - test_commit_message_format
+      - test_tag_creation
+    acceptance:
+      - 行為與原實作一致
+      - 測試全部通過
+
+  - id: "3.3"
+    phase: 3
+    subject: 統一 commit message 格式
+    description: |
+      確保 commit message 格式一致：
+
+      - chore(release): v{version}
+      - 自動加入 Co-Authored-By
+      - 使用 git_lib 的 CommitManager
+
+      驗證：
+      - CHANGELOG 中的 commit 可正確解析
+      - 符合 Conventional Commits 規範
+    points: 3
+    priority: P1
+    dependencies: ["3.2"]
+    tdd_tests:
+      - test_commit_message_format
+      - test_co_author_included
+      - test_conventional_commits
+    acceptance:
+      - 格式統一
+      - 變更日誌可正確生成
+
+# ============================================
+# Phase 4: 發布流程實作（21 點，Week 4）
+# ============================================
+
+  - id: "4.1"
+    phase: 4
+    subject: 實作 /plugin-dev release 主命令
+    description: |
+      在 SKILL.md 中實作 release 命令：
+
+      ```bash
+      /plugin-dev release [LEVEL] [--dry-run] [--resume] [--yes]
+      ```
+
+      流程：
+      1. VALIDATE → 2. TEST → 3. CHECK_GIT → 4. BUMP
+      5. CHANGELOG → 6. COMMIT → 7. TAG → 8. PUSH → 9. COMPLETE
+
+      整合 ReleaseCommands.release()
+    points: 5
+    priority: P0
+    dependencies: ["2.4", "3.2"]
+    tdd_tests:
+      - test_release_patch
+      - test_release_minor
+      - test_release_major
+      - test_release_dry_run
+    acceptance:
+      - 可取代 scripts/plugin/publish.sh
+      - 所有步驟可執行
+
+  - id: "4.2"
+    phase: 4
+    subject: 完善 ReleaseProgress 狀態機
+    description: |
+      完整實作發布進度追蹤：
+
+      ```python
+      class ReleaseStep(Enum):
+          VALIDATE = "validate"
+          TEST = "test"
+          CHECK_GIT = "check_git"
+          BUMP_VERSION = "bump_version"
+          GENERATE_CHANGELOG = "generate_changelog"
+          GIT_COMMIT = "git_commit"
+          GIT_TAG = "git_tag"
+          GIT_PUSH = "git_push"
+          COMPLETE = "complete"
+
+      @dataclass
+      class ReleaseProgress:
+          current_step: ReleaseStep
+          completed_steps: list[ReleaseStep]
+          failed_step: Optional[ReleaseStep] = None
+          error: Optional[str] = None
+          new_version: Optional[str] = None
+      ```
+    points: 5
+    priority: P0
+    dependencies: ["4.1"]
+    tdd_tests:
+      - test_progress_tracking
+      - test_step_transitions
+      - test_failure_recording
+    acceptance:
+      - 狀態轉換正確
+      - 可追蹤進度
+
+  - id: "4.3"
+    phase: 4
+    subject: Task API 整合
+    description: |
+      整合 Claude Code Tasks API 追蹤發布進度：
+
+      ```python
+      # 發布時建立任務
+      task_id = TaskCreate({
+          "subject": f"Release v{new_version}",
+          "description": "Plugin release workflow",
+          "activeForm": "Releasing plugin",
+      })
+
+      # 更新進度
+      TaskUpdate({
+          "taskId": task_id,
+          "status": "in_progress",
+          "metadata": {"step": current_step.value},
+      })
+      ```
+    points: 5
+    priority: P1
+    dependencies: ["4.1"]
+    tdd_tests:
+      - test_task_creation
+      - test_task_update
+      - test_task_completion
+    acceptance:
+      - 任務可追蹤
+      - 進度可見
+
+  - id: "4.4"
+    phase: 4
+    subject: 進度持久化
+    description: |
+      實作 .plugin-dev/release-progress.json 持久化：
+
+      ```json
+      {
+          "workflow_id": "release_20260201_143000",
+          "current_step": "CHANGELOG",
+          "completed_steps": ["VALIDATE", "TEST", "CHECK_GIT", "BUMP"],
+          "new_version": "2.4.1",
+          "started_at": "2026-02-01T14:30:00"
+      }
+      ```
+
+      支援：
+      - 自動保存進度
+      - 載入上次進度
+      - 清理過期進度
+    points: 3
+    priority: P1
+    dependencies: ["4.2"]
+    tdd_tests:
+      - test_progress_save
+      - test_progress_load
+      - test_progress_cleanup
+    acceptance:
+      - 進度可持久化
+      - 重啟後可恢復
+
+  - id: "4.5"
+    phase: 4
+    subject: 錯誤恢復機制
+    description: |
+      實作 --resume 功能：
+
+      1. 檢測 .plugin-dev/release-progress.json
+      2. 載入上次進度
+      3. 從失敗步驟繼續
+
+      錯誤處理：
+      - 顯示失敗原因
+      - 提供修復建議
+      - 支援回滾（--rollback）
+    points: 3
+    priority: P1
+    dependencies: ["4.4"]
+    tdd_tests:
+      - test_resume_from_failure
+      - test_rollback
+      - test_error_suggestions
+    acceptance:
+      - 可從中斷點恢復
+      - 錯誤建議有效
+
+# ============================================
+# Phase 5: 熱載入實作（13 點，Week 5-6）
+# ============================================
+
+  - id: "5.1"
+    phase: 5
+    subject: 實作 /plugin-dev watch 主命令
+    description: |
+      在 SKILL.md 中實作 watch 命令：
+
+      ```bash
+      /plugin-dev watch [--debounce N] [--no-initial] [--background]
+      ```
+
+      功能：
+      - 監控檔案變更
+      - 自動同步到快取
+      - 顯示即時狀態
+
+      整合 DevCommands.watch()
+    points: 5
+    priority: P1
+    dependencies: ["2.4"]
+    tdd_tests:
+      - test_watch_basic
+      - test_watch_debounce
+      - test_watch_file_change
+    acceptance:
+      - 可取代 scripts/plugin/dev-watch.sh
+      - 即時同步正常
+
+  - id: "5.2"
+    phase: 5
+    subject: 跨平台監控整合
+    description: |
+      實作跨平台檔案監控：
+
+      優先順序：
+      1. fswatch (macOS)
+      2. inotifywait (Linux)
+      3. polling (通用)
+
+      ```python
+      def detect_watcher():
+          if shutil.which("fswatch"):
+              return FSWatchWatcher()
+          elif shutil.which("inotifywait"):
+              return InotifyWatcher()
+          else:
+              return PollingWatcher()
+      ```
+    points: 5
+    priority: P1
+    dependencies: ["5.1"]
+    tdd_tests:
+      - test_fswatch_detection
+      - test_inotify_detection
+      - test_polling_fallback
+    acceptance:
+      - macOS 使用 fswatch
+      - Linux 使用 inotifywait
+      - 無工具時 polling
+
+  - id: "5.3"
+    phase: 5
+    subject: 背景執行支援
+    description: |
+      實作 --background 選項：
+
+      - 使用 run_in_background=true
+      - 保存 PID 到 .plugin-dev/watch.pid
+      - 支援停止背景監控
+
+      狀態顯示：
+      - /plugin-dev status 顯示監控狀態
+    points: 3
+    priority: P2
+    dependencies: ["5.1"]
+    tdd_tests:
+      - test_background_start
+      - test_background_stop
+      - test_pid_management
+    acceptance:
+      - 背景執行穩定
+      - 可正確停止
+
+# ============================================
+# Phase 6: 文檔與 Dogfooding（8 點，Week 7-8）
+# ============================================
+
+  - id: "6.1"
+    phase: 6
+    subject: 更新 CLAUDE.md
+    description: |
+      在 CLAUDE.md 中添加 plugin-dev Skill 開發經驗：
+
+      - Skill 開發技巧
+      - Dogfooding 經驗
+      - 常見問題解決
+      - 最佳實踐
+
+      更新 Plugin 開發工作流章節
+    points: 3
+    priority: P1
+    dependencies: ["4.5", "5.3"]
+    tdd_tests: []
+    acceptance:
+      - 經驗記錄完整
+      - 可供後續參考
+
+  - id: "6.2"
+    phase: 6
+    subject: 撰寫完整教程
+    description: |
+      撰寫從零開始的 plugin-dev 教程：
+
+      1. 環境設置
+      2. 首次使用
+      3. 開發模式
+      4. 發布流程
+      5. 故障排除
+
+      放置於：skills/plugin-dev/docs/tutorial.md
+    points: 2
+    priority: P2
+    dependencies: ["6.1"]
+    tdd_tests: []
+    acceptance:
+      - 教程完整
+      - 步驟可執行
+
+  - id: "6.3"
+    phase: 6
+    subject: Dogfooding 驗證
+    description: |
+      使用 /plugin-dev 開發 plugin-dev 本身：
+
+      驗證項目：
+      1. /plugin-dev sync 同步功能
+      2. /plugin-dev watch 熱載入
+      3. /plugin-dev validate 驗證
+      4. /plugin-dev release 發布
+
+      記錄：
+      - 發現的問題
+      - 改進建議
+      - 使用者體驗
+    points: 3
+    priority: P0
+    dependencies: ["6.1"]
+    tdd_tests: []
+    acceptance:
+      - 完整 dogfooding 流程
+      - 主要問題已修復
+
+# ============================================
+# 依賴關係圖 (DAG)
+# ============================================
+#
+# Phase 1 (Skill 結構)
+#     │
+#     ▼
+# Phase 2 (核心命令) ────┐
+#     │                  │
+#     ▼                  ▼
+# Phase 3 (git_lib) → Phase 4 (發布流程)
+#                        │
+# Phase 5 (熱載入) ◄─────┘
+#     │
+#     ▼
+# Phase 6 (文檔 + Dogfooding)
+#
+# 並行機會：
+# - Phase 3 和 Phase 5 可並行
+# - Phase 2 內的 2.1, 2.2, 2.3 可並行
+
+# ============================================
+# 測試策略
+# ============================================
+
+test_strategy:
+  unit:
+    coverage_target: 85%
+    execution: 每次 commit
+    focus:
+      - 單一類別測試
+      - Mock 外部依賴
+
+  integration:
+    coverage_target: 70%
+    execution: 每個 Phase
+    focus:
+      - 多類別協作
+      - 真實 Git 操作
+
+  e2e:
+    coverage_target: 50%
+    execution: 每個里程碑
+    focus:
+      - 完整命令流程
+      - Dogfooding 驗證
+
+# ============================================
+# 風險任務
+# ============================================
+
+risk_tasks:
+  - id: R1
+    risk: Dogfooding 循環依賴
+    mitigation_task: "1.5"
+    description: 配置 fallback 腳本路徑
+
+  - id: R2
+    risk: git_lib 整合 Bug
+    mitigation_task: "3.1"
+    description: 建立適配層隔離
+
+  - id: R3
+    risk: 跨平台監控問題
+    mitigation_task: "5.2"
+    description: 三層降級策略
