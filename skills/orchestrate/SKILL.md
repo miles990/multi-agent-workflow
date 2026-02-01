@@ -1,12 +1,38 @@
 ---
 name: orchestrate
-version: 3.3.0
+version: 3.4.0
 description: 端到端工作流編排器 - File-Based Handoff + 智能並行決策
 triggers: [orchestrate, workflow, 全流程, e2e]
 allowed-tools: [Read, Write, Bash, Glob, Grep, Skill, Task, TaskCreate, TaskUpdate, TaskList, TaskGet]
 ---
 
-# Multi-Agent Orchestrate v3.0.0
+# Multi-Agent Orchestrate v3.4.0
+
+## 前置檢查（重要）
+
+在開始工作流之前，檢查專案是否已配置規範執行機制：
+
+```bash
+# 檢查 settings.local.json 是否包含必要的 hooks
+cat .claude/settings.local.json 2>/dev/null | grep -q "PostToolUse" && echo "✓ Hooks configured" || echo "✗ Hooks not configured"
+```
+
+**如果 Hooks 未配置**，顯示以下提示：
+
+```
+⚠️ 專案尚未配置 workflow 規範執行機制。
+
+建議執行 `/setup-workflow` 啟用以下功能：
+  • Task 完成後自動 commit（保存進度）
+  • 自動運行測試驗證
+  • Memory 變更追蹤
+
+執行 `/setup-workflow` 一鍵完成配置。
+```
+
+**如果用戶選擇繼續**：可以繼續執行，但不會有自動 commit 和驗證功能。
+
+---
 
 > 需求輸入 → 6 階段串聯 → 品質閘門 → 智慧回退 → 完成交付
 
