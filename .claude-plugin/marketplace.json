@@ -11,7 +11,7 @@
       "name": "multi-agent-workflow",
       "source": "./",
       "description": "\u591a Agent \u4e26\u884c\u5de5\u4f5c\u6d41\u751f\u614b\u7cfb\uff1aRESEARCH \u2192 PLAN \u2192 IMPLEMENT \u2192 REVIEW \u2192 VERIFY",
-      "version": "2.4.1",
+      "version": "2.4.2",
       "keywords": [
         "multi-agent",
         "workflow",
@@ -21,5 +21,5 @@
       ]
     }
   ],
-  "version": "2.4.1"
+  "version": "2.4.2"
 }

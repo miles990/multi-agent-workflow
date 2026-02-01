@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.2] - 2026-02-01
+
+### 🔧 Chores
+
+- **gitignore**: ignore plugin dev artifacts (6bd7d15)
+
+### 🐛 Bug Fixes
+
+- **release**: update marketplace before git commit (3a7d32d)
+- **release**: auto-update README.md version badge during release (7330767)
+
 ## [2.4.1] - 2026-02-01
 
 ### 🐛 Bug Fixes
