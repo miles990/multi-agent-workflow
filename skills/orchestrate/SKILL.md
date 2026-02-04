@@ -8,6 +8,30 @@ allowed-tools: [Read, Write, Bash, Glob, Grep, Skill, Task, TaskCreate, TaskUpda
 
 # Multi-Agent Orchestrate v3.4.0
 
+## 路徑解析（必讀）
+
+此 Skill 使用 `shared/` 目錄下的工具。執行時必須使用完整路徑。
+
+**從 command-message header 取得 Base directory**，例如：
+```
+Base directory for this skill: /path/to/.../skills/orchestrate
+```
+
+**Plugin Root** = Base directory 往上兩層（去掉 `/skills/orchestrate`）
+
+```bash
+# 範例：如果 Base directory 是 /Users/user/.claude/plugins/cache/multi-agent-workflow/multi-agent-workflow/2.4.2/skills/orchestrate
+# 則 Plugin Root 是 /Users/user/.claude/plugins/cache/multi-agent-workflow/multi-agent-workflow/2.4.2
+
+# 工具路徑
+PLUGIN_ROOT="${BASE_DIR%/skills/orchestrate}"  # 移除尾部
+$PLUGIN_ROOT/shared/tools/workflow-init.sh     # 正確路徑
+```
+
+**重要**：不要使用 `./shared/tools/...`，因為工作目錄是用戶專案，不是 plugin 目錄。
+
+---
+
 ## 前置檢查（重要）
 
 在開始工作流之前，檢查專案是否已配置規範執行機制：
@@ -73,10 +97,10 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 Phase 0: 初始化工作流
     ├── 生成 workflow-id
     ├── **【必要】執行 workflow-init.sh 初始化通訊環境**
-    │   └── Bash: ./shared/tools/workflow-init.sh init <workflow-id> orchestrate "<需求摘要>"
+    │   └── Bash: $PLUGIN_ROOT/shared/tools/workflow-init.sh init <workflow-id> orchestrate "<需求摘要>"
     │   └── 這會創建 .claude/workflow/current.json（Hooks 依賴此檔案）
     ├── 載入執行模式配置
-    │   └── 讀取 shared/config/execution-profiles.yaml
+    │   └── 讀取 $PLUGIN_ROOT/shared/config/execution-profiles.yaml
     │   └── 套用視角數和模型配置
     ├── 建立報告目錄
     └── 記錄開始時間
@@ -193,11 +217,16 @@ git commit -m "chore(workflow): complete {workflow-id}"
 在執行任何階段之前，**必須**先初始化工作流環境：
 
 ```bash
+# 0. 從 command-message header 取得 Base directory，計算 Plugin Root
+# 例如：Base directory: /path/.../2.4.2/skills/orchestrate
+# PLUGIN_ROOT 就是 /path/.../2.4.2（去掉 /skills/orchestrate）
+
 # 1. 生成 workflow ID（格式：orchestrate_YYYYMMDD_HHMMSS_xxxx）
 WORKFLOW_ID="orchestrate_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 4)"
 
 # 2. 執行初始化（創建 current.json，讓 Hooks 能記錄活動）
-./shared/tools/workflow-init.sh init "$WORKFLOW_ID" orchestrate "需求摘要"
+# 使用完整路徑，不要用 ./shared/...
+$PLUGIN_ROOT/shared/tools/workflow-init.sh init "$WORKFLOW_ID" orchestrate "需求摘要"
 ```
 
 **為什麼這很重要？**
