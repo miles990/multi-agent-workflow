@@ -2,6 +2,16 @@
 
 > 多視角並行工作流生態系 v2.4.2
 
+## Workflow Preferences
+
+- 當要求「plan」、「design」、「discuss」時，先呈現計劃/設計文件，**不要直接開始實作或探索代碼**。等用戶確認後再進入實作階段
+- 先確認範圍（scope）再動手，避免過度實作
+- 主要語言：Python（CLI）、Markdown（Skills）、Bash（腳本）、YAML（配置）
+- 架構討論使用 mermaid 圖輔助說明
+- 修改 Skill 後執行 `./scripts/validate-skills.sh` 驗證
+- 修改 Python 後執行 `python -m pytest tests/` 確認無回歸
+- 報告進度時簡潔明確，不要冗長解釋
+
 ## 專案概述
 
 Claude Code Plugin，提供 6 階段完整軟體開發工作流：
@@ -32,6 +42,7 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 | `/multi-implement [task-path]` | 監督式實作 | IMPLEMENT |
 | `/multi-review [impl-path]` | 程式碼審查 | REVIEW |
 | `/multi-verify [review-path]` | 驗證測試 | VERIFY |
+| `/audit [目標路徑]` | 架構一致性審查 | 獨立工具 |
 | `/status` | 工作流狀態 | - |
 | `/plugin-dev [command]` | Plugin 開發工作流 | - |
 
@@ -137,6 +148,8 @@ TaskCreate({ subject: "規劃階段", addBlockedBy: ["1"], ... })  # 等待研�
 ```bash
 /orchestrate [需求描述]         # 完整工作流
 /orchestrate --start-from PLAN  # 從指定階段開始
+/orchestrate --resume {id}      # 從中斷點恢復執行
+/orchestrate --resume           # 恢復最近中斷的工作流
 ```
 
 ### 單一階段
@@ -206,6 +219,14 @@ TaskCreate({ subject: "規劃階段", addBlockedBy: ["1"], ... })  # 等待研�
 | regression-checker | 回歸檢查員 | haiku | 回歸測試、副作用 |
 | acceptance-validator | 驗收驗證員 | sonnet | 驗收標準、需求滿足 |
 
+### AUDIT 視角
+| ID | 名稱 | 模型 | 聚焦 |
+|----|------|------|------|
+| dependency-auditor | 依賴分析師 | sonnet | import 掃描、循環依賴、方向違反 |
+| pattern-checker | 模式一致性檢查員 | haiku | 錯誤處理、命名慣例、API 風格 |
+| coverage-auditor | 測試覆蓋分析師 | haiku | 未覆蓋模組、測試品質、mock 濫用 |
+| doc-sync-checker | 文檔同步檢查員 | haiku | 文檔 vs 代碼、過時文檔、API 文檔 |
+
 ## Memory 結構
 
 ```
@@ -226,9 +247,13 @@ TaskCreate({ subject: "規劃階段", addBlockedBy: ["1"], ... })  # 等待研�
 ├── review/{impl-id}/           # 審查報告
 │   ├── perspectives/*.md       # 視角報告
 │   └── review-summary.md       # 審查摘要
-└── verify/{review-id}/         # 驗證結果
+├── verify/{review-id}/         # 驗證結果
+│   ├── perspectives/*.md       # 視角報告
+│   └── verify-summary.md       # 驗證摘要
+└── audit/{audit-id}/           # 架構審查
     ├── perspectives/*.md       # 視角報告
-    └── verify-summary.md       # 驗證摘要
+    ├── issues.yaml             # 問題清單
+    └── audit-summary.md        # 審查摘要
 ```
 
 ## 開發規範
@@ -1230,6 +1255,7 @@ python -m pytest tests/plugin/ --cov=cli/plugin
 | 實作框架 | [skills/implement/SKILL.md](./skills/implement/SKILL.md) |
 | 審查框架 | [skills/review/SKILL.md](./skills/review/SKILL.md) |
 | 驗證框架 | [skills/verify/SKILL.md](./skills/verify/SKILL.md) |
+| 架構審查 | [skills/audit/SKILL.md](./skills/audit/SKILL.md) |
 | 狀態查看 | [skills/status/SKILL.md](./skills/status/SKILL.md) |
 | **協調模組** | |
 | 並行執行 | [shared/coordination/map-phase.md](./shared/coordination/map-phase.md) |

@@ -10,7 +10,7 @@
 #   ./scripts/list-perspectives.sh --show tdd-enforcer # Show details
 #   ./scripts/list-perspectives.sh --preset standard  # Show preset
 
-set -e
+set -euo pipefail
 
 # Get script directory (POSIX compatible)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

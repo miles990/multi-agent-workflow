@@ -10,7 +10,7 @@
 #   ./scripts/get-config.sh --show skills/implement/SKILL.md  # Show config details
 #   ./scripts/get-config.sh --relations             # Show configuration relations
 
-set -e
+set -euo pipefail
 
 # Get script directory (POSIX compatible)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

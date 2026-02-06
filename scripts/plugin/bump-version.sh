@@ -4,6 +4,14 @@
 
 set -euo pipefail
 
+# 依賴檢查
+check_dependency() {
+  if ! command -v "$1" &> /dev/null; then
+    echo -e "${RED:-}[ERROR] 未找到 '$1'，請先安裝${NC:-}" >&2
+    exit 1
+  fi
+}
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -14,6 +22,9 @@ NC='\033[0m' # No Color
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+check_dependency python3
+check_dependency sed
 
 # Default options
 BUMP_LEVEL="patch"

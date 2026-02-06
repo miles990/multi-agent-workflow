@@ -124,6 +124,16 @@ categories:
       - verify
 
   # -------------------------------------------------------------------------
+  # audit - 架構審查視角
+  # -------------------------------------------------------------------------
+  - id: audit
+    name: 架構審查
+    description: "用於架構一致性審查的視角，專注於依賴分析、模式一致性和健康度評估"
+    icon: "shield"
+    applicable_skills:
+      - audit
+
+  # -------------------------------------------------------------------------
   # cross-cutting - 跨階段視角
   # -------------------------------------------------------------------------
   - id: cross-cutting
@@ -1176,6 +1186,172 @@ perspectives:
       - verify
 
   # ===========================================================================
+  # AUDIT 架構審查視角
+  # ===========================================================================
+
+  - id: dependency-auditor
+    name: 依賴分析師
+    category: audit
+    focus: "import/require 掃描、循環依賴、依賴方向違反"
+    responsibilities:
+      - 掃描所有 import/require/from...import 語句
+      - 繪製模組間依賴關係圖
+      - 識別循環依賴
+      - 檢測依賴方向違反（下層不應依賴上層）
+      - 識別過度耦合的模組
+    output_format:
+      sections:
+        - name: 依賴圖摘要
+          description: "模組間依賴關係概覽"
+        - name: 循環依賴
+          description: "檢測到的循環依賴鏈"
+        - name: 方向違反
+          description: "依賴方向不正確的案例"
+        - name: 耦合度分析
+          description: "模組耦合度評估"
+      deliverables:
+        - "依賴關係圖（文字描述）"
+        - "問題列表（含檔案、行號、嚴重度）"
+        - "重構建議"
+    model_tier: sonnet
+    method: explore
+    priority_weight: 0.9
+    tags:
+      - dependency
+      - architecture
+      - coupling
+    triggers:
+      - "依賴"
+      - "dependency"
+      - "import"
+      - "循環"
+      - "circular"
+    applicable_skills:
+      - audit
+
+  - id: pattern-checker
+    name: 模式一致性檢查員
+    category: audit
+    focus: "錯誤處理模式、命名慣例、API 介面風格一致性"
+    responsibilities:
+      - 檢查錯誤處理模式統一性
+      - 驗證命名慣例一致性（變數、函數、類別、檔案）
+      - 評估 API 介面風格統一度
+      - 檢查日誌記錄模式一致性
+      - 確認配置存取模式統一
+    output_format:
+      sections:
+        - name: 錯誤處理
+          description: "錯誤處理模式一致性評估"
+        - name: 命名慣例
+          description: "命名規範符合度"
+        - name: API 風格
+          description: "API 介面風格一致性"
+        - name: 橫切關注點
+          description: "logging、config 等模式一致性"
+      deliverables:
+        - "每種模式的一致性評分"
+        - "不一致案例（含檔案、行號）"
+        - "建議的統一標準"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.8
+    tags:
+      - patterns
+      - consistency
+      - naming
+      - error-handling
+    triggers:
+      - "模式"
+      - "pattern"
+      - "一致"
+      - "consistency"
+      - "命名"
+      - "naming"
+    applicable_skills:
+      - audit
+
+  - id: coverage-auditor
+    name: 測試覆蓋分析師
+    category: audit
+    focus: "缺少測試的模組、測試品質、mock/stub 濫用"
+    responsibilities:
+      - 找出沒有對應測試的模組
+      - 評估測試品質（不只 happy path）
+      - 識別 mock/stub 濫用
+      - 檢查邊界條件測試覆蓋
+      - 評估整合測試 vs 單元測試比例
+    output_format:
+      sections:
+        - name: 覆蓋缺口
+          description: "未覆蓋模組列表"
+        - name: 測試品質
+          description: "測試案例品質評估"
+        - name: Mock 使用
+          description: "mock/stub 使用分析"
+        - name: 測試比例
+          description: "各類測試比例評估"
+      deliverables:
+        - "未覆蓋模組列表"
+        - "測試品質評分"
+        - "建議新增的測試案例"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.7
+    tags:
+      - testing
+      - coverage
+      - quality
+      - mock
+    triggers:
+      - "測試覆蓋"
+      - "test coverage"
+      - "未測試"
+      - "untested"
+    applicable_skills:
+      - audit
+
+  - id: doc-sync-checker
+    name: 文檔同步檢查員
+    category: audit
+    focus: "代碼與文檔比對、過時文檔識別、API 文檔完整性"
+    responsibilities:
+      - 比對文檔描述與實際代碼
+      - 識別過時文檔（提到已刪除的模組）
+      - 檢查 API 文檔與 endpoint 一致性
+      - 確認配置文檔完整性
+      - 驗證命令文檔與可用命令一致
+    output_format:
+      sections:
+        - name: 文檔差異
+          description: "文檔 vs 代碼差異清單"
+        - name: 過時文檔
+          description: "需要更新的過時內容"
+        - name: API 文檔
+          description: "API 文檔完整性檢查"
+        - name: 缺失文檔
+          description: "建議新增的文檔"
+      deliverables:
+        - "差異清單"
+        - "過時文檔列表"
+        - "缺失文檔建議"
+    model_tier: haiku
+    method: explore
+    priority_weight: 0.6
+    tags:
+      - documentation
+      - sync
+      - api-docs
+      - outdated
+    triggers:
+      - "文檔同步"
+      - "doc sync"
+      - "過時"
+      - "outdated"
+    applicable_skills:
+      - audit
+
+  # ===========================================================================
   # CROSS-CUTTING 跨領域視角
   # ===========================================================================
 
@@ -1385,6 +1561,9 @@ presets:
       verify:
         perspectives: [functional-tester, acceptance-validator]
         rationale: "功能驗證 + 驗收確認"
+      audit:
+        perspectives: [dependency-auditor, pattern-checker]
+        rationale: "依賴分析 + 模式一致性"
 
   # ---------------------------------------------------------------------------
   # 標準模式：4 視角，用於一般任務
@@ -1412,6 +1591,9 @@ presets:
       verify:
         perspectives: [functional-tester, edge-case-hunter, regression-checker, acceptance-validator]
         rationale: "功能+邊界+回歸+驗收 完整驗證"
+      audit:
+        perspectives: [dependency-auditor, pattern-checker, coverage-auditor, doc-sync-checker]
+        rationale: "依賴+模式+測試+文檔 全面架構審查"
 
   # ---------------------------------------------------------------------------
   # 深度模式：6 視角，用於複雜或高風險任務
@@ -1439,6 +1621,9 @@ presets:
       verify:
         perspectives: [functional-tester, edge-case-hunter, regression-checker, acceptance-validator, performance-tester, security-tester]
         rationale: "標準 4 視角 + 效能測試 + 安全測試"
+      audit:
+        perspectives: [dependency-auditor, pattern-checker, coverage-auditor, doc-sync-checker, security-auditor, performance-optimizer]
+        rationale: "標準 4 視角 + 安全審計 + 效能分析"
 
   # ---------------------------------------------------------------------------
   # 自訂模式：完全由使用者指定
@@ -1473,6 +1658,8 @@ composition_rules:
     - [security-tester, security-auditor]
     - [i18n-specialist, accessibility-specialist]
     - [doc-planner, documentation]
+    - [dependency-auditor, pattern-checker]
+    - [coverage-auditor, doc-sync-checker]
 
   # ---------------------------------------------------------------------------
   # 必要依賴：使用某視角時，建議同時使用另一個
@@ -1530,6 +1717,11 @@ dynamic_adjustments:
     - pattern: "滲透|penetration|漏洞|vulnerability|安全測試|security test"
       boost:
         security-tester: 1.5
+
+    - pattern: "審查|audit|架構健康|architecture health|一致性|consistency"
+      boost:
+        dependency-auditor: 1.5
+        pattern-checker: 1.3
 
     - pattern: "並行|parallel|concurrent|效率|efficiency"
       boost:

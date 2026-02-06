@@ -166,6 +166,75 @@ git commit -m "chore(workflow): complete {workflow-id}"
 
 → 配置：[shared/quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml)
 
+## 部分完成處理（Partial Completion）
+
+當工作流中斷或某階段失敗時，自動保存進度以便恢復。
+
+### 自動保存進度
+
+每個階段完成後立即保存進度到 `.claude/workflow/{id}/recovery/progress.yaml`：
+
+```yaml
+workflow_id: "orchestrate_20260206_123456_abc123"
+status: "interrupted"  # completed | interrupted | failed
+current_stage: "IMPLEMENT"
+completed_stages:
+  - stage: RESEARCH
+    output: ".claude/memory/research/{topic-id}/synthesis.md"
+    score: 82
+    timestamp: "2026-02-06T12:35:00Z"
+  - stage: PLAN
+    output: ".claude/memory/plans/{feature-id}/implementation-plan.md"
+    score: 78
+    timestamp: "2026-02-06T12:40:00Z"
+  - stage: TASKS
+    output: ".claude/memory/tasks/{plan-id}/tasks.yaml"
+    score: 85
+    timestamp: "2026-02-06T12:45:00Z"
+failed_stage:
+  stage: IMPLEMENT
+  error: "Tests failed after 3 retries"
+  last_checkpoint: "task-3-of-8"
+  timestamp: "2026-02-06T13:00:00Z"
+```
+
+### 恢復執行
+
+```bash
+/orchestrate --resume {workflow-id}
+# 或
+/orchestrate --resume  # 自動找到最近中斷的工作流
+```
+
+恢復流程：
+1. 讀取 `progress.yaml` 確認中斷點
+2. 驗證已完成階段的輸出仍然有效（檔案存在 + git status 乾淨）
+3. 從中斷的階段/任務繼續執行
+4. 如果已完成階段的輸出被破壞，回退到該階段重新執行
+
+### 部分完成的通知
+
+中斷時輸出：
+```
+⚠️ 工作流部分完成 (3/6 階段)
+✅ RESEARCH → PLAN → TASKS
+❌ IMPLEMENT（失敗：Tests failed after 3 retries）
+⏸️ REVIEW → VERIFY（未執行）
+
+進度已保存至：.claude/workflow/{id}/recovery/progress.yaml
+恢復命令：/orchestrate --resume {id}
+```
+
+### 與智慧回退的區別
+
+| 情境 | 機制 | 說明 |
+|------|------|------|
+| 品質閘門失敗 | 智慧回退 | 自動回退到適當階段重試（最多 5 次） |
+| 回退次數超限 | 部分完成 | 保存進度，等待人工介入後 `--resume` |
+| Context Limit | 部分完成 | 保存進度，新 session 中 `--resume` |
+| 外部錯誤（網路/權限） | 部分完成 | 保存進度，修復問題後 `--resume` |
+| Session 崩潰 | 部分完成 | 依賴 git checkpoint，`--resume` 從最後 commit 恢復 |
+
 ## 早期終止
 
 | 階段 | 條件 | 動作 |

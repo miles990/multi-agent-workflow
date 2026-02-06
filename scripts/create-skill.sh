@@ -9,6 +9,17 @@
 
 set -euo pipefail
 
+# 依賴檢查
+check_dependency() {
+  if ! command -v "$1" &> /dev/null; then
+    echo "❌ 錯誤：未找到 '$1'，請先安裝" >&2
+    exit 1
+  fi
+}
+
+check_dependency sed
+check_dependency mkdir
+
 # 顏色定義
 if [[ -t 1 ]]; then
     RED='\033[0;31m'
