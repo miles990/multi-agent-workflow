@@ -81,6 +81,7 @@ Write `ct-retrospective.md`:
 | L1 | Record only | Write retrospective artifact |
 | L2 | Proposal only | Write self-upgrade proposal |
 | L3 | Low-risk docs/rules | Patch templates, docs, examples |
-| L4 | Runtime behavior | Patch scripts/router/gates only with tests |
+| L4a | Runtime rules | Patch escalation rules or non-critical validators only with tests |
+| L4b | Quality gate changes | Proposal only; requires human approval |
+| L4c | Workflow script changes | Proposal only; requires human approval |
 | L5 | Architecture | Require explicit human approval |
-

@@ -48,12 +48,19 @@ ct_detection:
 
 ## Mode Effects
 
-| Mode | Artifacts |
-|------|-----------|
-| `off` | No CT artifacts |
-| `lite` | Evidence / uncertainty / drift guard in prompts and synthesis |
-| `strict` | `ct-stack.yaml`, `ct-compliance.md`, `risk-policy.yaml` |
-| `experiment` | strict artifacts plus `hypotheses.yaml`, `experiment-plan.md`, `eval-rubric.yaml`, `failure-modes.md` |
+Runtime effects are defined in [mode-runtime.yaml](mode-runtime.yaml). The
+router only selects mode; it must not silently run heavier phases than the
+selected mode allows.
+
+| Mode | Runtime effect |
+|------|----------------|
+| `off` | No CT artifacts or CT gates |
+| `lite` | Evidence / uncertainty / drift guard in prompts and synthesis only |
+| `strict` | CT stack, compliance report, risk policy, and retrospective/proposal |
+| `experiment` | strict effects plus hypotheses, experiment plan, rubric, failure mining, and harness |
+
+`lite` must not require `ct-stack.yaml`, must not run experiment harness, and
+must not run autonomous upgrade.
 
 ## Guardrails
 

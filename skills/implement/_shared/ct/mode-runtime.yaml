@@ -1,0 +1,84 @@
+version: "1.0"
+
+default_mode: lite
+
+modes:
+  off:
+    description: "User explicitly disabled CT."
+    run:
+      - ct_detection
+      - map_reduce_research
+    skip:
+      - ct_stack
+      - ct_compliance
+      - ct_retrospective
+      - self_upgrade_proposal
+      - autonomous_upgrade
+      - experiment_harness
+    mode_budget:
+      max_extra_artifacts: 0
+      experiment_harness: false
+      autonomous_upgrade: false
+
+  lite:
+    description: "Default low-friction research mode."
+    run:
+      - ct_detection
+      - map_reduce_research
+      - synthesis_constraint_notes
+    skip:
+      - ct_stack
+      - ct_compliance_report
+      - experiment_harness
+      - self_upgrade_proposal
+      - autonomous_upgrade
+    mode_budget:
+      max_extra_artifacts: 1
+      experiment_harness: false
+      autonomous_upgrade: false
+
+  strict:
+    description: "Architecture, risk, product, and technical decisions."
+    run:
+      - ct_detection
+      - ct_stack
+      - map_reduce_research
+      - ct_compliance
+      - ct_retrospective
+      - self_upgrade_proposal
+    skip:
+      - experiment_harness
+      - autonomous_upgrade_patch
+    mode_budget:
+      max_extra_artifacts: 4
+      experiment_harness: false
+      autonomous_upgrade: proposal_only
+
+  experiment:
+    description: "Hypotheses, benchmark, evaluation, and reproducible research."
+    run:
+      - ct_detection
+      - ct_stack
+      - map_reduce_research
+      - ct_compliance
+      - hypotheses
+      - experiment_plan
+      - eval_rubric
+      - failure_modes
+      - experiment_harness
+      - ct_retrospective
+      - self_upgrade_proposal
+      - closed_loop_summary
+    skip:
+      - autonomous_upgrade_patch
+    mode_budget:
+      max_extra_artifacts: 10
+      experiment_harness: true
+      autonomous_upgrade: proposal_only
+
+runtime_rules:
+  - "lite mode must not require ct-stack.yaml."
+  - "lite mode must not run experiment harness."
+  - "lite mode must not run autonomous upgrade."
+  - "strict mode may propose runtime improvements but must not apply patches."
+  - "experiment mode must design and score a verifiable experiment before proposing self-upgrade."

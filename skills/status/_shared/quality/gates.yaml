@@ -155,13 +155,39 @@ gates:
     quality_score_threshold: 85
     on_fail: "trigger_verify_fix_cycle"
 
-  CT:
-    description: "Constraint Texture Compliance Gate"
+  CT_LITE:
+    description: "Constraint Texture Lite Gate"
+    applies_when: "ct_mode == lite"
+    pass_criteria:
+      mandatory:
+        - id: "evidence_uncertainty_marked"
+          check: "核心 claim 已標記 evidence / uncertainty"
+          validation: "evidence_uncertainty_marked == true"
+
+        - id: "no_obvious_topic_drift"
+          check: "無明顯 topic drift"
+          validation: "drift_event_count <= 2"
+
+      recommended:
+        - id: "unsupported_claim_rate_low"
+          check: "無證據 claim 比例 <= 20%"
+          validation: "unsupported_claim_rate <= 0.2"
+
+    quality_score_threshold: 70
+    on_fail: "request_research_revision"
+
+  CT_STRICT:
+    description: "Constraint Texture Strict Gate"
+    applies_when: "ct_mode == strict"
     pass_criteria:
       mandatory:
         - id: "ct_stack_exists"
           check: "CT stack 已生成"
           validation: "ct_stack_exists == true"
+
+        - id: "ct_compliance_exists"
+          check: "CT compliance report 已生成"
+          validation: "ct_compliance_exists == true"
 
         - id: "no_high_ct_violation"
           check: "無 HIGH 等級 CT 違規"
@@ -170,10 +196,6 @@ gates:
         - id: "evidence_coverage"
           check: "核心 claim 證據覆蓋率 >= 80%"
           validation: "evidence_coverage >= 0.8"
-
-        - id: "hypothesis_testability"
-          check: "研究假設可測性 >= 70%"
-          validation: "hypothesis_testability_score >= 0.7"
 
       recommended:
         - id: "low_drift_rate"
@@ -184,12 +206,45 @@ gates:
           check: "輸出符合 CT output contract"
           validation: "output_contract_met == true"
 
+    quality_score_threshold: 80
+    on_fail: "request_ct_revision"
+
+  CT_EXPERIMENT:
+    description: "Constraint Texture Experiment Gate"
+    applies_when: "ct_mode == experiment"
+    pass_criteria:
+      mandatory:
+        - id: "hypotheses_exist"
+          check: "研究假設已生成"
+          validation: "hypotheses_exist == true"
+
+        - id: "hypothesis_testability"
+          check: "研究假設可測性 >= 70%"
+          validation: "hypothesis_testability_score >= 0.7"
+
+        - id: "experiment_plan_exists"
+          check: "實驗計劃已生成"
+          validation: "experiment_plan_exists == true"
+
         - id: "experiment_readiness"
           check: "實驗設計具備變因、對照組、評分標準"
           validation: "experiment_readiness_score >= 0.7"
 
-    quality_score_threshold: 80
-    on_fail: "request_ct_revision"
+      recommended:
+        - id: "experiment_immediacy"
+          check: "實驗設計可立即執行"
+          validation: "experiment_readiness_score >= 0.7"
+
+        - id: "failure_modes_mined"
+          check: "失敗模式已挖掘"
+          validation: "failure_modes_exist == true"
+
+        - id: "harness_scored"
+          check: "experiment harness 至少執行一次 scorer"
+          validation: "experiment_harness_scored == true"
+
+    quality_score_threshold: 85
+    on_fail: "request_experiment_revision"
 
 # 閘門行為配置
 gate_behavior:

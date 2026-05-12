@@ -70,6 +70,7 @@ CT Escalation Router
 - `L1`: 只記錄 retrospective
 - `L2`: 產生 self-upgrade proposal
 - `L3`: 低風險 docs / templates / CT examples 可自動修
-- `L4`: router / gates / scripts 可修，但必須跑測試
+- `L4a`: escalation rules / non-critical validators 可修，但必須跑測試
+- `L4b`: quality gates 只提案，需人工批准
+- `L4c`: workflow scripts 只提案，需人工批准
 - `L5`: 架構級變更需人工批准
-

@@ -1,13 +1,14 @@
 # CT Compliance Checker
 
-The compliance checker runs during REDUCE and before the quality gate. It does
-not replace cross validation; it extends it with constraint validation.
+The compliance checker runs during REDUCE for `strict` and `experiment` modes.
+`lite` mode only applies evidence / uncertainty / drift guard notes in synthesis
+and is evaluated by `CT_LITE`; it must not require `ct-stack.yaml`.
 
 ## Checks
 
 | Check | Question | Severity |
 |------|----------|----------|
-| `ct_stack_exists` | Was `ct-stack.yaml` produced before MAP? | blocker |
+| `ct_stack_exists` | Was `ct-stack.yaml` produced before MAP in strict/experiment mode? | blocker |
 | `claim_has_evidence` | Does each core claim have evidence or hypothesis status? | high |
 | `uncertainty_marked` | Are low-evidence conclusions labeled with uncertainty? | high |
 | `no_topic_drift` | Did agents stay within the topic and CT boundaries? | medium |
@@ -47,5 +48,11 @@ Start from 100 and subtract:
 - medium: 10
 - low: 3
 
-The CT gate fails when `high_ct_violations > 0`, `evidence_coverage < 0.8`, or
-`hypothesis_testability_score < 0.7`.
+Gate failures are mode-scoped:
+
+- `CT_LITE` fails when evidence / uncertainty markings are missing or obvious
+  drift exceeds the lite guard.
+- `CT_STRICT` fails when `ct-stack.yaml` or `ct-compliance.md` is missing,
+  `high_ct_violations > 0`, or `evidence_coverage < 0.8`.
+- `CT_EXPERIMENT` fails when hypotheses or experiment plan are missing,
+  `hypothesis_testability_score < 0.7`, or `experiment_readiness_score < 0.7`.

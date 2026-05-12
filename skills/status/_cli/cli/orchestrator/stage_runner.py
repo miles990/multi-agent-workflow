@@ -21,6 +21,7 @@ from ..config.models import (
     StageID,
     StageResult,
 )
+from ..config.artifacts import get_stage_artifact_manifest
 from ..config.perspectives import get_stage_perspectives
 from ..config.stages import get_stage
 from ..io.logging import ActionLogger
@@ -115,7 +116,10 @@ class StageRunner:
                 context,
             )
             if synthesis_path:
-                outputs["synthesis"] = str(synthesis_path)
+                manifest = get_stage_artifact_manifest(stage_id)
+                if synthesis_path == manifest.primary_output_path(synthesis_path.parent):
+                    outputs[manifest.primary_output_key] = str(synthesis_path)
+                outputs.setdefault("synthesis", str(synthesis_path))
 
             # 7. 計算品質分數
             quality_score = self._calculate_quality_score(
@@ -163,6 +167,7 @@ class StageRunner:
         from ..config.stages import get_stage_index, STAGE_ORDER
 
         stage_dir = self.memory.create_stage_dir(self.workflow_id, stage_id.value)
+        get_stage_artifact_manifest(stage_id).ensure_directories(stage_dir)
 
         # 更新狀態
         self.tracker.set_stage(
@@ -266,14 +271,14 @@ class StageRunner:
         if not stage_dir:
             return outputs
 
-        perspectives_dir = stage_dir / "perspectives"
+        manifest = get_stage_artifact_manifest(stage_id)
 
         for perspective_id, response in results.items():
             if not response.success or not response.content:
                 continue
 
             # 保存 JSON
-            json_path = perspectives_dir / f"{perspective_id}.json"
+            json_path = manifest.perspective_json_path(stage_dir, perspective_id)
             self.memory.write_json(json_path, response.content)
             outputs[f"perspective_{perspective_id}"] = str(json_path)
 
@@ -284,7 +289,7 @@ class StageRunner:
             )
 
             # 生成 Markdown 報告
-            md_path = perspectives_dir / f"{perspective_id}.md"
+            md_path = manifest.perspective_markdown_path(stage_dir, perspective_id)
             md_content = self._render_perspective_markdown(perspective_id, response.content)
             self.memory.write_text(md_path, md_content)
 
@@ -371,12 +376,14 @@ class StageRunner:
         if not stage_dir:
             return None
 
+        manifest = get_stage_artifact_manifest(stage_id)
+
         # JSON 格式
-        json_path = stage_dir / "summaries" / "synthesis.json"
+        json_path = manifest.synthesis_json_path(stage_dir)
         self.memory.write_json(json_path, response.content)
 
         # Markdown 格式
-        md_path = stage_dir / "synthesis.md"
+        md_path = manifest.synthesis_markdown_path(stage_dir)
         md_content = self._render_synthesis_markdown(stage_id, response.content)
         self.memory.write_text(md_path, md_content)
 

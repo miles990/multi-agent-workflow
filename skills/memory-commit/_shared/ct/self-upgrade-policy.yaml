@@ -25,19 +25,44 @@ automation_levels:
     requires_tests: true
     requires_human_approval: false
 
-  L4:
-    name: runtime_behavior
+  L4a:
+    name: runtime_rules
     allowed:
       - "update escalation rules"
-      - "update quality gates"
-      - "update workflow scripts"
-      - "update validation tools"
+      - "update non-critical validators"
+      - "update non-critical runtime examples"
     requires_tests: true
     requires_human_approval: false
     guardrails:
       - "must include before/after failure evidence"
       - "must run relevant smoke test"
-      - "must not silently weaken gates"
+      - "must not change gate thresholds or halt behavior"
+
+  L4b:
+    name: quality_gate_changes
+    allowed:
+      - "propose quality gate changes"
+      - "propose CT gate threshold changes"
+      - "propose blocker handling changes"
+    requires_tests: true
+    requires_human_approval: true
+    guardrails:
+      - "must include before/after failure evidence"
+      - "must include false-positive or false-negative analysis"
+      - "must include rollback plan"
+
+  L4c:
+    name: workflow_script_changes
+    allowed:
+      - "propose workflow script changes"
+      - "propose hook behavior changes"
+      - "propose validation tool behavior changes"
+    requires_tests: true
+    requires_human_approval: true
+    guardrails:
+      - "must include focused smoke test"
+      - "must include rollback plan"
+      - "must not bypass mandatory checkpoints"
 
   L5:
     name: architecture_change
@@ -45,8 +70,15 @@ automation_levels:
       - "change phase boundaries"
       - "change memory model"
       - "change install/distribution model"
+      - "lower quality gate thresholds"
+      - "remove mandatory gate criteria"
+      - "weaken blocker handling"
     requires_tests: true
     requires_human_approval: true
+
+hard_stops:
+  - "Any patch that lowers a threshold, removes a mandatory criterion, changes halt behavior, or weakens blocker handling must be L5 and require human approval."
+  - "Any patch that changes workflow scripts or quality gates may be proposed at L4b/L4c but must not be applied autonomously."
 
 proposal_required_fields:
   - problem
@@ -57,4 +89,3 @@ proposal_required_fields:
   - automation_level
   - verification_plan
   - rollback_plan
-

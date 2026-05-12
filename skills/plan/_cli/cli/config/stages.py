@@ -6,6 +6,7 @@
 
 from typing import Dict, List
 
+from .artifacts import get_stage_artifact_manifest
 from .models import StageConfig, StageID
 
 
@@ -25,7 +26,7 @@ STAGES: Dict[StageID, StageConfig] = {
             "industry",
         ],
         gate_threshold=70.0,
-        required_outputs=["synthesis.md"],
+        required_outputs=get_stage_artifact_manifest(StageID.RESEARCH).required_outputs,
     ),
     StageID.PLAN: StageConfig(
         id=StageID.PLAN,
@@ -38,7 +39,7 @@ STAGES: Dict[StageID, StageConfig] = {
             "quality_engineer",
         ],
         gate_threshold=75.0,
-        required_outputs=["implementation-plan.md"],
+        required_outputs=get_stage_artifact_manifest(StageID.PLAN).required_outputs,
     ),
     StageID.TASKS: StageConfig(
         id=StageID.TASKS,
@@ -51,7 +52,7 @@ STAGES: Dict[StageID, StageConfig] = {
             "risk_preventor",
         ],
         gate_threshold=80.0,
-        required_outputs=["tasks.yaml"],
+        required_outputs=get_stage_artifact_manifest(StageID.TASKS).required_outputs,
     ),
     StageID.IMPLEMENT: StageConfig(
         id=StageID.IMPLEMENT,
@@ -63,7 +64,7 @@ STAGES: Dict[StageID, StageConfig] = {
             "reviewer",
         ],
         gate_threshold=80.0,
-        required_outputs=["implementation.md"],
+        required_outputs=get_stage_artifact_manifest(StageID.IMPLEMENT).required_outputs,
     ),
     StageID.REVIEW: StageConfig(
         id=StageID.REVIEW,
@@ -76,7 +77,7 @@ STAGES: Dict[StageID, StageConfig] = {
             "maintainability",
         ],
         gate_threshold=75.0,
-        required_outputs=["review-summary.md"],
+        required_outputs=get_stage_artifact_manifest(StageID.REVIEW).required_outputs,
     ),
     StageID.VERIFY: StageConfig(
         id=StageID.VERIFY,
@@ -88,7 +89,7 @@ STAGES: Dict[StageID, StageConfig] = {
             "acceptance_validator",
         ],
         gate_threshold=85.0,
-        required_outputs=["verification.md"],
+        required_outputs=get_stage_artifact_manifest(StageID.VERIFY).required_outputs,
     ),
 }
 

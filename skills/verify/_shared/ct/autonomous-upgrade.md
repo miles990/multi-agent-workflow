@@ -25,7 +25,9 @@ PATCH + VERIFY, or STOP FOR HUMAN APPROVAL
 | L1 | Record only. Do not patch. |
 | L2 | Proposal only. Do not patch. |
 | L3 | May patch docs, templates, examples, and non-runtime CT guidance. |
-| L4 | May patch router, gates, scripts, or validators only with a focused smoke test. |
+| L4a | May patch escalation rules or non-critical validators only with a focused smoke test. |
+| L4b | May propose quality gate changes; requires human approval before patching. |
+| L4c | May propose workflow script changes; requires human approval before patching. |
 | L5 | Must stop for human approval. |
 
 ## Required Preconditions
@@ -79,6 +81,8 @@ Stop and request approval when:
 - The proposal changes phase boundaries, memory model, install model, or agent
   authority.
 - Verification cannot be run.
-- The patch would weaken a quality gate without adding a replacement check.
+- The patch would lower a threshold, remove a mandatory criterion, change halt
+  behavior, or weaken blocker handling.
+- The patch would change quality gates or workflow scripts without human
+  approval.
 - The target files contain unrelated user edits that make the patch ambiguous.
-

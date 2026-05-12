@@ -37,12 +37,14 @@ model: sonnet
 | Mode | 觸發情境 | 額外產物 |
 |------|----------|----------|
 | `off` | 使用者明確 `--no-ct` 或 `--ct off` | 無 |
-| `lite` | 預設；一般研究、比較、方向整理 | evidence / uncertainty / drift guard |
+| `lite` | 預設；一般研究、比較、方向整理 | synthesis 內的 evidence / uncertainty / drift guard notes |
 | `strict` | 架構、風險、產品、技術決策、agent/memory/tool policy | `ct-stack.yaml`、`ct-compliance.md`、`risk-policy.yaml` |
 | `experiment` | 論文、實驗、benchmark、evaluation、hypothesis、可重複驗證 | strict 產物 + `hypotheses.yaml`、`experiment-plan.md`、`eval-rubric.yaml`、`failure-modes.md`、`experiments/{topic-id}/` harness |
 
-所有 CT 模式在輸出驗證後都會執行閉環檢查，產生 `ct-retrospective.md`；若發現可回寫改善，產生 `self-upgrade-proposal.md`。
-若 proposal 的 automation level 為 L3/L4 且可驗證，流程可進一步自主套用改善並產生 `upgrade-decision.yaml` / `upgrade-report.md`。最後必須收斂成 `closed-loop-summary.md`，讓使用者直接看到研究結論、mode 判斷、升級決策與驗證結果。
+CT mode 會控制實際流程重量：
+- `lite` 只做 evidence / uncertainty / drift guard，不產生 `ct-stack.yaml`，不跑 experiment harness，也不跑 autonomous upgrade。
+- `strict` 才產生 CT stack、合規檢查與 retrospective；若發現系統性問題，只產生 self-upgrade proposal，不自動 patch。
+- `experiment` 才產生可測假設、實驗設計、eval rubric、failure mining 與 experiment harness；autonomous patch 預設關閉，只收斂 proposal 與 closed-loop summary。
 
 自動規則：
 - 預設為 `lite`。
@@ -53,6 +55,7 @@ model: sonnet
 
 → Router：[shared/ct/escalation-router.md](_shared/ct/escalation-router.md)
 → Rules：[shared/ct/escalation-rules.yaml](_shared/ct/escalation-rules.yaml)
+→ Runtime：[shared/ct/mode-runtime.yaml](_shared/ct/mode-runtime.yaml)
 
 ## 預設 4 視角
 
@@ -102,17 +105,17 @@ Phase 4: MAP（並行研究）✅ 自動追蹤
        2. Write → .claude/memory/research/{topic-id}/perspectives/{perspective_id}.md
        未執行 Write = 任務失敗，工作流中止
     ↓
-Phase 5: REDUCE（交叉驗證 + CT compliance + 匯總）
+Phase 5: REDUCE（交叉驗證 + mode-scoped CT checks + 匯總）
     ↓
 Phase 6: Memory 存檔 → 品質閘門檢查 → 存儲報告
     ↓
-Phase 7: CT Retrospective（吃自己的狗食）
+Phase 7: CT Retrospective（strict / experiment）
     ├── 檢查 selected_mode 是否正確
     ├── 比對 expected artifacts vs actual outputs
     ├── 挖掘 workflow failures / false positives / false negatives
     └── 寫入 ct-retrospective.md
     ↓
-Phase 8: Self-Upgrade Proposal（必要時）
+Phase 8: Self-Upgrade Proposal（strict / experiment，必要時）
     ├── 若 mode 選錯、artifact 缺漏、gate 誤判、工具解析失敗
     ├── 產生 self-upgrade-proposal.md
     └── runtime 變更需附驗證命令與 rollback plan
@@ -124,11 +127,12 @@ Phase 9: Experiment Harness（CT-experiment 必須）
     ├── 產生 results.jsonl
     └── 產生 analysis.md
     ↓
-Phase 10: Autonomous Upgrade（安全邊界內）
+Phase 10: Autonomous Upgrade Decision（experiment，proposal-only by default）
     ├── L1/L2: 只記錄 / 只提案，不修改
     ├── L3: 可修改 docs、templates、CT examples
-    ├── L4: 可修改 router、gates、scripts、validators，但必須跑 focused smoke test
-    ├── L5: 停止並要求人工批准
+    ├── L4a: 可修改非關鍵 runtime rules / validators，必須跑 focused smoke test
+    ├── L4b/L4c: gates / workflow scripts 只提案，需人工批准
+    ├── L5: 架構或降弱 gate 的變更停止並要求人工批准
     └── 寫入 upgrade-decision.yaml；有 patch 時寫入 upgrade-report.md
     ↓
 Phase 11: Closed-Loop Summary（成果收斂）
@@ -162,6 +166,11 @@ CP4: Task Commit ✅ 自動執行
 - ✅ CT-strict 以上不得有 HIGH CT 違規
 - ✅ CT-experiment 需產出可測假設與實驗設計
 - ✅ CT-experiment 需產出 experiment harness 並至少跑一次 scorer
+
+CT gates 依 mode 分級：
+- `CT_LITE`：只檢查 evidence / uncertainty / drift guard
+- `CT_STRICT`：檢查 ct-stack、ct-compliance、HIGH 違規與 evidence coverage
+- `CT_EXPERIMENT`：檢查 hypotheses、experiment plan、readiness 與 scorer result
 
 → 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
@@ -214,6 +223,11 @@ CP4: Task Commit ✅ 自動執行
 ├── synthesis.md        # 匯總報告（主輸出）
 └── metrics.yaml        # 階段指標
 ```
+
+Mode-specific artifact rules:
+- `lite` must not require `ct-stack.yaml`, `ct-compliance.md`, experiment harness, or self-upgrade artifacts.
+- `strict` may produce `ct-retrospective.md` and `self-upgrade-proposal.md`, but must not apply autonomous patches.
+- `experiment` must produce experiment artifacts and `closed-loop-summary.md`; autonomous patching remains proposal-only unless explicitly approved.
 
 > ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
 

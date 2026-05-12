@@ -14,20 +14,16 @@ import sys
 from fnmatch import fnmatch
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(Path(__file__).parent.parent))  # git_lib 目錄
 sys.path.insert(0, str(Path(__file__).parent))
 
+from cli.config.artifacts import get_checkpoint_patterns
 from log_action import log_action
 
 # 檢查點檔案模式（寫入這些檔案時觸發 commit）
-CHECKPOINT_PATTERNS = [
-    "**/synthesis.md",           # RESEARCH 完成
-    "**/implementation-plan.md", # PLAN 完成
-    "**/tasks.yaml",             # TASKS 完成
-    "**/summary.md",             # IMPLEMENT 完成
-    "**/review-summary.md",      # REVIEW 完成
-    "**/verify-summary.md",      # VERIFY 完成
-]
+CHECKPOINT_PATTERNS = get_checkpoint_patterns()
 
 
 def _is_checkpoint_file(file_path: str) -> bool:

@@ -22,7 +22,9 @@ CT Retrospective
 | L1 | 只記錄，不修改 |
 | L2 | 只產生 proposal，不修改 |
 | L3 | 可修改 docs / templates / examples / CT guidance |
-| L4 | 可修改 router / gates / scripts / validators，但必須跑 focused smoke test |
+| L4a | 可修改 escalation rules / non-critical validators，但必須跑 focused smoke test |
+| L4b | quality gates 只提案，需人工批准 |
+| L4c | workflow scripts 只提案，需人工批准 |
 | L5 | 停止，要求人工批准 |
 
 ## 必要輸出
@@ -51,7 +53,7 @@ upgrade_decision:
 
 - 不得修改 unrelated user changes。
 - 不得靜默弱化 quality gate。
-- L4 必須附驗證命令與通過結果。
+- L4a 必須附驗證命令與通過結果。
+- L4b/L4c 只可提出 proposal，不得自主套用。
 - L5 只能提出，不得套用。
 - 無法驗證時，decision 必須是 `skipped` 或 `requires_human_approval`。
-

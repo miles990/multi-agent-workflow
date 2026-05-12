@@ -33,7 +33,7 @@
 - **多視角並行處理**：每個階段 4 個視角同時工作
 - **Map-Reduce 協調**：並行執行 → 交叉驗證 → 智能匯總
 - **Git Worktree 隔離**：IMPLEMENT/REVIEW/VERIFY 在隔離分支中執行
-- **零依賴設計**：只使用 Claude Code 內建工具
+- **Skill runtime 零外部依賴**：核心 skills 使用 Claude Code 內建工具；CLI / portable tooling 可使用 Python 依賴並提供 fallback
 - **Memory 整合**：成果自動存檔，支持跨階段復用
 - **共用模組架構**：避免重複程式碼
 - **指標收集系統**：自動追蹤執行、品質、效率指標
@@ -41,7 +41,7 @@
 - **即時進度顯示**：階段和視角狀態可視化
 - **結構化錯誤處理**：標準化錯誤碼和排除指南
 - **CT Research Layer**：以 Constraint Texture 約束研究、合規檢查、失敗挖掘與實驗設計
-- **CT 閉環自我改善**：驗證後產生 retrospective，必要時輸出 self-upgrade proposal，安全時自主升級
+- **CT 閉環自我改善**：strict/experiment 模式產生 retrospective，必要時輸出 self-upgrade proposal；runtime 變更預設 proposal-only
 
 ## Installation
 
@@ -74,6 +74,14 @@ runtime, then try to install missing Python packages or system tools, and only
 fall back to built-in lightweight behavior when installation is unavailable. Set
 `MAW_DISABLE_AUTO_INSTALL=1` in locked-down environments to disable automatic
 dependency installation.
+
+Version surfaces are documented in [docs/versioning.md](./docs/versioning.md).
+
+| Component | Source | Current |
+|---|---|---|
+| Plugin distribution | `plugin.json` | 2.4.2 |
+| Python CLI/tooling | `pyproject.toml` | 3.1.0 |
+| Research skill | `skills/research/SKILL.md` | 3.2.0 |
 
 ### Via Claude Code Plugin - Full framework install
 
@@ -131,7 +139,7 @@ plugin cache sync, marketplace metadata, and release/version tooling.
 
 `/multi-research` 內建 CT Escalation Router。預設使用 CT-lite；架構、風險、產品或 agent 系統設計會升級到 CT-strict；論文、實驗、benchmark、evaluation、hypothesis 類任務會升級到 CT-experiment。偵測結果會寫入 `meta.yaml` 的 `ct_detection`。
 
-研究完成後會執行 CT 閉環檢查，產生 `ct-retrospective.md`；若發現 mode 選錯、artifact 缺漏、gate 誤判或 workflow tool failure，會再產生 `self-upgrade-proposal.md`。若 automation level 為 L3/L4 且驗證計畫可執行，流程可自主套用改善並輸出 `upgrade-decision.yaml` / `upgrade-report.md`；L5 架構級變更只提出 proposal。最後會輸出 `closed-loop-summary.md`，收斂研究結論、升級決策與驗證結果。
+CT mode 會控制流程重量：CT-lite 只在 synthesis 加上 evidence / uncertainty / drift guard；CT-strict 才產生 `ct-retrospective.md` 與必要的 `self-upgrade-proposal.md`；CT-experiment 才跑完整 experiment harness 與 `closed-loop-summary.md`。Autonomous patch 預設關閉；gates / workflow scripts 的變更只提出 proposal，需人工批准。
 
 CT-experiment 還必須產生可重跑的實驗 harness：
 
@@ -598,7 +606,7 @@ tests/plugin/         # Plugin tooling tests
 
 | Principle | Description |
 |-----------|-------------|
-| **Zero Dependencies** | 只使用 Task API + 內建工具，無外部 MCP 依賴 |
+| **Skill Runtime Zero Dependencies** | skill 執行層使用 Task API + 內建工具；CLI/tooling 依賴具 fallback |
 | **Multi-Perspective** | Map-Reduce 模式，4 視角同時工作 |
 | **Cross Validation** | 共識識別 + 矛盾解決 |
 | **Git Worktree Isolation** | main 穩定，feature 在隔離分支開發 |
@@ -613,7 +621,7 @@ tests/plugin/         # Plugin tooling tests
 
 ## Changelog
 
-### v2.5.0 (2026-02-01)
+### Unreleased
 - **Plugin tooling CLI**
   - 新增 `python -m cli.plugin <command>`：sync, watch, validate, status, version, release
   - 保留 shell fallback scripts

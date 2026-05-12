@@ -353,3 +353,33 @@ class TestGateConfiguration:
 
         # 必要失敗應該停止
         assert behavior["on_mandatory_fail"]["action"] == "halt"
+
+    def test_ct_gates_are_mode_scoped(self, quality_gates_config: Dict[str, Any]):
+        """
+        CT gates must not force lite mode to satisfy strict or experiment checks.
+        """
+        gates = quality_gates_config.get("gates", {})
+
+        for gate_name in ["CT_LITE", "CT_STRICT", "CT_EXPERIMENT"]:
+            assert gate_name in gates, f"應有 {gate_name} 閘門配置"
+            assert "applies_when" in gates[gate_name]
+
+        lite_ids = [
+            c["id"]
+            for c in gates["CT_LITE"]["pass_criteria"].get("mandatory", [])
+        ]
+        strict_ids = [
+            c["id"]
+            for c in gates["CT_STRICT"]["pass_criteria"].get("mandatory", [])
+        ]
+        experiment_ids = [
+            c["id"]
+            for c in gates["CT_EXPERIMENT"]["pass_criteria"].get("mandatory", [])
+        ]
+
+        assert "ct_stack_exists" not in lite_ids
+        assert "hypothesis_testability" not in lite_ids
+        assert "ct_stack_exists" in strict_ids
+        assert "hypothesis_testability" not in strict_ids
+        assert "hypothesis_testability" in experiment_ids
+        assert "experiment_plan_exists" in experiment_ids

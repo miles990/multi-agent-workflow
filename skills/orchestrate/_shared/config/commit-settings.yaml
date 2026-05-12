@@ -35,6 +35,6 @@ checkpoint_commit:
     - "**/synthesis.md"           # RESEARCH 階段完成
     - "**/implementation-plan.md" # PLAN 階段完成
     - "**/tasks.yaml"             # TASKS 階段完成
-    - "**/summary.md"             # IMPLEMENT 階段完成
+    - "**/implementation.md"      # IMPLEMENT 階段完成
     - "**/review-summary.md"      # REVIEW 階段完成
-    - "**/verify-summary.md"      # VERIFY 階段完成
+    - "**/verification.md"        # VERIFY 階段完成
