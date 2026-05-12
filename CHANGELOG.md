@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### ✨ Features
+
+- **research**: add mode-scoped CT runtime contract and CT_LITE / CT_STRICT / CT_EXPERIMENT gates.
+- **research**: add CT experiment harness and closed-loop proposal artifacts for experiment mode.
+- **skills**: bundle portable shared resources for npx-installed skills.
+
+### 🔒 Safety
+
+- **ct**: split L4 self-upgrade authority into runtime rules, quality gate proposals, and workflow script proposals.
+- **ct**: require human approval for quality gate and workflow script changes.
+
+### 📝 Documentation
+
+- **versioning**: document plugin, Python CLI, skill, and CT schema version surfaces.
+- **readme**: clarify skill runtime dependency scope and maintainer-only plugin tooling.
+
 ## [2.4.2] - 2026-02-01
 
 ### 🔧 Chores

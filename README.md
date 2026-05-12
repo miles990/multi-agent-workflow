@@ -297,6 +297,10 @@ CT-experiment 還必須產生可重跑的實驗 harness：
 
 ## Memory Structure
 
+This is the common memory layout. The research tree below is intentionally a
+compact view; complete mode-specific artifacts are defined in
+[`skills/research/SKILL.md`](./skills/research/SKILL.md).
+
 ```
 .claude/memory/
 ├── research/           # research skill 產出
@@ -612,7 +616,7 @@ tests/plugin/         # Plugin tooling tests
 | **Git Worktree Isolation** | main 穩定，feature 在隔離分支開發 |
 | **Memory Integration** | 與 evolve Checkpoint 對應 |
 | **Shared Modules** | shared/ 避免重複程式碼 |
-| **Unified Entry** | 單一 plugin，12 個 user-facing skills |
+| **Unified Entry** | 單一 plugin，7 個 user-facing workflow skills；plugin tooling 改為 maintainer-only CLI/scripts |
 | **Standard Structure** | 所有 Skill 遵循統一結構規範 |
 
 ## Related Projects
