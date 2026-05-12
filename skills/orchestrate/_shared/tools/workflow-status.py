@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import yaml
+from yaml_compat import safe_load as yaml_safe_load
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 常數定義
@@ -112,7 +112,7 @@ def load_workflow_meta(wf_dir: Path, source_type: str) -> Optional[Dict[str, Any
     meta_file = wf_dir / 'meta.yaml'
     try:
         with open(meta_file, 'r', encoding='utf-8') as f:
-            meta = yaml.safe_load(f) or {}
+            meta = yaml_safe_load(f) or {}
 
         # 標準化欄位
         workflow = {
@@ -186,7 +186,7 @@ def load_tasks(wf_dir: Path) -> List[Dict]:
 
     try:
         with open(tasks_file, 'r', encoding='utf-8') as f:
-            data = yaml.safe_load(f)
+            data = yaml_safe_load(f)
 
         if isinstance(data, dict):
             if 'tasks' in data:

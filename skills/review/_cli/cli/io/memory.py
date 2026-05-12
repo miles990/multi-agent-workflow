@@ -13,7 +13,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-import yaml
+from ..dependencies import ensure_python_dependencies, PythonDependency
+
+ensure_python_dependencies([PythonDependency('yaml', 'PyYAML>=6.0')])
+
+import yaml  # type: ignore
 
 
 class MemoryManager:

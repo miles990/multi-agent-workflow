@@ -6,9 +6,10 @@ DAG 驗證器 - 檢查任務依賴的正確性
 
 import argparse
 import sys
-import yaml
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple
+
+from yaml_compat import safe_load as yaml_safe_load
 
 class Colors:
     """ANSI 顏色碼"""
@@ -33,7 +34,7 @@ def log_info(msg: str) -> None:
 def load_tasks(tasks_file: str) -> List[Dict]:
     """載入任務檔案"""
     with open(tasks_file, 'r', encoding='utf-8') as f:
-        data = yaml.safe_load(f)
+        data = yaml_safe_load(f)
 
     # 支援不同的結構
     if isinstance(data, dict):

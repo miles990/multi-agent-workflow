@@ -20,6 +20,21 @@ CLAUDE_DIR="$HOME/.claude"
 HOOKS_DIR="$CLAUDE_DIR/hooks"
 SETTINGS_FILE="$CLAUDE_DIR/settings.json"
 
+if [ -f "${SCRIPT_DIR}/../dependency-utils.sh" ]; then
+    # shellcheck source=../dependency-utils.sh
+    source "${SCRIPT_DIR}/../dependency-utils.sh"
+fi
+
+if declare -f maw_ensure_command >/dev/null 2>&1; then
+    maw_ensure_command jq jq || {
+        echo "Missing dependency: jq. Auto-install failed; install jq before configuring hooks." >&2
+        exit 1
+    }
+elif ! command -v jq >/dev/null 2>&1; then
+    echo "Missing dependency: jq" >&2
+    exit 1
+fi
+
 echo -e "${BLUE}安裝 Multi-Agent Workflow Hooks${NC}"
 echo ""
 
@@ -32,10 +47,16 @@ echo -e "${BLUE}[1/3] 複製 hook 腳本...${NC}"
 cp "$SCRIPT_DIR/log-tool-pre.sh" "$HOOKS_DIR/"
 cp "$SCRIPT_DIR/log-tool-post.sh" "$HOOKS_DIR/"
 cp "$SCRIPT_DIR/log-agent-lifecycle.sh" "$HOOKS_DIR/"
+if [ -f "${SCRIPT_DIR}/../dependency-utils.sh" ]; then
+    cp "${SCRIPT_DIR}/../dependency-utils.sh" "$HOOKS_DIR/"
+fi
 
 chmod +x "$HOOKS_DIR/log-tool-pre.sh"
 chmod +x "$HOOKS_DIR/log-tool-post.sh"
 chmod +x "$HOOKS_DIR/log-agent-lifecycle.sh"
+if [ -f "$HOOKS_DIR/dependency-utils.sh" ]; then
+    chmod +x "$HOOKS_DIR/dependency-utils.sh"
+fi
 
 echo -e "${GREEN}  已複製 3 個 hook 腳本${NC}"
 

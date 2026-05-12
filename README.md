@@ -52,12 +52,27 @@ If you use the open Agent Skills installer, install this repository with:
 npx skills add miles990/multi-agent-workflow
 ```
 
+For a non-interactive global Codex install:
+
+```bash
+npx skills add miles990/multi-agent-workflow -g -a codex --skill '*' --copy --full-depth -y
+```
+
+Use `--all` only when you intentionally want to install every skill to every
+supported agent. For Codex-only global installation, prefer `-g -a codex`.
+
 This installs the repository skills. Each skill carries generated portable copies
 of the shared framework resources under `_shared/`, `_templates/`, `_scripts/`,
 and `_cli/`,
 so `/multi-research`, `/multi-plan`, `/multi-tasks`, `/multi-implement`,
 `/multi-review`, `/multi-verify`, and `/orchestrate` can still access the
 common CT, quality, metrics, coordination, template, and hook assets.
+
+Portable tools use best-effort dependency handling. They first use the existing
+runtime, then try to install missing Python packages or system tools, and only
+fall back to built-in lightweight behavior when installation is unavailable. Set
+`MAW_DISABLE_AUTO_INSTALL=1` in locked-down environments to disable automatic
+dependency installation.
 
 ### Via Claude Code Plugin - Full framework install
 

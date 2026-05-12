@@ -8,6 +8,28 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "${SCRIPT_DIR}/dependency-utils.sh" ]; then
+    # shellcheck source=dependency-utils.sh
+    source "${SCRIPT_DIR}/dependency-utils.sh"
+elif [ -f "${SCRIPT_DIR}/../dependency-utils.sh" ]; then
+    # shellcheck source=../dependency-utils.sh
+    source "${SCRIPT_DIR}/../dependency-utils.sh"
+fi
+
+if declare -f maw_ensure_command >/dev/null 2>&1; then
+    maw_ensure_command jq jq || exit 0
+else
+    command -v jq >/dev/null 2>&1 || exit 0
+fi
+
+if ! declare -f maw_random_hex >/dev/null 2>&1; then
+    maw_random_hex() {
+        local bytes="${1:-3}"
+        openssl rand -hex "$bytes" 2>/dev/null || printf '%s' "$(date +%s)$$"
+    }
+fi
+
 # 配置
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 WORKFLOW_BASE="${PROJECT_DIR}/.claude/workflow"
@@ -33,7 +55,7 @@ fi
 mkdir -p "$(dirname "$LOG_FILE")"
 
 # 生成事件 ID
-EVENT_ID="evt_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 3 2>/dev/null || echo $$)"
+EVENT_ID="evt_$(date +%Y%m%d_%H%M%S)_$(maw_random_hex 3)"
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
 # 獲取工具資訊

@@ -17,6 +17,31 @@ NC='\033[0m'
 
 # 版本
 VERSION="1.0.0"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ -f "${SCRIPT_DIR}/dependency-utils.sh" ]; then
+    # shellcheck source=dependency-utils.sh
+    source "${SCRIPT_DIR}/dependency-utils.sh"
+fi
+
+if ! declare -f maw_random_hex >/dev/null 2>&1; then
+    maw_random_hex() {
+        local bytes="${1:-4}"
+        openssl rand -hex "$bytes" 2>/dev/null || printf '%s' "$(date +%s)$$"
+    }
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    if declare -f maw_ensure_command >/dev/null 2>&1; then
+        maw_ensure_command jq jq || {
+            echo "[ERROR] Missing dependency: jq. Auto-install failed; install jq or set up a package manager." >&2
+            exit 1
+        }
+    else
+        echo "[ERROR] Missing dependency: jq" >&2
+        exit 1
+    fi
+fi
 
 # 預設值
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
@@ -44,7 +69,13 @@ log_error() {
 
 generate_id() {
     local prefix="${1:-wf}"
-    echo "${prefix}_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 4)"
+    local suffix
+    if declare -f maw_random_hex >/dev/null 2>&1; then
+        suffix="$(maw_random_hex 4)"
+    else
+        suffix="$(openssl rand -hex 4 2>/dev/null || printf '%s' "$(date +%s)$$")"
+    fi
+    echo "${prefix}_$(date +%Y%m%d_%H%M%S)_${suffix}"
 }
 
 #######################################
@@ -163,9 +194,13 @@ register_agent() {
 send_message() {
     local to="${1}"
     local msg_type="${2}"
-    local payload="${3:-{}}"
+    local payload="${3:-}"
     local workflow_id="${4:-}"
     local from="${5:-orchestrator}"
+
+    if [ -z "$payload" ]; then
+        payload="{}"
+    fi
 
     # 確定 workflow
     if [ -z "$workflow_id" ] && [ -f "${WORKFLOW_BASE}/current.json" ]; then
@@ -176,7 +211,7 @@ send_message() {
 
     # 生成訊息 ID
     local msg_id=$(generate_id 'msg')
-    local timestamp=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
+    local timestamp=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
     # 判斷是否需要 ACK
     local requires_ack="false"
@@ -219,7 +254,7 @@ send_message() {
 
     # 記錄事件
     local event=$(jq -n \
-        --arg id "evt_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 3)" \
+        --arg id "evt_$(date +%Y%m%d_%H%M%S)_$(maw_random_hex 3)" \
         --arg ts "$timestamp" \
         --arg wf "$workflow_id" \
         --arg msg_id "$msg_id" \
@@ -295,7 +330,7 @@ send_ack() {
 
     local workflow_dir="${WORKFLOW_BASE}/${workflow_id}"
     local ack_file="${workflow_dir}/channel/agents/${agent_id}.ack"
-    local timestamp=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
+    local timestamp=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
     local ack=$(jq -n \
         --arg msg_id "$msg_id" \
