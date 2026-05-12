@@ -7,7 +7,7 @@ move behind this interface incrementally.
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 from .models import StageID
 
@@ -109,3 +109,25 @@ def get_stage_artifact_manifest(stage_id: StageID) -> StageArtifactManifest:
 def list_stage_artifact_manifests() -> list[StageArtifactManifest]:
     """Return all stage artifact manifests in declaration order."""
     return list(_STAGE_ARTIFACTS.values())
+
+
+def get_checkpoint_patterns() -> list[str]:
+    """Return file patterns that mark a workflow stage checkpoint."""
+    return [
+        f"**/{manifest.primary_output}"
+        for manifest in list_stage_artifact_manifests()
+    ]
+
+
+def get_checkpoint_stage_map() -> dict[str, StageID]:
+    """Return checkpoint filename to stage mapping."""
+    return {
+        manifest.primary_output: manifest.stage_id
+        for manifest in list_stage_artifact_manifests()
+    }
+
+
+def detect_stage_from_checkpoint(checkpoint_file: str | Path) -> Optional[StageID]:
+    """Infer the workflow stage from a checkpoint artifact path."""
+    file_name = Path(checkpoint_file).name.lower()
+    return get_checkpoint_stage_map().get(file_name)

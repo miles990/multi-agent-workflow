@@ -1,6 +1,11 @@
 from pathlib import Path
 
+import yaml
+
 from cli.config.artifacts import (
+    detect_stage_from_checkpoint,
+    get_checkpoint_patterns,
+    get_checkpoint_stage_map,
     get_stage_artifact_manifest,
     list_stage_artifact_manifests,
 )
@@ -52,3 +57,52 @@ def test_tasks_manifest_keeps_synthesis_markdown_separate_from_yaml_output() -> 
 
     assert manifest.primary_output == "tasks.yaml"
     assert manifest.synthesis_markdown == "synthesis.md"
+
+
+def test_checkpoint_patterns_are_derived_from_primary_outputs() -> None:
+    assert get_checkpoint_patterns() == [
+        f"**/{manifest.primary_output}"
+        for manifest in list_stage_artifact_manifests()
+    ]
+
+
+def test_checkpoint_stage_detection_uses_manifest_outputs() -> None:
+    assert get_checkpoint_stage_map() == {
+        manifest.primary_output: manifest.stage_id
+        for manifest in list_stage_artifact_manifests()
+    }
+
+    for manifest in list_stage_artifact_manifests():
+        path = f".claude/memory/workflows/demo/stages/{manifest.stage_id.value.lower()}/{manifest.primary_output}"
+        assert detect_stage_from_checkpoint(path) == manifest.stage_id
+
+    assert detect_stage_from_checkpoint("unknown.md") is None
+
+
+def test_post_write_hook_uses_manifest_checkpoint_patterns() -> None:
+    from scripts.hooks import post_write
+
+    assert post_write.CHECKPOINT_PATTERNS == get_checkpoint_patterns()
+
+    for pattern in get_checkpoint_patterns():
+        filename = pattern.removeprefix("**/")
+        assert post_write._is_checkpoint_file(f".claude/memory/demo/{filename}")
+
+
+def test_workflow_commit_facade_detects_manifest_checkpoints() -> None:
+    from scripts.git_lib.facade import WorkflowCommitFacade
+
+    facade = WorkflowCommitFacade(Path.cwd())
+
+    for manifest in list_stage_artifact_manifests():
+        assert (
+            facade._detect_stage_from_checkpoint(manifest.primary_output)
+            == manifest.stage_id.value.lower()
+        )
+
+
+def test_commit_settings_checkpoint_patterns_match_manifest() -> None:
+    config_path = Path("shared/config/commit-settings.yaml")
+    config = yaml.safe_load(config_path.read_text())
+
+    assert config["checkpoint_commit"]["patterns"] == get_checkpoint_patterns()

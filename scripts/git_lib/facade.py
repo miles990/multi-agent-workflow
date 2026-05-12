@@ -9,6 +9,7 @@ Hooks 只需要使用 WorkflowCommitFacade 即可完成所有 Git 操作。
 from pathlib import Path
 from typing import Optional
 
+from cli.config.artifacts import detect_stage_from_checkpoint
 from .commit import CommitManager
 from .config import ConfigManager
 from .context import WorkflowContext
@@ -159,15 +160,5 @@ class WorkflowCommitFacade:
         Returns:
             階段名稱
         """
-        file_name = Path(checkpoint_file).name.lower()
-
-        stage_map = {
-            "synthesis.md": "research",
-            "implementation-plan.md": "plan",
-            "tasks.yaml": "tasks",
-            "summary.md": "implement",
-            "review-summary.md": "review",
-            "verify-summary.md": "verify",
-        }
-
-        return stage_map.get(file_name, "workflow")
+        stage_id = detect_stage_from_checkpoint(checkpoint_file)
+        return stage_id.value.lower() if stage_id else "workflow"
