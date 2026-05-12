@@ -78,8 +78,7 @@ common CT, quality, metrics, coordination, template, and hook assets.
 ```
 
 Use the plugin install when you specifically need Claude Code plugin packaging:
-plugin cache sync, marketplace metadata, `/plugin-dev`, and release/version
-tooling.
+plugin cache sync, marketplace metadata, and release/version tooling.
 
 ## Available Skills
 
@@ -92,7 +91,6 @@ tooling.
 | **review** | `/multi-review` | 多視角程式碼審查 | ✅ Ready |
 | **verify** | `/multi-verify` | 多視角驗證測試 | ✅ Ready |
 | **orchestrate** | `/orchestrate` | 端到端編排 | ✅ Ready |
-| **plugin-dev** | `/plugin-dev` | Plugin 開發工作流 | ✅ Ready |
 
 ## Quick Start
 
@@ -493,6 +491,8 @@ Repo-level `shared/`、`templates/`、`scripts/hooks/` 是 source of truth。修
 
 ## For Plugin Developers
 
+The user-facing `/plugin-dev` skill has been removed. Plugin maintenance remains available through the underlying Python CLI and shell scripts.
+
 ### Development Setup
 
 ```bash
@@ -500,87 +500,46 @@ Repo-level `shared/`、`templates/`、`scripts/hooks/` 是 source of truth。修
 git clone https://github.com/miles990/multi-agent-workflow.git
 cd multi-agent-workflow
 
-# Start development mode (hot-reload)
-/plugin-dev watch
-# Or: ./scripts/plugin/dev-watch.sh
-```
+# Validate plugin structure
+./scripts/plugin/validate-plugin.sh
 
-### Development Workflow (using /plugin-dev Skill)
-
-```bash
-# 1. Sync to Claude Code cache
-/plugin-dev sync
-
-# 2. Validate structure
-/plugin-dev validate
-
-# 3. Check status
-/plugin-dev status
-
-# 4. Start watch mode (auto-sync on file changes)
-/plugin-dev watch
-```
-
-### Release Workflow
-
-```bash
-# 1. Dry-run to preview
-/plugin-dev release patch --dry-run
-
-# 2. Release
-/plugin-dev release patch   # Bug fixes
-/plugin-dev release minor   # New features
-/plugin-dev release major   # Breaking changes
-
-# 3. Resume from interruption
-/plugin-dev release --resume
-```
-
-### Version Management
-
-```bash
-# Show current version
-/plugin-dev version
-
-# Bump version
-/plugin-dev version bump patch
-
-# Check consistency
-/plugin-dev version check
-```
-
-### Shell Scripts (Fallback)
-
-```bash
-# Sync
+# Sync to Claude Code cache when testing plugin packaging
 ./scripts/plugin/sync-to-cache.sh
 
-# Watch
+# Optional hot-reload workflow
 ./scripts/plugin/dev-watch.sh
+```
 
-# Release
+### Python CLI
+
+```bash
+python -m cli.plugin validate
+python -m cli.plugin sync
+python -m cli.plugin status
+python -m cli.plugin version check
+python -m cli.plugin release patch --dry-run
+```
+
+### Shell Scripts
+
+```bash
+./scripts/plugin/sync-to-cache.sh
+./scripts/plugin/dev-watch.sh
+./scripts/plugin/validate-plugin.sh
+./scripts/plugin/bump-version.sh patch
 ./scripts/plugin/publish.sh patch
 ```
 
 ### Testing
 
 ```bash
-# Run all plugin tests
 python -m pytest tests/plugin/ -v
-
-# With coverage
 python -m pytest tests/plugin/ --cov=cli/plugin
 ```
 
 ### Project Structure
 
 ```
-skills/plugin-dev/    # /plugin-dev Skill
-├── SKILL.md          # Main definition
-├── 00-quickstart/    # Quick start guide
-├── 01-commands/      # Command documentation
-└── config/           # Command config
-
 cli/plugin/           # Python CLI modules
 ├── __main__.py       # CLI entry point
 ├── cache.py          # CacheManager
@@ -601,7 +560,7 @@ shared/plugin/        # Configuration
 ├── cache-policy.yaml
 └── version-strategy.yaml
 
-tests/plugin/         # Tests (73 tests)
+tests/plugin/         # Plugin tooling tests
 ```
 
 ## Core Design Principles
@@ -614,7 +573,7 @@ tests/plugin/         # Tests (73 tests)
 | **Git Worktree Isolation** | main 穩定，feature 在隔離分支開發 |
 | **Memory Integration** | 與 evolve Checkpoint 對應 |
 | **Shared Modules** | shared/ 避免重複程式碼 |
-| **Unified Entry** | 單一 plugin，7 個 skill |
+| **Unified Entry** | 單一 plugin，12 個 user-facing skills |
 | **Standard Structure** | 所有 Skill 遵循統一結構規範 |
 
 ## Related Projects
@@ -624,12 +583,10 @@ tests/plugin/         # Tests (73 tests)
 ## Changelog
 
 ### v2.5.0 (2026-02-01)
-- **plugin-dev Skill**
-  - 新增 `/plugin-dev` Skill：統一的 Plugin 開發工作流入口
-  - 命令：sync, watch, validate, status, version, release
-  - 統一 CLI 入口：`python -m cli.plugin <command>`
-  - Skill + Python CLI 雙層架構（可測試、可 fallback）
-  - Dogfooding：用 plugin-dev 開發 plugin-dev
+- **Plugin tooling CLI**
+  - 新增 `python -m cli.plugin <command>`：sync, watch, validate, status, version, release
+  - 保留 shell fallback scripts
+  - `/plugin-dev` skill 已移除，plugin tooling 改為 maintainer-only CLI/scripts
 
 ### v2.4.0 (2026-02-01)
 - **Plugin 開發工作流系統**
