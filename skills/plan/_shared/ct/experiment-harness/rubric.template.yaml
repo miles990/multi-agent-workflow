@@ -1,0 +1,27 @@
+rubric:
+  metrics:
+    drift_event_count:
+      weight: 0.25
+      lower_is_better: true
+    unsupported_claim_rate:
+      weight: 0.20
+      lower_is_better: true
+    evidence_coverage:
+      weight: 0.20
+      lower_is_better: false
+    hypothesis_testability_score:
+      weight: 0.15
+      lower_is_better: false
+    artifact_completeness_score:
+      weight: 0.10
+      lower_is_better: false
+    repeated_failure_count:
+      weight: 0.10
+      lower_is_better: true
+
+  pass_criteria:
+    evidence_coverage: ">= 0.8"
+    hypothesis_testability_score: ">= 0.7"
+    artifact_completeness_score: ">= 0.8"
+    unsupported_claim_rate: "<= 0.15"
+

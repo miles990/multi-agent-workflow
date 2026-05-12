@@ -1,0 +1,17 @@
+experiment:
+  id: ct-drift-benchmark
+  repetitions: 3
+  conditions:
+    - no_ct
+    - ct_lite
+    - ct_strict
+    - ct_experiment
+    - ct_experiment_closed_loop
+  output_dir: ".claude/memory/research/{topic-id}/experiments/ct-drift-benchmark"
+  result_file: "results.jsonl"
+
+execution:
+  mode: semi_automated
+  same_prompt_across_conditions: true
+  require_artifact_contract: true
+

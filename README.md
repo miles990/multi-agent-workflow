@@ -133,6 +133,19 @@ plugin cache sync, marketplace metadata, and release/version tooling.
 
 研究完成後會執行 CT 閉環檢查，產生 `ct-retrospective.md`；若發現 mode 選錯、artifact 缺漏、gate 誤判或 workflow tool failure，會再產生 `self-upgrade-proposal.md`。若 automation level 為 L3/L4 且驗證計畫可執行，流程可自主套用改善並輸出 `upgrade-decision.yaml` / `upgrade-report.md`；L5 架構級變更只提出 proposal。最後會輸出 `closed-loop-summary.md`，收斂研究結論、升級決策與驗證結果。
 
+CT-experiment 還必須產生可重跑的實驗 harness：
+
+```text
+.claude/memory/research/{topic-id}/experiments/{topic-id}/
+├── cases.yaml
+├── run-config.yaml
+├── rubric.yaml
+├── results.jsonl
+└── analysis.md
+```
+
+內建 scorer 位於 `_shared/ct/experiment-harness/score-run.py`，用來把研究 artifact 轉成可比較的分數。
+
 ### Plan
 
 ```bash

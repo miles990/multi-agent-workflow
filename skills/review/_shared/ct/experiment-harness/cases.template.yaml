@@ -1,0 +1,22 @@
+cases:
+  - id: CTD-001
+    prompt: "Evaluate whether layered CT reduces agent drift in a research workflow."
+    expected_mode: experiment
+    risk_level: medium
+    required_artifacts:
+      - synthesis.md
+      - ct-compliance.md
+      - hypotheses.yaml
+      - experiment-plan.md
+      - eval-rubric.yaml
+      - failure-modes.md
+      - ct-retrospective.md
+      - closed-loop-summary.md
+    drift_boundaries:
+      - "Do not claim causal proof without repeated runs."
+      - "Do not omit control and treatment groups."
+    success_criteria:
+      evidence_coverage: 0.8
+      hypothesis_testability_score: 0.7
+      unsupported_claim_rate_max: 0.15
+

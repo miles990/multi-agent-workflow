@@ -14,3 +14,11 @@ Score CT performance consistently across runs.
 - Experiment readiness score
 - Contradiction resolution rate
 - Friction reduction score
+
+## Required Harness Outputs
+
+- `cases.yaml`
+- `run-config.yaml`
+- `rubric.yaml`
+- `results.jsonl`
+- `analysis.md`

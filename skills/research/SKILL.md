@@ -39,7 +39,7 @@ model: sonnet
 | `off` | 使用者明確 `--no-ct` 或 `--ct off` | 無 |
 | `lite` | 預設；一般研究、比較、方向整理 | evidence / uncertainty / drift guard |
 | `strict` | 架構、風險、產品、技術決策、agent/memory/tool policy | `ct-stack.yaml`、`ct-compliance.md`、`risk-policy.yaml` |
-| `experiment` | 論文、實驗、benchmark、evaluation、hypothesis、可重複驗證 | strict 產物 + `hypotheses.yaml`、`experiment-plan.md`、`eval-rubric.yaml`、`failure-modes.md` |
+| `experiment` | 論文、實驗、benchmark、evaluation、hypothesis、可重複驗證 | strict 產物 + `hypotheses.yaml`、`experiment-plan.md`、`eval-rubric.yaml`、`failure-modes.md`、`experiments/{topic-id}/` harness |
 
 所有 CT 模式在輸出驗證後都會執行閉環檢查，產生 `ct-retrospective.md`；若發現可回寫改善，產生 `self-upgrade-proposal.md`。
 若 proposal 的 automation level 為 L3/L4 且可驗證，流程可進一步自主套用改善並產生 `upgrade-decision.yaml` / `upgrade-report.md`。最後必須收斂成 `closed-loop-summary.md`，讓使用者直接看到研究結論、mode 判斷、升級決策與驗證結果。
@@ -117,14 +117,21 @@ Phase 8: Self-Upgrade Proposal（必要時）
     ├── 產生 self-upgrade-proposal.md
     └── runtime 變更需附驗證命令與 rollback plan
     ↓
-Phase 9: Autonomous Upgrade（安全邊界內）
+Phase 9: Experiment Harness（CT-experiment 必須）
+    ├── 產生 experiments/{topic-id}/cases.yaml
+    ├── 產生 run-config.yaml / rubric.yaml
+    ├── 至少對本次 condition 跑 score-run.py
+    ├── 產生 results.jsonl
+    └── 產生 analysis.md
+    ↓
+Phase 10: Autonomous Upgrade（安全邊界內）
     ├── L1/L2: 只記錄 / 只提案，不修改
     ├── L3: 可修改 docs、templates、CT examples
     ├── L4: 可修改 router、gates、scripts、validators，但必須跑 focused smoke test
     ├── L5: 停止並要求人工批准
     └── 寫入 upgrade-decision.yaml；有 patch 時寫入 upgrade-report.md
     ↓
-Phase 10: Closed-Loop Summary（成果收斂）
+Phase 11: Closed-Loop Summary（成果收斂）
     ├── 彙整 research conclusion、CT mode review、upgrade decision
     ├── 彙整 quality gates / DAG / status / action log 驗證結果
     └── 寫入 closed-loop-summary.md
@@ -154,6 +161,7 @@ CP4: Task Commit ✅ 自動執行
 - ✅ CT-lite 以上需標記 evidence / uncertainty / drift guard
 - ✅ CT-strict 以上不得有 HIGH CT 違規
 - ✅ CT-experiment 需產出可測假設與實驗設計
+- ✅ CT-experiment 需產出 experiment harness 並至少跑一次 scorer
 
 → 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
@@ -186,6 +194,13 @@ CP4: Task Commit ✅ 自動執行
 ├── upgrade-decision.yaml # 自主升級決策
 ├── upgrade-report.md    # 有實際 patch 時產出
 ├── closed-loop-summary.md # 最終收斂成果報告
+├── experiments/
+│   └── {topic-id}/
+│       ├── cases.yaml
+│       ├── run-config.yaml
+│       ├── rubric.yaml
+│       ├── results.jsonl
+│       └── analysis.md
 ├── perspectives/       # 完整視角報告（MAP 產出，保留）
 │   ├── architecture.md
 │   ├── cognitive.md
@@ -268,6 +283,8 @@ cat .claude/workflow/{workflow-id}/current.json | jq .
 | [02-ct-mode/strict.md](02-ct-mode/strict.md) | CT-strict envelope |
 | [02-ct-mode/experiment.md](02-ct-mode/experiment.md) | CT-experiment envelope |
 | [02-ct-mode/compliance.md](02-ct-mode/compliance.md) | CT compliance rules |
+| [02-ct-mode/experiment-design.md](02-ct-mode/experiment-design.md) | 可驗證實驗設計 |
+| [ct/experiment-harness/README.md](_shared/ct/experiment-harness/README.md) | 可重跑 experiment harness |
 | [02-ct-mode/retrospective.md](02-ct-mode/retrospective.md) | CT 閉環檢查 |
 | [02-ct-mode/self-upgrade-proposal.md](02-ct-mode/self-upgrade-proposal.md) | 自我改善提案 |
 | [02-ct-mode/autonomous-upgrade.md](02-ct-mode/autonomous-upgrade.md) | 自主升級決策與執行 |
