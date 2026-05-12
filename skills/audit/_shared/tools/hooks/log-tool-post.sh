@@ -94,7 +94,7 @@ if [ -f "$TMP_FILE" ]; then
 fi
 
 # 構建事件記錄
-EVENT=$(jq -n \
+EVENT=$(jq -c -n \
     --arg id "$EVENT_ID" \
     --arg ts "$TIMESTAMP" \
     --arg session "$SESSION_ID" \
@@ -130,7 +130,7 @@ echo "$EVENT" >> "$LOG_FILE"
 if [ "$STATUS" = "failed" ]; then
     ERROR_FILE="${ERROR_DIR}/errors.jsonl"
     mkdir -p "$ERROR_DIR"
-    ERROR=$(jq -n \
+    ERROR=$(jq -c -n \
         --arg id "err_$(date +%Y%m%d_%H%M%S)_$(maw_random_hex 3)" \
         --arg ts "$TIMESTAMP" \
         --arg workflow "$WORKFLOW_ID" \

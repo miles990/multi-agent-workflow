@@ -61,11 +61,11 @@ RECOMMENDED_TOTAL=0
 check_mandatory() {
   local description=$1
   local condition=$2
-  ((MANDATORY_TOTAL++))
+  MANDATORY_TOTAL=$((MANDATORY_TOTAL + 1))
 
   if eval "$condition"; then
     log_success "[必要] $description"
-    ((MANDATORY_PASSED++))
+    MANDATORY_PASSED=$((MANDATORY_PASSED + 1))
     return 0
   else
     log_error "[必要] $description"
@@ -76,13 +76,26 @@ check_mandatory() {
 check_recommended() {
   local description=$1
   local condition=$2
-  ((RECOMMENDED_TOTAL++))
+  RECOMMENDED_TOTAL=$((RECOMMENDED_TOTAL + 1))
 
   if eval "$condition"; then
     log_success "[建議] $description"
-    ((RECOMMENDED_PASSED++))
+    RECOMMENDED_PASSED=$((RECOMMENDED_PASSED + 1))
   else
     log_warning "[建議] $description"
+  fi
+}
+
+grep_count() {
+  local pattern=$1
+  local file=$2
+  local count
+
+  count=$(grep -c "$pattern" "$file" 2>/dev/null || true)
+  if [[ "$count" =~ ^[0-9]+$ ]]; then
+    echo "$count"
+  else
+    echo 0
   fi
 }
 
@@ -98,13 +111,13 @@ case $STAGE in
 
     # 檢查共識點數量
     if [[ -f "$OUTPUT_DIR/synthesis.md" ]]; then
-      CONSENSUS_COUNT=$(grep -c "共識\|consensus\|agree" "$OUTPUT_DIR/synthesis.md" 2>/dev/null || echo 0)
+      CONSENSUS_COUNT=$(grep_count "共識\|consensus\|agree" "$OUTPUT_DIR/synthesis.md")
       check_mandatory "至少 2 點共識 (當前: $CONSENSUS_COUNT)" "[[ $CONSENSUS_COUNT -ge 2 ]]" || true
     fi
 
     # 檢查無關鍵矛盾
     if [[ -f "$OUTPUT_DIR/synthesis.md" ]]; then
-      CONFLICTS=$(grep -c "CRITICAL\|BLOCKER\|critical_conflict" "$OUTPUT_DIR/synthesis.md" 2>/dev/null || echo 0)
+      CONFLICTS=$(grep_count "CRITICAL\|BLOCKER\|critical_conflict" "$OUTPUT_DIR/synthesis.md")
       check_mandatory "無關鍵矛盾 (當前: $CONFLICTS)" "[[ $CONFLICTS -eq 0 ]]" || true
     fi
 
@@ -178,10 +191,10 @@ case $STAGE in
     echo "───────────────────────"
 
     if [[ -f "$OUTPUT_DIR/review-summary.md" ]]; then
-      BLOCKERS=$(grep -c "BLOCKER" "$OUTPUT_DIR/review-summary.md" 2>/dev/null || echo 0)
+      BLOCKERS=$(grep_count "BLOCKER" "$OUTPUT_DIR/review-summary.md")
       check_mandatory "無 BLOCKER ($BLOCKERS 個)" "[[ $BLOCKERS -eq 0 ]]" || true
 
-      HIGH_ISSUES=$(grep -c "HIGH" "$OUTPUT_DIR/review-summary.md" 2>/dev/null || echo 0)
+      HIGH_ISSUES=$(grep_count "HIGH" "$OUTPUT_DIR/review-summary.md")
       check_mandatory "HIGH 問題 <= 2 ($HIGH_ISSUES 個)" "[[ $HIGH_ISSUES -le 2 ]]" || true
     else
       check_mandatory "審查報告存在" "false" || true

@@ -84,7 +84,7 @@ if [ $INPUT_LENGTH -gt 1000 ]; then
 fi
 
 # 構建事件記錄
-EVENT=$(jq -n \
+EVENT=$(jq -c -n \
     --arg id "$EVENT_ID" \
     --arg ts "$TIMESTAMP" \
     --arg session "$SESSION_ID" \

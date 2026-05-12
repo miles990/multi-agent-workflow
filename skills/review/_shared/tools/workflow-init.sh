@@ -78,6 +78,33 @@ generate_id() {
     echo "${prefix}_$(date +%Y%m%d_%H%M%S)_${suffix}"
 }
 
+timestamp_to_epoch() {
+    local timestamp="${1}"
+    local normalized="${timestamp%.*}Z"
+
+    if command -v python3 >/dev/null 2>&1; then
+        python3 - "$timestamp" <<'PY' 2>/dev/null && return 0
+import sys
+from datetime import datetime, timezone
+
+raw = sys.argv[1]
+if raw.endswith('Z'):
+    raw = raw[:-1] + '+00:00'
+try:
+    value = datetime.fromisoformat(raw)
+except ValueError:
+    value = datetime.fromisoformat(raw.split('.')[0] + '+00:00')
+if value.tzinfo is None:
+    value = value.replace(tzinfo=timezone.utc)
+print(int(value.timestamp()))
+PY
+    fi
+
+    date -u -j -f "%Y-%m-%dT%H:%M:%SZ" "$normalized" +%s 2>/dev/null && return 0
+    date -u -d "$timestamp" +%s 2>/dev/null && return 0
+    echo 0
+}
+
 #######################################
 # 初始化 Workflow 目錄結構
 #######################################
@@ -222,7 +249,7 @@ send_message() {
     esac
 
     # 構建訊息
-    local message=$(jq -n \
+    local message=$(jq -c -n \
         --arg id "$msg_id" \
         --arg ts "$timestamp" \
         --arg from "$from" \
@@ -253,7 +280,7 @@ send_message() {
     echo "$message" >> "$target_file"
 
     # 記錄事件
-    local event=$(jq -n \
+    local event=$(jq -c -n \
         --arg id "evt_$(date +%Y%m%d_%H%M%S)_$(maw_random_hex 3)" \
         --arg ts "$timestamp" \
         --arg wf "$workflow_id" \
@@ -332,7 +359,7 @@ send_ack() {
     local ack_file="${workflow_dir}/channel/agents/${agent_id}.ack"
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
-    local ack=$(jq -n \
+    local ack=$(jq -c -n \
         --arg msg_id "$msg_id" \
         --arg status "$status" \
         --arg ts "$timestamp" \
@@ -396,7 +423,7 @@ check_agents_health() {
 
         if [ -f "$heartbeat_file" ]; then
             local last_heartbeat=$(cat "$heartbeat_file")
-            local heartbeat_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%S" "${last_heartbeat%.*}" +%s 2>/dev/null || echo 0)
+            local heartbeat_epoch=$(timestamp_to_epoch "$last_heartbeat")
             local diff=$((now - heartbeat_epoch))
 
             if [ $diff -gt $timeout_seconds ]; then

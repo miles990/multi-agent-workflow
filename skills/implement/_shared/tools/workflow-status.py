@@ -204,6 +204,29 @@ def load_tasks(wf_dir: Path) -> List[Dict]:
         return []
 
 
+def load_workflow_tasks(workflow: Dict[str, Any], memory_path: str) -> List[Dict]:
+    """Load tasks from the workflow dir or the cross-stage tasks memory dir."""
+    tasks = load_tasks(Path(workflow['path']))
+    if tasks:
+        return tasks
+
+    memory_dir = Path(memory_path)
+    candidate_ids = [
+        workflow.get('id'),
+        workflow.get('meta', {}).get('id'),
+    ]
+
+    for candidate_id in candidate_ids:
+        if not candidate_id:
+            continue
+        task_dir = memory_dir / 'tasks' / str(candidate_id)
+        tasks = load_tasks(task_dir)
+        if tasks:
+            return tasks
+
+    return []
+
+
 def find_active_workflow(memory_path: str) -> Optional[Dict[str, Any]]:
     """找到最近的活動工作流"""
     workflows = find_workflows(memory_path)
@@ -1013,7 +1036,7 @@ def main():
             sys.exit(1)
 
     # 載入任務
-    tasks = load_tasks(Path(workflow['path']))
+    tasks = load_workflow_tasks(workflow, args.memory_path)
 
     # 只顯示 DAG
     if args.dag:
