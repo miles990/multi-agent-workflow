@@ -1,0 +1,11 @@
+upgrade_decision:
+  proposal:
+  automation_level:
+  decision:
+  reason:
+  target_files: []
+  verification:
+    commands: []
+    result:
+  rollback_plan:
+

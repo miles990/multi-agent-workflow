@@ -10,6 +10,8 @@ material.
 - CT compliance report
 - Quality gate results
 - Experiment plan
+- CT retrospective
+- Workflow logs and tool failures
 
 ## Failure Mode Format
 
@@ -33,3 +35,10 @@ Write `failure-modes.md` with:
 - Root causes
 - Regression prompts or evaluation cases
 - Prevention rules to add to future CT stacks
+- Workflow failures that should become regression cases
+
+## Closed-Loop Use
+
+After verification, feed `ct-retrospective.md` back into failure mining. Any
+workflow failure that affected quality, observability, or reproducibility should
+be recorded as a regression case before proposing changes.

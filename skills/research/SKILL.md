@@ -41,6 +41,9 @@ model: sonnet
 | `strict` | 架構、風險、產品、技術決策、agent/memory/tool policy | `ct-stack.yaml`、`ct-compliance.md`、`risk-policy.yaml` |
 | `experiment` | 論文、實驗、benchmark、evaluation、hypothesis、可重複驗證 | strict 產物 + `hypotheses.yaml`、`experiment-plan.md`、`eval-rubric.yaml`、`failure-modes.md` |
 
+所有 CT 模式在輸出驗證後都會執行閉環檢查，產生 `ct-retrospective.md`；若發現可回寫改善，產生 `self-upgrade-proposal.md`。
+若 proposal 的 automation level 為 L3/L4 且可驗證，流程可進一步自主套用改善並產生 `upgrade-decision.yaml` / `upgrade-report.md`。最後必須收斂成 `closed-loop-summary.md`，讓使用者直接看到研究結論、mode 判斷、升級決策與驗證結果。
+
 自動規則：
 - 預設為 `lite`。
 - `--deep` 會把最低模式升到 `strict`。
@@ -103,6 +106,29 @@ Phase 5: REDUCE（交叉驗證 + CT compliance + 匯總）
     ↓
 Phase 6: Memory 存檔 → 品質閘門檢查 → 存儲報告
     ↓
+Phase 7: CT Retrospective（吃自己的狗食）
+    ├── 檢查 selected_mode 是否正確
+    ├── 比對 expected artifacts vs actual outputs
+    ├── 挖掘 workflow failures / false positives / false negatives
+    └── 寫入 ct-retrospective.md
+    ↓
+Phase 8: Self-Upgrade Proposal（必要時）
+    ├── 若 mode 選錯、artifact 缺漏、gate 誤判、工具解析失敗
+    ├── 產生 self-upgrade-proposal.md
+    └── runtime 變更需附驗證命令與 rollback plan
+    ↓
+Phase 9: Autonomous Upgrade（安全邊界內）
+    ├── L1/L2: 只記錄 / 只提案，不修改
+    ├── L3: 可修改 docs、templates、CT examples
+    ├── L4: 可修改 router、gates、scripts、validators，但必須跑 focused smoke test
+    ├── L5: 停止並要求人工批准
+    └── 寫入 upgrade-decision.yaml；有 patch 時寫入 upgrade-report.md
+    ↓
+Phase 10: Closed-Loop Summary（成果收斂）
+    ├── 彙整 research conclusion、CT mode review、upgrade decision
+    ├── 彙整 quality gates / DAG / status / action log 驗證結果
+    └── 寫入 closed-loop-summary.md
+    ↓
 CP4: Task Commit ✅ 自動執行
     [寫入 .claude/memory/ 時自動 git commit]
 ```
@@ -155,6 +181,11 @@ CP4: Task Commit ✅ 自動執行
 ├── experiment-plan.md  # CT-experiment 產出
 ├── eval-rubric.yaml    # CT-experiment 產出
 ├── failure-modes.md    # CT-experiment 產出
+├── ct-retrospective.md # CT 閉環產出
+├── self-upgrade-proposal.md # 有改善建議時產出
+├── upgrade-decision.yaml # 自主升級決策
+├── upgrade-report.md    # 有實際 patch 時產出
+├── closed-loop-summary.md # 最終收斂成果報告
 ├── perspectives/       # 完整視角報告（MAP 產出，保留）
 │   ├── architecture.md
 │   ├── cognitive.md
@@ -237,6 +268,13 @@ cat .claude/workflow/{workflow-id}/current.json | jq .
 | [02-ct-mode/strict.md](02-ct-mode/strict.md) | CT-strict envelope |
 | [02-ct-mode/experiment.md](02-ct-mode/experiment.md) | CT-experiment envelope |
 | [02-ct-mode/compliance.md](02-ct-mode/compliance.md) | CT compliance rules |
+| [02-ct-mode/retrospective.md](02-ct-mode/retrospective.md) | CT 閉環檢查 |
+| [02-ct-mode/self-upgrade-proposal.md](02-ct-mode/self-upgrade-proposal.md) | 自我改善提案 |
+| [02-ct-mode/autonomous-upgrade.md](02-ct-mode/autonomous-upgrade.md) | 自主升級決策與執行 |
+| [02-ct-mode/closed-loop-summary.md](02-ct-mode/closed-loop-summary.md) | 閉環成果收斂報告 |
+| [ct/retrospective.md](_shared/ct/retrospective.md) | 共用 CT retrospective 規範 |
+| [ct/autonomous-upgrade.md](_shared/ct/autonomous-upgrade.md) | 共用自主升級規範 |
+| [ct/self-upgrade-policy.yaml](_shared/ct/self-upgrade-policy.yaml) | 自動化等級與安全規則 |
 | [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
 | [coordination/reduce-phase.md](_shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
 | [synthesis/cross-validation.md](_shared/synthesis/cross-validation.md) | 交叉驗證 |

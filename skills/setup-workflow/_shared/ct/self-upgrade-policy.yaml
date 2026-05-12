@@ -1,0 +1,60 @@
+automation_levels:
+  L1:
+    name: record_only
+    allowed:
+      - "write ct-retrospective.md"
+      - "write failure-modes.md"
+    requires_tests: false
+    requires_human_approval: false
+
+  L2:
+    name: proposal_only
+    allowed:
+      - "write self-upgrade-proposal.md"
+      - "link evidence from logs and gates"
+    requires_tests: false
+    requires_human_approval: false
+
+  L3:
+    name: low_risk_docs_rules
+    allowed:
+      - "update markdown guidance"
+      - "update CT templates"
+      - "add regression prompt examples"
+      - "adjust non-runtime scoring notes"
+    requires_tests: true
+    requires_human_approval: false
+
+  L4:
+    name: runtime_behavior
+    allowed:
+      - "update escalation rules"
+      - "update quality gates"
+      - "update workflow scripts"
+      - "update validation tools"
+    requires_tests: true
+    requires_human_approval: false
+    guardrails:
+      - "must include before/after failure evidence"
+      - "must run relevant smoke test"
+      - "must not silently weaken gates"
+
+  L5:
+    name: architecture_change
+    allowed:
+      - "change phase boundaries"
+      - "change memory model"
+      - "change install/distribution model"
+    requires_tests: true
+    requires_human_approval: true
+
+proposal_required_fields:
+  - problem
+  - evidence
+  - proposed_change
+  - target_files
+  - risk_level
+  - automation_level
+  - verification_plan
+  - rollback_plan
+

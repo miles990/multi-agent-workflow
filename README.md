@@ -41,6 +41,7 @@
 - **即時進度顯示**：階段和視角狀態可視化
 - **結構化錯誤處理**：標準化錯誤碼和排除指南
 - **CT Research Layer**：以 Constraint Texture 約束研究、合規檢查、失敗挖掘與實驗設計
+- **CT 閉環自我改善**：驗證後產生 retrospective，必要時輸出 self-upgrade proposal，安全時自主升級
 
 ## Installation
 
@@ -129,6 +130,8 @@ plugin cache sync, marketplace metadata, and release/version tooling.
 ```
 
 `/multi-research` 內建 CT Escalation Router。預設使用 CT-lite；架構、風險、產品或 agent 系統設計會升級到 CT-strict；論文、實驗、benchmark、evaluation、hypothesis 類任務會升級到 CT-experiment。偵測結果會寫入 `meta.yaml` 的 `ct_detection`。
+
+研究完成後會執行 CT 閉環檢查，產生 `ct-retrospective.md`；若發現 mode 選錯、artifact 缺漏、gate 誤判或 workflow tool failure，會再產生 `self-upgrade-proposal.md`。若 automation level 為 L3/L4 且驗證計畫可執行，流程可自主套用改善並輸出 `upgrade-decision.yaml` / `upgrade-report.md`；L5 架構級變更只提出 proposal。最後會輸出 `closed-loop-summary.md`，收斂研究結論、升級決策與驗證結果。
 
 ### Plan
 

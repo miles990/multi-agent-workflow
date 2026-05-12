@@ -130,9 +130,52 @@ End for
     ↓
 Phase 4: 完成
     ├── 生成報告
+    ├── CT 閉環檢查（Self-Dogfood）
+    │   ├── 檢查各階段 ct_detection / quality gate / action log
+    │   ├── 產生 ct-retrospective.md
+    │   ├── 必要時產生 self-upgrade-proposal.md
+    │   └── 安全時執行 autonomous upgrade decision
+    ├── 產生 closed-loop-summary.md 收斂成果
     ├── 更新 Memory
     └── 驗證變更已 commit（見下方 Fallback）
 ```
+
+## CT 閉環（Self-Dogfood）
+
+`/orchestrate` 完成 VERIFY 後必須吃自己的狗食，檢查工作流本身是否需要升級。
+
+輸出位置：
+
+```text
+.claude/memory/workflows/{workflow-id}/ct-retrospective.md
+.claude/memory/workflows/{workflow-id}/self-upgrade-proposal.md  # 有改善建議時
+.claude/memory/workflows/{workflow-id}/upgrade-decision.yaml
+.claude/memory/workflows/{workflow-id}/upgrade-report.md         # 有實際 patch 時
+.claude/memory/workflows/{workflow-id}/closed-loop-summary.md
+```
+
+檢查項目：
+
+- `ct_mode` 是否選對：是否過度升級或低估風險
+- 必要 artifact 是否存在：strict / experiment 的 CT 產物是否齊全
+- quality gates 是否有 false positive / false negative
+- workflow tools 是否失敗：health、status、DAG、metrics、action log
+- failure 是否應回寫為 regression case
+- 最終成果是否已收斂成單一 summary，包含結論、升級決策與驗證結果
+
+自動化等級：
+
+| Level | 行為 |
+|---|---|
+| L1 | 只記錄 `ct-retrospective.md` |
+| L2 | 產生 `self-upgrade-proposal.md` |
+| L3 | 低風險 docs / templates / CT examples 可自動 patch |
+| L4 | router / gates / scripts 可 patch，但必須附測試 |
+| L5 | 架構級變更只提出 proposal，需人工批准 |
+
+→ 規範：[shared/ct/retrospective.md](_shared/ct/retrospective.md)
+→ 自主升級：[shared/ct/autonomous-upgrade.md](_shared/ct/autonomous-upgrade.md)
+→ Policy：[shared/ct/self-upgrade-policy.yaml](_shared/ct/self-upgrade-policy.yaml)
 
 ### Phase 4 Fallback：手動 Commit
 
@@ -271,6 +314,11 @@ failed_stage:
 ├── timeline.md         # 時間線
 ├── decisions.md        # 決策記錄
 ├── quality-report.md   # 品質報告
+├── ct-retrospective.md # CT 閉環檢查
+├── self-upgrade-proposal.md # 必要時產生
+├── upgrade-decision.yaml # 自主升級決策
+├── upgrade-report.md    # 有實際 patch 時產生
+├── closed-loop-summary.md # 最終成果收斂報告
 ├── stages/             # 各階段報告
 ├── agents/             # Agent 記錄
 └── exports/            # 匯出格式
