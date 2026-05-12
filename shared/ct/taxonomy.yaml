@@ -1,0 +1,67 @@
+version: "1.0"
+description: "Constraint Texture taxonomy for research-grade multi-agent workflows"
+
+layers:
+  base:
+    purpose: "Preserve task boundaries, research honesty, and traceability."
+    required_fields: [claim, evidence, uncertainty, next_action]
+    violation_categories:
+      - boundary_drift
+      - unsupported_assertion
+      - missing_uncertainty
+
+  evidence:
+    purpose: "Control evidence quality and citation discipline."
+    evidence_types:
+      primary: "Direct source, experiment output, repository artifact, or observed runtime result."
+      secondary: "Summary, article, prior report, or derived documentation."
+      inference: "Model reasoning without direct source support."
+    violation_categories:
+      - missing_source
+      - weak_source
+      - inference_as_fact
+
+  risk:
+    purpose: "Prevent overconfident recommendations and unresolved conflict collapse."
+    severity_levels: [low, medium, high, blocker]
+    violation_categories:
+      - unresolved_conflict
+      - high_confidence_low_evidence
+      - unsafe_recommendation
+
+  experiment:
+    purpose: "Turn research claims into testable hypotheses and experiments."
+    required_fields: [hypothesis, independent_variable, dependent_variable, control, metric]
+    violation_categories:
+      - untestable_hypothesis
+      - missing_control
+      - missing_metric
+
+  tool:
+    purpose: "Ensure tool use is observable, reproducible, and minimally sufficient."
+    violation_categories:
+      - unverifiable_tool_result
+      - stale_assumption
+      - missing_reproduction_step
+
+  output:
+    purpose: "Keep final outputs structured, auditable, and easy to reduce."
+    required_sections:
+      - claim
+      - evidence
+      - uncertainty
+      - risk
+      - next_action
+    violation_categories:
+      - contract_mismatch
+      - missing_trace
+      - ambiguous_recommendation
+
+  eval:
+    purpose: "Score compliance and failure modes consistently across runs."
+    scoring_dimensions:
+      - constraint_compliance
+      - evidence_coverage
+      - drift_rate
+      - hypothesis_testability
+      - experiment_readiness

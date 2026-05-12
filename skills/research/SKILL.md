@@ -8,9 +8,9 @@ allowed-tools: [Read, Grep, Glob, WebFetch, Write, Bash]
 model: sonnet
 ---
 
-# Multi-Agent Research v3.1.0
+# Multi-Agent Research v3.2.0
 
-> 多視角並行研究 → 交叉驗證 → 智能匯總 → Memory 存檔（自動 commit）
+> CT 模式偵測 → 多視角並行研究 → 交叉驗證 → CT 合規檢查 → 智能匯總 → Memory 存檔（自動 commit）
 
 ## 自動化機制
 
@@ -24,9 +24,32 @@ model: sonnet
 ```bash
 /multi-research [研究主題]
 /multi-research AI Agent 架構設計模式 --deep
+/multi-research --ct experiment "Multi-CT Pipeline 是否能降低 agent drift?"
+/multi-research --no-ct "只要快速草稿"
 ```
 
-**Flags**: `--perspectives N` | `--quick` | `--deep` | `--no-memory`
+**Flags**: `--perspectives N` | `--quick` | `--deep` | `--ct off|lite|strict|experiment` | `--no-ct` | `--no-memory`
+
+## CT 模式（內建）
+
+`/multi-research` 會在開始前執行 CT Escalation Router，自主選擇 CT 模式。
+
+| Mode | 觸發情境 | 額外產物 |
+|------|----------|----------|
+| `off` | 使用者明確 `--no-ct` 或 `--ct off` | 無 |
+| `lite` | 預設；一般研究、比較、方向整理 | evidence / uncertainty / drift guard |
+| `strict` | 架構、風險、產品、技術決策、agent/memory/tool policy | `ct-stack.yaml`、`ct-compliance.md`、`risk-policy.yaml` |
+| `experiment` | 論文、實驗、benchmark、evaluation、hypothesis、可重複驗證 | strict 產物 + `hypotheses.yaml`、`experiment-plan.md`、`eval-rubric.yaml`、`failure-modes.md` |
+
+自動規則：
+- 預設為 `lite`。
+- `--deep` 會把最低模式升到 `strict`。
+- 偵測到論文、實驗、benchmark、evaluation、hypothesis、變因、對照組等需求時升到 `experiment`。
+- 偵測到「快速」「先粗略」「不用太詳細」會降級，除非使用者明確要求 experiment。
+- 使用者 override 永遠優先。
+
+→ Router：[shared/ct/escalation-router.md](../../shared/ct/escalation-router.md)
+→ Rules：[shared/ct/escalation-rules.yaml](../../shared/ct/escalation-rules.yaml)
 
 ## 預設 4 視角
 
@@ -45,13 +68,19 @@ model: sonnet
 CP1: 工作流初始化 ⚡ 手動執行
     python scripts/hooks/init_workflow.py --topic "{topic}" --stage RESEARCH
     ↓
-Phase 0: 北極星錨定 → 定義研究目標、成功標準
+Phase 0: CT Escalation Router → 偵測 ct_mode、理由、信心度
+    ├── 檢查 user override: --ct / --no-ct
+    ├── 依規則計分: lite / strict / experiment
+    ├── 套用 downgrade guard: 快速 / 粗略 / 不用太詳細
+    └── 寫入 meta.yaml: ct_detection
     ↓
-Phase 1: Memory 搜尋 → 避免重複研究
+Phase 1: 北極星錨定 → 定義研究目標、成功標準
     ↓
-Phase 2: 視角分解 → 為每視角生成專屬 prompt
+Phase 2: Memory 搜尋 → 避免重複研究
     ↓
-Phase 3: MAP（並行研究）✅ 自動追蹤
+Phase 3: 視角分解 → 為每視角生成專屬 prompt + CT envelope
+    ↓
+Phase 4: MAP（並行研究）✅ 自動追蹤
     ┌──────────┬──────────┬──────────┬──────────┐
     │架構分析師│認知研究員│工作流設計│業界實踐  │
     └──────────┴──────────┴──────────┴──────────┘
@@ -70,9 +99,9 @@ Phase 3: MAP（並行研究）✅ 自動追蹤
        2. Write → .claude/memory/research/{topic-id}/perspectives/{perspective_id}.md
        未執行 Write = 任務失敗，工作流中止
     ↓
-Phase 4: REDUCE（交叉驗證 + 匯總）
+Phase 5: REDUCE（交叉驗證 + CT compliance + 匯總）
     ↓
-Phase 5: Memory 存檔 → 品質閘門檢查 → 存儲報告
+Phase 6: Memory 存檔 → 品質閘門檢查 → 存儲報告
     ↓
 CP4: Task Commit ✅ 自動執行
     [寫入 .claude/memory/ 時自動 git commit]
@@ -96,6 +125,9 @@ CP4: Task Commit ✅ 自動執行
 - ✅ 至少 2 視角達成共識
 - ✅ 無未解決的關鍵矛盾
 - ✅ 品質分數 ≥ 70
+- ✅ CT-lite 以上需標記 evidence / uncertainty / drift guard
+- ✅ CT-strict 以上不得有 HIGH CT 違規
+- ✅ CT-experiment 需產出可測假設與實驗設計
 
 → 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
 
@@ -115,7 +147,14 @@ CP4: Task Commit ✅ 自動執行
 
 ```
 .claude/memory/research/[topic-id]/
-├── meta.yaml           # 元數據
+├── meta.yaml           # 元數據，包含 ct_detection
+├── ct-stack.yaml       # CT-strict / experiment 產出
+├── ct-compliance.md    # CT-strict / experiment 產出
+├── risk-policy.yaml    # CT-strict / experiment 產出
+├── hypotheses.yaml     # CT-experiment 產出
+├── experiment-plan.md  # CT-experiment 產出
+├── eval-rubric.yaml    # CT-experiment 產出
+├── failure-modes.md    # CT-experiment 產出
 ├── perspectives/       # 完整視角報告（MAP 產出，保留）
 │   ├── architecture.md
 │   ├── cognitive.md
@@ -192,6 +231,12 @@ cat .claude/workflow/{workflow-id}/current.json | jq .
 
 | 模組 | 用途 |
 |------|------|
+| [ct/escalation-router.md](../../shared/ct/escalation-router.md) | CT 模式自動偵測 |
+| [ct/escalation-rules.yaml](../../shared/ct/escalation-rules.yaml) | CT 升級/降級規則 |
+| [02-ct-mode/lite.md](02-ct-mode/lite.md) | CT-lite envelope |
+| [02-ct-mode/strict.md](02-ct-mode/strict.md) | CT-strict envelope |
+| [02-ct-mode/experiment.md](02-ct-mode/experiment.md) | CT-experiment envelope |
+| [02-ct-mode/compliance.md](02-ct-mode/compliance.md) | CT compliance rules |
 | [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
 | [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
 | [synthesis/cross-validation.md](../../shared/synthesis/cross-validation.md) | 交叉驗證 |

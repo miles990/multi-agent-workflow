@@ -40,10 +40,21 @@
 - **報告系統**：單次報告、週報、基準線追蹤
 - **即時進度顯示**：階段和視角狀態可視化
 - **結構化錯誤處理**：標準化錯誤碼和排除指南
+- **CT Research Layer**：以 Constraint Texture 約束研究、合規檢查、失敗挖掘與實驗設計
 
 ## Installation
 
-### Via Plugin Marketplace (Recommended)
+### Via Agent Skills CLI (`npx skills`)
+
+If you use the open Agent Skills installer, install this repository with:
+
+```bash
+npx skills add miles990/multi-agent-workflow
+```
+
+This installs the repository skills. For the complete framework with repo-level `shared/`, `templates/`, hooks, and plugin tooling, use the Claude Code plugin install below.
+
+### Via Claude Code Plugin - Full framework install
 
 ```bash
 # 1. 添加 Marketplace
@@ -61,11 +72,13 @@
 /plugin install miles990/multi-agent-workflow
 ```
 
+Use the plugin install when you need the full repository-level framework: `shared/`, `templates/`, hooks, plugin cache sync, `/plugin-dev`, and release/version tooling.
+
 ## Available Skills
 
 | Skill | Command | Description | Status |
 |-------|---------|-------------|--------|
-| **research** | `/multi-research` | 多視角並行研究 | ✅ Ready |
+| **research** | `/multi-research` | 多視角並行研究，內建 CT 自動模式 | ✅ Ready |
 | **plan** | `/multi-plan` | 多視角規劃設計 | ✅ Ready |
 | **tasks** | `/multi-tasks` | 多視角任務分解（v2.2 新增） | ✅ Ready |
 | **implement** | `/multi-implement` | 監督式並行實作 | ✅ Ready |
@@ -87,7 +100,15 @@
 
 # 深度模式（6 視角）
 /multi-research --deep 重大架構決策
+
+# 手動覆蓋 CT 模式
+/multi-research --ct lite "先快速看一下這方向"
+/multi-research --ct strict "幫我做深度架構分析"
+/multi-research --ct experiment "幫我設計實驗"
+/multi-research --no-ct "只要草稿"
 ```
+
+`/multi-research` 內建 CT Escalation Router。預設使用 CT-lite；架構、風險、產品或 agent 系統設計會升級到 CT-strict；論文、實驗、benchmark、evaluation、hypothesis 類任務會升級到 CT-experiment。偵測結果會寫入 `meta.yaml` 的 `ct_detection`。
 
 ### Plan
 
@@ -237,6 +258,10 @@
 ├── research/           # research skill 產出
 │   └── [topic-id]/
 │       ├── meta.yaml
+│       ├── ct-stack.yaml       # CT-strict / experiment
+│       ├── ct-compliance.md    # CT-strict / experiment
+│       ├── hypotheses.yaml     # CT-experiment
+│       ├── experiment-plan.md  # CT-experiment
 │       ├── overview.md
 │       ├── perspectives/
 │       └── synthesis.md
@@ -264,7 +289,8 @@ multi-agent-workflow/
 │   ├── research/                 # ✅ Ready
 │   │   ├── SKILL.md
 │   │   ├── 00-quickstart/
-│   │   └── 01-perspectives/
+│   │   ├── 01-perspectives/
+│   │   └── 02-ct-mode/
 │   ├── plan/                     # ✅ Ready
 │   ├── tasks/                    # ✅ Ready (v2.2 新增)
 │   ├── implement/                # ✅ Ready
@@ -275,6 +301,16 @@ multi-agent-workflow/
 │   ├── create-skill.sh           # Skill 腳手架工具
 │   └── validate-skills.sh        # Skill 結構驗證
 ├── shared/                       # 共用模組
+│   ├── ct/                       # CT schema、compiler、checker、templates
+│   │   ├── taxonomy.yaml
+│   │   ├── ct-schema.yaml
+│   │   ├── escalation-router.md
+│   │   ├── escalation-rules.yaml
+│   │   ├── compiler.md
+│   │   ├── compliance-checker.md
+│   │   ├── drift-detector.md
+│   │   ├── failure-miner.md
+│   │   └── templates/
 │   ├── skill-structure/          # Skill 結構規範 (v2.3 新增)
 │   │   ├── STANDARD.md           # 結構規範文件
 │   │   ├── CLAUDE.md             # AI 自動載入說明
@@ -320,7 +356,8 @@ multi-agent-workflow/
 
 | Module | Description | Link |
 |--------|-------------|------|
-| **research** | 多視角研究 | [→](./skills/research/SKILL.md) |
+| **research** | 多視角研究，內建 CT 模式 | [→](./skills/research/SKILL.md) |
+| **CT Layer** | Constraint Texture 共用層 | [→](./shared/ct/compiler.md) |
 | **orchestrate** | 端到端編排 | [→](./skills/orchestrate/SKILL.md) |
 | **Skill Structure** | Skill 結構規範 | [→](./shared/skill-structure/STANDARD.md) |
 | **Map Phase** | 並行執行 | [→](./shared/coordination/map-phase.md) |

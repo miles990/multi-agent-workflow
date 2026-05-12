@@ -9,10 +9,12 @@
 ```
 
 這會：
-1. 啟動 4 個並行研究 Agent
-2. 從不同視角分析主題
-3. 匯總成一份完整報告
-4. 自動存檔到 Memory
+1. 自動偵測 CT 模式（預設 CT-lite）
+2. 啟動 4 個並行研究 Agent
+3. 從不同視角分析主題
+4. 執行交叉驗證與 CT 合規檢查
+5. 匯總成一份完整報告
+6. 自動存檔到 Memory
 
 ## 常用模式
 
@@ -30,7 +32,18 @@
 /multi-research --deep 複雜架構決策
 ```
 
-適用：重大決策、需要全面分析
+適用：重大決策、需要全面分析。`--deep` 會自動升級到 CT-strict。
+
+### 手動覆蓋 CT 模式
+
+```bash
+/multi-research --ct lite "先快速看一下這方向"
+/multi-research --ct strict "幫我做深度架構分析"
+/multi-research --ct experiment "幫我設計實驗"
+/multi-research --no-ct "只要草稿"
+```
+
+如果沒有覆蓋，系統會根據任務類型、風險、研究深度與使用者意圖自動選擇 `lite`、`strict` 或 `experiment`。
 
 ### 自訂視角
 
@@ -46,9 +59,11 @@
 
 ```
 .claude/memory/research/[topic-id]/
+├── meta.yaml         ← 含 ct_detection
 ├── synthesis.md      ← 主報告（先看這個）
 ├── overview.md       ← 一頁摘要
-└── perspectives/     ← 各視角詳細報告
+├── perspectives/     ← 各視角詳細報告
+└── ct-compliance.md  ← CT-strict / experiment 才需要
 ```
 
 ## 復用研究
@@ -88,4 +103,7 @@
 
 - [了解預設視角](../../01-perspectives/_base/default-perspectives.md)
 - [自訂視角指南](../../01-perspectives/_base/custom-perspectives.md)
+- [CT-lite](../../02-ct-mode/lite.md)
+- [CT-strict](../../02-ct-mode/strict.md)
+- [CT-experiment](../../02-ct-mode/experiment.md)
 - [理解 Map-Reduce 流程](../../../../shared/coordination/map-phase.md)
