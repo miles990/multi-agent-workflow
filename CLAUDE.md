@@ -2,6 +2,20 @@
 
 > 多視角並行工作流生態系 v2.4.2
 
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs are tracked in GitHub Issues for `miles990/multi-agent-workflow`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the default triage labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Use a single-context layout: root `CONTEXT.md` and root `docs/adr/` when present. See `docs/agents/domain.md`.
+
 ## Workflow Preferences
 
 - 當要求「plan」、「design」、「discuss」時，先呈現計劃/設計文件，**不要直接開始實作或探索代碼**。等用戶確認後再進入實作階段
