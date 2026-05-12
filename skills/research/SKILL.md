@@ -198,6 +198,11 @@ CT gates 依 mode 分級：
 ├── experiment-plan.md  # CT-experiment 產出
 ├── eval-rubric.yaml    # CT-experiment 產出
 ├── failure-modes.md    # CT-experiment 產出
+├── claims/             # CT-strict / experiment structured claims
+│   ├── architecture.claims.yaml
+│   ├── cognitive.claims.yaml
+│   ├── workflow.claims.yaml
+│   └── industry.claims.yaml
 ├── ct-retrospective.md # CT 閉環產出
 ├── self-upgrade-proposal.md # 有改善建議時產出
 ├── upgrade-decision.yaml # 自主升級決策
@@ -209,6 +214,7 @@ CT gates 依 mode 分級：
 │       ├── run-config.yaml
 │       ├── rubric.yaml
 │       ├── results.jsonl
+│       ├── condition-comparison.md
 │       └── analysis.md
 ├── perspectives/       # 完整視角報告（MAP 產出，保留）
 │   ├── architecture.md

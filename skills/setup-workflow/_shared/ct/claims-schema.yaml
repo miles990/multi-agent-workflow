@@ -1,0 +1,36 @@
+version: "1.0"
+
+required_claim_fields:
+  - id
+  - statement
+  - evidence_type
+  - confidence
+  - risk
+  - ct_layer
+
+enums:
+  evidence_type:
+    - source
+    - reasoning
+    - hypothesis
+    - experiment
+  confidence:
+    - high
+    - medium
+    - low
+  risk:
+    - low
+    - medium
+    - high
+  ct_layer:
+    - evidence
+    - risk
+    - experiment
+    - output
+
+optional_claim_fields:
+  - source_ref
+  - uncertainty
+  - related_claims
+  - contradiction_group
+

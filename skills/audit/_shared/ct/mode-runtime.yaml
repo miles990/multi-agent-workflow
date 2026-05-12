@@ -3,7 +3,7 @@ version: "1.0"
 default_mode: lite
 
 modes:
-  off:
+  "off":
     description: "User explicitly disabled CT."
     run:
       - ct_detection
