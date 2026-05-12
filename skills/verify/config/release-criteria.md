@@ -234,5 +234,5 @@ feature_flag:
 
 ## 共用模組參考
 
-- 交叉驗證：[shared/synthesis/cross-validation.md](../../../shared/synthesis/cross-validation.md)
-- Checkpoint 整合：[shared/integration/evolve-checkpoints.md](../../../shared/integration/evolve-checkpoints.md)
+- 交叉驗證：[shared/synthesis/cross-validation.md](../_shared/synthesis/cross-validation.md)
+- Checkpoint 整合：[shared/integration/evolve-checkpoints.md](../_shared/integration/evolve-checkpoints.md)

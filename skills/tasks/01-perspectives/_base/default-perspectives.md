@@ -82,4 +82,4 @@ Phase 3: REDUCE 整合
 | test-planner | test_cases 完整、TDD 順序正確 |
 | risk-preventor | related_risk 關聯、trigger 明確 |
 
-完整定義請參考 [catalog.yaml](../../../../shared/perspectives/catalog.yaml)。
+完整定義請參考 [catalog.yaml](../../_shared/perspectives/catalog.yaml)。

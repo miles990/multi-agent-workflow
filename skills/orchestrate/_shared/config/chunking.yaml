@@ -1,0 +1,44 @@
+# Chunking Configuration
+# 大任務分塊處理
+
+version: "1.0"
+
+chunking_rules:
+  auto_chunk:
+    description: "自動分塊條件"
+    triggers:
+      estimated_tokens: 50000
+      file_count: 20
+      task_count: 30
+      complexity_score: 0.8
+
+    strategies:
+      - name: "by_module"
+        description: "按模組分批處理"
+        method: "group_by_directory"
+
+      - name: "by_priority"
+        description: "按優先級處理"
+        method: "sort_by_priority_then_chunk"
+
+      - name: "by_dependency"
+        description: "按依賴關係分 Wave"
+        method: "topological_sort_into_waves"
+
+  chunk_processing:
+    each_chunk:
+      - "獨立 Subagent 處理"
+      - "結果壓縮後合併"
+      - "保持完整報告存檔"
+
+    parallel_limit: 4
+
+    final_merge:
+      include:
+        - "結論和決策"
+        - "錯誤和阻塞"
+      store_full: true
+
+  size_limits:
+    max_chunk_size: 30000  # tokens
+    min_chunk_size: 5000   # tokens

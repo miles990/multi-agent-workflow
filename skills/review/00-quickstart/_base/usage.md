@@ -129,4 +129,4 @@
 
 - [了解預設視角](../../01-perspectives/_base/default-perspectives.md)
 - [問題分類規則](../../config/issue-classification.md)
-- [理解 Map-Reduce 流程](../../../../shared/coordination/map-phase.md)
+- [理解 Map-Reduce 流程](../../_shared/coordination/map-phase.md)

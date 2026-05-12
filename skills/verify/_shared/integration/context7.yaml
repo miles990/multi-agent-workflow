@@ -1,0 +1,118 @@
+# Context7 Integration Configuration
+# 整合 Context7 提供的外部文檔知識
+
+version: "1.0"
+
+# 整合配置
+integration:
+  enabled: true
+  provider: "context7"
+
+  # MCP 工具名稱
+  tools:
+    resolve_library: "mcp__context7__resolve-library-id"
+    query_docs: "mcp__context7__query-docs"
+
+# 觸發條件
+triggers:
+  automatic:
+    description: "偵測技術棧關鍵字時自動觸發"
+    keywords:
+      frontend:
+        - "react"
+        - "vue"
+        - "angular"
+        - "svelte"
+        - "nextjs"
+        - "nuxt"
+
+      backend:
+        - "express"
+        - "fastapi"
+        - "django"
+        - "flask"
+        - "nestjs"
+        - "spring"
+
+      database:
+        - "prisma"
+        - "typeorm"
+        - "sequelize"
+        - "mongoose"
+        - "drizzle"
+
+      testing:
+        - "jest"
+        - "vitest"
+        - "pytest"
+        - "playwright"
+        - "cypress"
+
+      tools:
+        - "typescript"
+        - "webpack"
+        - "vite"
+        - "eslint"
+        - "docker"
+
+  manual:
+    description: "明確指定時觸發"
+    command: "/research --with-docs"
+
+# 使用場景
+usage:
+  industry_perspective:
+    description: "在 RESEARCH 階段的 industry 視角使用"
+    actions:
+      - "查詢相關庫的最新文檔"
+      - "獲取最佳實踐建議"
+      - "查找範例程式碼"
+
+  implementation_reference:
+    description: "在 IMPLEMENT 階段參考文檔"
+    actions:
+      - "查詢 API 用法"
+      - "查找配置選項"
+      - "獲取錯誤處理範例"
+
+# 查詢策略
+query_strategy:
+  max_queries_per_stage: 3
+
+  priority_topics:
+    - "best practices"
+    - "configuration"
+    - "api reference"
+    - "common patterns"
+    - "error handling"
+
+  cache:
+    enabled: true
+    ttl: 3600  # 1 小時
+
+# 範例
+examples:
+  - scenario: "React + TypeScript 專案"
+    detected_keywords: ["react", "typescript"]
+    queries:
+      - topic: "React 19 best practices"
+        library: "react"
+      - topic: "TypeScript strict mode patterns"
+        library: "typescript"
+
+  - scenario: "FastAPI 後端"
+    detected_keywords: ["fastapi", "python"]
+    queries:
+      - topic: "FastAPI dependency injection"
+        library: "fastapi"
+      - topic: "Pydantic model validation"
+        library: "pydantic"
+
+# 輸出整合
+output_integration:
+  format: "markdown"
+  include_in_report:
+    - "relevant_documentation"
+    - "code_examples"
+    - "best_practices"
+  citation_format: "[Context7: {library}]"

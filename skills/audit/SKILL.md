@@ -42,7 +42,7 @@ model: sonnet
 | `coverage-auditor` | 測試覆蓋分析師 | haiku | 缺少測試的模組、測試品質、mock 濫用 |
 | `doc-sync-checker` | 文檔同步檢查員 | haiku | 代碼與文檔比對、過時文檔、API 文檔完整性 |
 
--> 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+-> 模型路由配置：[shared/config/model-routing.yaml](_shared/config/model-routing.yaml)
 
 ## 執行流程
 
@@ -190,15 +190,15 @@ CP4: Task Commit
     +-- git commit -m "docs(audit): complete architecture audit for {target}"
 ```
 
--> 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+-> 協議：[shared/git/commit-protocol.md](_shared/git/commit-protocol.md)
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
-| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
-| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合 |
-| [perspectives/catalog.yaml](../../shared/perspectives/catalog.yaml) | 視角定義 |
+| [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](_shared/coordination/reduce-phase.md) | 匯總整合 |
+| [perspectives/catalog.yaml](_shared/perspectives/catalog.yaml) | 視角定義 |
 
 ## 工作流位置
 

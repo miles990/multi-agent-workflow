@@ -122,7 +122,7 @@ creation_steps:
       - record paths
 ```
 
-詳見：[../../shared/isolation/worktree-setup.md](../../../../shared/isolation/worktree-setup.md)
+詳見：[_shared/isolation/worktree-setup.md](../../_shared/isolation/worktree-setup.md)
 
 ## 活躍使用
 
@@ -213,7 +213,7 @@ completion_decision:
       - lock worktree
 ```
 
-詳見：[../../shared/isolation/worktree-completion.md](../../../../shared/isolation/worktree-completion.md)
+詳見：[_shared/isolation/worktree-completion.md](../../_shared/isolation/worktree-completion.md)
 
 ## 迭代循環
 
@@ -328,7 +328,7 @@ worktree_config:
 
 ## 相關資源
 
-- [Worktree Setup](../../../../shared/isolation/worktree-setup.md)
-- [Worktree Completion](../../../../shared/isolation/worktree-completion.md)
-- [Path Resolution](../../../../shared/isolation/path-resolution.md)
+- [Worktree Setup](../../_shared/isolation/worktree-setup.md)
+- [Worktree Completion](../../_shared/isolation/worktree-completion.md)
+- [Path Resolution](../../_shared/isolation/path-resolution.md)
 - [Isolation Strategy](./isolation-strategy.md)

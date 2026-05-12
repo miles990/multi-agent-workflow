@@ -30,7 +30,7 @@ model: sonnet
 | `documentation` | 文檔檢查 | haiku | 註解、README、API 文檔 |
 | `integration` | 整合分析 | sonnet | 整合問題、依賴衝突 |
 
-→ 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+→ 模型路由配置：[shared/config/model-routing.yaml](_shared/config/model-routing.yaml)
 
 ## 執行流程
 
@@ -76,7 +76,7 @@ Phase 4: 品質閘門 → 通過/回退決策
 - **一致性** (30%): 風格一致、無矛盾
 - **可操作性** (40%): 建議具體可執行
 
-→ 評分配置：[shared/quality/scoring.yaml](../../shared/quality/scoring.yaml)
+→ 評分配置：[shared/quality/scoring.yaml](_shared/quality/scoring.yaml)
 
 ## CP4: Task Commit
 
@@ -90,7 +90,7 @@ CP4: Task Commit
     └── git commit -m "docs(review): complete {feature} code review"
 ```
 
-→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+→ 協議：[shared/git/commit-protocol.md](_shared/git/commit-protocol.md)
 
 ## 品質閘門
 
@@ -103,7 +103,7 @@ CP4: Task Commit
 - BLOCKER 存在 → 回退到 IMPLEMENT
 - HIGH > 2 → 要求修復後重新審查
 
-→ 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
+→ 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
 ## 輸出結構
 
@@ -164,18 +164,18 @@ jq 'select(.stage == "REVIEW" and .status == "failed")' actions.jsonl
 jq 'select(.agent_id == "agent_code-quality")' actions.jsonl
 ```
 
-→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+→ 日誌規範：[shared/communication/execution-logs.md](_shared/communication/execution-logs.md)
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
-| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
-| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
-| [quality/scoring.yaml](../../shared/quality/scoring.yaml) | 品質評分 |
-| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
-| [quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml) | 回退策略 |
-| [perspectives/expertise-frameworks/](../../shared/perspectives/expertise-frameworks/) | 專業框架 |
+| [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](_shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
+| [quality/scoring.yaml](_shared/quality/scoring.yaml) | 品質評分 |
+| [quality/gates.yaml](_shared/quality/gates.yaml) | 品質閘門 |
+| [quality/rollback-strategy.yaml](_shared/quality/rollback-strategy.yaml) | 回退策略 |
+| [perspectives/expertise-frameworks/](_shared/perspectives/expertise-frameworks/) | 專業框架 |
 
 ## 工作流位置
 

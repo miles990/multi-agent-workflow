@@ -229,5 +229,5 @@ priority_score =
 
 ## 共用模組參考
 
-- 交叉驗證：[shared/synthesis/cross-validation.md](../../../shared/synthesis/cross-validation.md)
-- 矛盾解決：[shared/synthesis/conflict-resolution.md](../../../shared/synthesis/conflict-resolution.md)
+- 交叉驗證：[shared/synthesis/cross-validation.md](../_shared/synthesis/cross-validation.md)
+- 矛盾解決：[shared/synthesis/conflict-resolution.md](../_shared/synthesis/conflict-resolution.md)

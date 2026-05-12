@@ -1,0 +1,45 @@
+# Context Budget Configuration
+# Context 預算分配
+
+version: "1.0"
+
+budget_allocation:
+  total: 100000  # tokens（模型限制）
+
+  reserved:
+    system_prompt: 5000
+    tools_description: 3000
+    safety_margin: 10000
+    user_history: 5000
+
+  available: 77000  # 可用於任務
+
+  per_stage_allocation:
+    RESEARCH: 15000
+    PLAN: 12000
+    TASKS: 10000
+    IMPLEMENT: 25000
+    REVIEW: 10000
+    VERIFY: 10000
+
+  flexible_reallocation:
+    enabled: true
+    rules:
+      - "未使用的預算可轉移到下一階段"
+      - "IMPLEMENT 可借用其他階段的剩餘"
+
+overflow_handling:
+  strategy: "compress_oldest_first"
+  preserve:
+    - "decisions"
+    - "blockers"
+    - "current_task_context"
+  compress:
+    - "completed_stages"
+    - "old_conversation"
+
+monitoring:
+  check_interval: "every_5_messages"
+  warning_threshold: 0.7
+  critical_threshold: 0.85
+  auto_compress_threshold: 0.9

@@ -138,7 +138,7 @@ path_resolution:
     if_in_worktree: resolve to main directory for memory
 ```
 
-詳見：[../../../../shared/isolation/path-resolution.md](../../../../shared/isolation/path-resolution.md)
+詳見：[_shared/isolation/path-resolution.md](../../_shared/isolation/path-resolution.md)
 
 ## 狀態追蹤
 
@@ -355,4 +355,4 @@ isolation_config:
 
 - [Lifecycle](./lifecycle.md)
 - [Merge Conflict](./merge-conflict.md)
-- [Path Resolution](../../../../shared/isolation/path-resolution.md)
+- [Path Resolution](../../_shared/isolation/path-resolution.md)

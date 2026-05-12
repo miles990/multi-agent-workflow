@@ -31,7 +31,7 @@ model: sonnet
 | `security-auditor` | 安全審計員 | sonnet | 安全漏洞檢測 |
 | `maintainer` | 可維護性審查 | haiku | 程式碼品質 |
 
-→ 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+→ 模型路由配置：[shared/config/model-routing.yaml](_shared/config/model-routing.yaml)
 
 ## 執行流程
 
@@ -73,7 +73,7 @@ Phase 5: 品質閘門 → 整體驗證
 
 **驗證腳本**：`shared/tools/tdd-validator.sh`
 
-→ 配置：[shared/quality/tdd-enforcement.yaml](../../shared/quality/tdd-enforcement.yaml)
+→ 配置：[shared/quality/tdd-enforcement.yaml](_shared/quality/tdd-enforcement.yaml)
 
 ## 安全審計
 
@@ -83,7 +83,7 @@ Phase 5: 品質閘門 → 整體驗證
 - 認證/授權問題
 - 敏感資料處理
 
-→ 框架：[shared/perspectives/expertise-frameworks/security.yaml](../../shared/perspectives/expertise-frameworks/security.yaml)
+→ 框架：[shared/perspectives/expertise-frameworks/security.yaml](_shared/perspectives/expertise-frameworks/security.yaml)
 
 ## CP4: Task Commit
 
@@ -100,7 +100,7 @@ CP4: Task Commit（每個 task）
 
 **注意**：implement skill 的 CP4 是增量觸發，每個 task 完成後都會 commit，確保進度不會丟失。
 
-→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+→ 協議：[shared/git/commit-protocol.md](_shared/git/commit-protocol.md)
 
 ## 品質閘門
 
@@ -110,7 +110,7 @@ CP4: Task Commit（每個 task）
 - ✅ 無 BLOCKER 問題
 - ✅ 品質分數 ≥ 80
 
-→ 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
+→ 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
 ## 輸出結構
 
@@ -174,17 +174,17 @@ jq 'select(.tool == "Bash" and .input.command | contains("test"))' actions.jsonl
 jq 'select(.tool == "Edit" and .status == "failed")' actions.jsonl
 ```
 
-→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+→ 日誌規範：[shared/communication/execution-logs.md](_shared/communication/execution-logs.md)
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
-| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
-| [quality/tdd-enforcement.yaml](../../shared/quality/tdd-enforcement.yaml) | TDD 強制 |
-| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
-| [perspectives/expertise-frameworks/security.yaml](../../shared/perspectives/expertise-frameworks/security.yaml) | 安全框架 |
-| [tools/tdd-validator.sh](../../shared/tools/tdd-validator.sh) | TDD 驗證器 |
+| [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
+| [quality/tdd-enforcement.yaml](_shared/quality/tdd-enforcement.yaml) | TDD 強制 |
+| [quality/gates.yaml](_shared/quality/gates.yaml) | 品質閘門 |
+| [perspectives/expertise-frameworks/security.yaml](_shared/perspectives/expertise-frameworks/security.yaml) | 安全框架 |
+| [tools/tdd-validator.sh](_shared/tools/tdd-validator.sh) | TDD 驗證器 |
 
 ## 工作流位置
 

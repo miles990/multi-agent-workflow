@@ -60,7 +60,7 @@ export CLAUDE_CODE_TASK_LIST_ID=my-workflow
 | `test-planner` | 測試規劃師 | haiku | TDD 對應、測試策略 |
 | `risk-preventor` | 風險預防師 | haiku | 風險任務、預防措施 |
 
-→ 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+→ 模型路由配置：[shared/config/model-routing.yaml](_shared/config/model-routing.yaml)
 
 ## 執行流程
 
@@ -99,7 +99,7 @@ Phase 6: 品質閘門 → 輸出 tasks.yaml
 
 **驗證腳本**：`shared/tools/tdd-validator.sh`
 
-→ 配置：[shared/quality/tdd-enforcement.yaml](../../shared/quality/tdd-enforcement.yaml)
+→ 配置：[shared/quality/tdd-enforcement.yaml](_shared/quality/tdd-enforcement.yaml)
 
 ## 依賴偵測
 
@@ -111,7 +111,7 @@ Phase 6: 品質閘門 → 輸出 tasks.yaml
 
 **驗證腳本**：`shared/tools/dag-validator.py`
 
-→ 配置：[shared/tasks/dependency-detection.yaml](../../shared/tasks/dependency-detection.yaml)
+→ 配置：[shared/tasks/dependency-detection.yaml](_shared/tasks/dependency-detection.yaml)
 
 ## CP4: Task Commit
 
@@ -125,7 +125,7 @@ CP4: Task Commit
     └── git commit -m "feat(tasks): decompose {plan} into executable tasks"
 ```
 
-→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+→ 協議：[shared/git/commit-protocol.md](_shared/git/commit-protocol.md)
 
 ## 品質閘門
 
@@ -135,7 +135,7 @@ CP4: Task Commit
 - ✅ 所有任務有估算
 - ✅ 品質分數 ≥ 80
 
-→ 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
+→ 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
 ## 輸出結構
 
@@ -215,18 +215,18 @@ jq 'select(.stage == "TASKS" and .status == "failed")' actions.jsonl
 jq 'select(.tool == "Bash" and .status == "failed")' actions.jsonl | jq '{command: .input.command, error: .error, stderr: .stderr}'
 ```
 
-→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+→ 日誌規範：[shared/communication/execution-logs.md](_shared/communication/execution-logs.md)
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
-| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
-| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
-| [quality/tdd-enforcement.yaml](../../shared/quality/tdd-enforcement.yaml) | TDD 強制 |
-| [tasks/dependency-detection.yaml](../../shared/tasks/dependency-detection.yaml) | 依賴偵測 |
-| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
-| [tools/dag-validator.py](../../shared/tools/dag-validator.py) | DAG 驗證器 |
+| [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](_shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
+| [quality/tdd-enforcement.yaml](_shared/quality/tdd-enforcement.yaml) | TDD 強制 |
+| [tasks/dependency-detection.yaml](_shared/tasks/dependency-detection.yaml) | 依賴偵測 |
+| [quality/gates.yaml](_shared/quality/gates.yaml) | 品質閘門 |
+| [tools/dag-validator.py](_shared/tools/dag-validator.py) | DAG 驗證器 |
 
 ## 工作流位置
 

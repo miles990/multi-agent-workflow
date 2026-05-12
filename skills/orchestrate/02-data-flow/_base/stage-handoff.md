@@ -426,7 +426,7 @@ worktree_state_in_handoff:
               message: "feat: add login"
 ```
 
-詳見：[../../../../shared/isolation/path-resolution.md](../../../../shared/isolation/path-resolution.md)
+詳見：[_shared/isolation/path-resolution.md](../../_shared/isolation/path-resolution.md)
 
 ## 相關資源
 

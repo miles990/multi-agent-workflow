@@ -38,4 +38,4 @@ profiles:
 
 - [SKILL.md](../../SKILL.md) - 完整的 Skill 定義
 - [usage.md](../../00-quickstart/_base/usage.md) - 快速上手指南
-- [execution-profiles.yaml](../../../../shared/config/execution-profiles.yaml) - 執行模式配置
+- [execution-profiles.yaml](../../_shared/config/execution-profiles.yaml) - 執行模式配置

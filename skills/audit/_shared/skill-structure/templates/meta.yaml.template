@@ -1,0 +1,42 @@
+# Skill 元數據模板
+skill: {{skill_name}}
+version: {{skill_version}}
+workflow_id: {{workflow_id}}
+stage: {{STAGE}}
+started_at: {{timestamp}}
+completed_at: null
+status: in_progress
+
+# 輸入參數
+input:
+  topic: {{topic}}
+  flags:
+    - {{flag1}}: {{value1}}
+    - {{flag2}}: {{value2}}
+  context:
+    from_skill: {{previous_skill}}
+    from_id: {{previous_id}}
+
+# 執行配置
+execution:
+  perspectives:
+    - id: {{perspective_1}}
+      agent_id: {{agent_id_1}}
+      status: pending
+    - id: {{perspective_2}}
+      agent_id: {{agent_id_2}}
+      status: pending
+
+# 輸出檔案路徑
+output:
+  summary: .claude/memory/{{type}}/{{id}}/summary.md
+  perspectives_dir: .claude/memory/{{type}}/{{id}}/perspectives/
+  summaries_dir: .claude/memory/{{type}}/{{id}}/summaries/
+
+# 品質指標
+quality:
+  score: null
+  criteria:
+    - {{criterion_1}}: null
+    - {{criterion_2}}: null
+  gate_status: pending

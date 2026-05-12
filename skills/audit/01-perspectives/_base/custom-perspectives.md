@@ -307,5 +307,5 @@ perspectives:
 ## 相關資源
 
 - [預設視角說明](./default-perspectives.md)
-- [Prompt 工程最佳實踐](../../../../shared/perspectives/prompt-engineering.md)
-- [視角模板庫](../../../../shared/perspectives/templates/)
+- [Prompt 工程最佳實踐](../../_shared/perspectives/prompt-engineering.md)
+- [視角模板庫](../../_shared/perspectives/templates)

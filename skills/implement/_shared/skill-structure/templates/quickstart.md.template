@@ -1,0 +1,105 @@
+# Quick Start Guide
+
+> 3 分鐘快速上手 {{Skill Name}}
+
+## 最簡用法
+
+```bash
+/{{command}} {{簡單範例}}
+```
+
+這會：
+1. {{步驟 1}}
+2. {{步驟 2}}
+3. {{步驟 3}}
+4. {{步驟 4}}
+5. {{步驟 5}}
+
+## 常用模式
+
+### {{模式 1}}
+
+```bash
+/{{command}} --{{flag}} {{範例}}
+```
+
+適用：{{使用場景}}
+
+### {{模式 2}}
+
+```bash
+/{{command}} --{{flag2}} {{範例2}}
+```
+
+適用：{{使用場景2}}
+
+### {{模式 3}}
+
+```bash
+# 先執行前置步驟
+/{{pre-command}} {{範例}}
+
+# 再執行主命令（自動載入上下文）
+/{{command}} --from-{{context}} {{範例}}
+```
+
+### 自訂選項
+
+```bash
+/{{command}} --custom {{範例}}
+```
+
+會互動式詢問你的需求
+
+## 輸出位置
+
+所有結果存儲在：
+
+```
+.claude/memory/{{type}}/[{{id}}]/
+├── {{main-output}}.md  ← 主輸出（先看這個）
+├── {{output-2}}.md     ← 次要輸出
+├── {{output-3}}.md     ← 其他輸出
+└── perspectives/       ← 各視角詳細報告
+    ├── {{perspective-1}}.md
+    ├── {{perspective-2}}.md
+    └── {{perspective-3}}.md
+```
+
+## 復用結果
+
+如果之前處理過類似內容：
+
+```bash
+# 系統會自動提示
+> 發現相關結果：{{id}} ({{date}})
+> 是否要：
+>   1. 復用並調整
+>   2. 重新執行
+>   3. 取消
+```
+
+## 進階技巧
+
+### {{技巧 1}}
+
+```bash
+/{{command}} --{{advanced-flag}} {{範例}}
+```
+
+### {{技巧 2}}
+
+```bash
+/{{command}} --{{advanced-flag-2}} {{範例}}
+```
+
+### 與其他 Skill 整合
+
+{{說明如何與其他 Skills 配合使用}}
+
+## 下一步
+
+- [了解預設視角](../../01-perspectives/_base/default-perspectives.md)
+- [自訂視角指南](../../01-perspectives/_base/custom-perspectives.md)
+- [理解執行流程](../../../../shared/coordination/map-phase.md)
+- [配置選項](../../config/{{config-file}}.yaml)

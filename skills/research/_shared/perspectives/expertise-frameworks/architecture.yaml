@@ -1,0 +1,175 @@
+# Architecture Expertise Framework
+# 架構專業知識框架
+
+version: "1.0"
+
+# 架構原則
+principles:
+  solid:
+    - id: "S"
+      name: "Single Responsibility Principle"
+      description: "單一職責原則"
+      checks:
+        - "每個模組只做一件事"
+        - "變更原因應該只有一個"
+
+    - id: "O"
+      name: "Open/Closed Principle"
+      description: "開放封閉原則"
+      checks:
+        - "對擴展開放"
+        - "對修改封閉"
+
+    - id: "L"
+      name: "Liskov Substitution Principle"
+      description: "里氏替換原則"
+      checks:
+        - "子類型可替換父類型"
+
+    - id: "I"
+      name: "Interface Segregation Principle"
+      description: "介面隔離原則"
+      checks:
+        - "介面小而專注"
+        - "客戶端不應依賴不需要的方法"
+
+    - id: "D"
+      name: "Dependency Inversion Principle"
+      description: "依賴反轉原則"
+      checks:
+        - "高層模組不依賴低層模組"
+        - "依賴抽象而非具體"
+
+  clean_architecture:
+    - name: "Independent of Frameworks"
+      description: "框架獨立"
+
+    - name: "Testable"
+      description: "可測試"
+
+    - name: "Independent of UI"
+      description: "UI 獨立"
+
+    - name: "Independent of Database"
+      description: "資料庫獨立"
+
+    - name: "Independent of External Agencies"
+      description: "外部服務獨立"
+
+# 設計模式評估
+design_patterns:
+  creational:
+    - name: "Factory"
+      use_when: "需要創建物件但不指定具體類"
+
+    - name: "Singleton"
+      use_when: "全域只需一個實例"
+      caution: "避免過度使用"
+
+    - name: "Builder"
+      use_when: "複雜物件構建"
+
+  structural:
+    - name: "Adapter"
+      use_when: "介面不相容時"
+
+    - name: "Facade"
+      use_when: "簡化複雜子系統"
+
+    - name: "Decorator"
+      use_when: "動態添加功能"
+
+  behavioral:
+    - name: "Observer"
+      use_when: "一對多依賴關係"
+
+    - name: "Strategy"
+      use_when: "算法可互換"
+
+    - name: "Command"
+      use_when: "封裝請求為物件"
+
+# 可擴展性檢查
+scalability:
+  horizontal:
+    checks:
+      - "無狀態服務設計"
+      - "Session 可外部化"
+      - "支援負載均衡"
+
+  vertical:
+    checks:
+      - "資源使用可配置"
+      - "無硬編碼限制"
+
+  data:
+    checks:
+      - "分頁/游標設計"
+      - "快取策略"
+      - "資料庫索引規劃"
+
+# 可維護性檢查
+maintainability:
+  code_quality:
+    - "命名清晰有意義"
+    - "函數長度適當 (<30 行)"
+    - "嵌套層數限制 (<4 層)"
+    - "圈複雜度控制 (<10)"
+
+  documentation:
+    - "API 文檔完整"
+    - "架構決策記錄 (ADR)"
+    - "README 更新"
+
+  testing:
+    - "單元測試覆蓋"
+    - "整合測試存在"
+    - "測試可讀性"
+
+# 效能考量
+performance:
+  response_time:
+    - "API 回應 < 200ms (P95)"
+    - "頁面載入 < 3s"
+
+  throughput:
+    - "定義預期 RPS"
+    - "壓力測試計劃"
+
+  resource:
+    - "記憶體使用監控"
+    - "CPU 使用監控"
+    - "連線池配置"
+
+# 架構反模式
+anti_patterns:
+  - name: "God Class"
+    description: "類別太大太複雜"
+    detection: "類別超過 500 行"
+
+  - name: "Spaghetti Code"
+    description: "缺乏結構的程式碼"
+    detection: "高耦合低內聚"
+
+  - name: "Golden Hammer"
+    description: "對所有問題用同一解法"
+    detection: "不考慮替代方案"
+
+  - name: "Premature Optimization"
+    description: "過早優化"
+    detection: "無效能問題就優化"
+
+  - name: "Cargo Cult"
+    description: "盲目複製模式"
+    detection: "不理解為何使用"
+
+# 評估報告模板
+evaluation_template:
+  sections:
+    - "架構概覽"
+    - "原則遵守度"
+    - "設計模式使用"
+    - "可擴展性評估"
+    - "可維護性評估"
+    - "效能考量"
+    - "風險與建議"

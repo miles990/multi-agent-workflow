@@ -85,4 +85,4 @@ perspectives:
 - 統計摘要（問題數量分佈）
 - 修復建議（按優先級排序）
 
-完整定義請參考 [catalog.yaml](../../../../shared/perspectives/catalog.yaml)。
+完整定義請參考 [catalog.yaml](../../_shared/perspectives/catalog.yaml)。

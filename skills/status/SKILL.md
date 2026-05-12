@@ -174,6 +174,6 @@ stage_weights:
 
 | 模組 | 用途 |
 |------|------|
-| [workflow-status.py](../../shared/tools/workflow-status.py) | CLI 核心工具 |
-| [dag-validator.py](../../shared/tools/dag-validator.py) | DAG 驗證 + Mermaid |
-| [display.md](../../shared/progress/display.md) | 進度顯示規範 |
+| [workflow-status.py](_shared/tools/workflow-status.py) | CLI 核心工具 |
+| [dag-validator.py](_shared/tools/dag-validator.py) | DAG 驗證 + Mermaid |
+| [display.md](_shared/progress/display.md) | 進度顯示規範 |

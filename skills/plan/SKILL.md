@@ -37,7 +37,7 @@ model: sonnet
 | `estimator` | 估算專家 | haiku | 工作量評估、時程規劃 |
 | `ux-advocate` | UX 倡導者 | haiku | 使用者體驗、API 設計 |
 
-→ 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+→ 模型路由配置：[shared/config/model-routing.yaml](_shared/config/model-routing.yaml)
 
 ## 執行流程
 
@@ -93,7 +93,7 @@ CP4: Task Commit ✅ 自動執行
 - 無循環依賴
 - 模組邊界清晰
 
-→ 配置：[shared/quality/early-detection.yaml](../../shared/quality/early-detection.yaml)
+→ 配置：[shared/quality/early-detection.yaml](_shared/quality/early-detection.yaml)
 
 ## CP4: Task Commit
 
@@ -107,7 +107,7 @@ CP4: Task Commit
     └── git commit -m "feat(plan): design {feature} implementation plan"
 ```
 
-→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+→ 協議：[shared/git/commit-protocol.md](_shared/git/commit-protocol.md)
 
 ## 品質閘門
 
@@ -117,7 +117,7 @@ CP4: Task Commit
 - ✅ 里程碑定義清晰
 - ✅ 品質分數 ≥ 75
 
-→ 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
+→ 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
 ## 輸出結構
 
@@ -180,17 +180,17 @@ jq 'select(.stage == "PLAN" and .status == "failed")' actions.jsonl
 jq 'select(.agent_id == "agent_architect")' actions.jsonl
 ```
 
-→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+→ 日誌規範：[shared/communication/execution-logs.md](_shared/communication/execution-logs.md)
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
-| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
-| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
-| [synthesis/cross-validation.md](../../shared/synthesis/cross-validation.md) | 交叉驗證 |
-| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
-| [quality/early-detection.yaml](../../shared/quality/early-detection.yaml) | 早期攔截 |
+| [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](_shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
+| [synthesis/cross-validation.md](_shared/synthesis/cross-validation.md) | 交叉驗證 |
+| [quality/gates.yaml](_shared/quality/gates.yaml) | 品質閘門 |
+| [quality/early-detection.yaml](_shared/quality/early-detection.yaml) | 早期攔截 |
 
 ## 工作流位置
 

@@ -1,0 +1,205 @@
+---
+name: {{skill-name}}
+version: 1.0.0
+description: {{簡短的一句話描述}}
+triggers: [{{trigger1}}, {{trigger2}}]
+context: fork
+agent: {{general-purpose|Explore|Plan}}
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
+model: sonnet
+hooks: {{true|false}}
+---
+
+# {{Skill Name}} v1.0.0
+
+> {{簡短的一句話描述，說明核心價值}}
+
+## 自動化機制
+
+> ⚡ **本 skill 已整合 Claude Code Hooks**
+>
+> - Action logging、state tracking、git commit 均由 hooks 自動處理
+> - 只需執行 CP1 初始化，其餘檢查點自動執行
+
+## 使用方式
+
+```bash
+/{{command}} [參數]
+/{{command}} {{具體範例}}
+```
+
+**Flags**: `--{{flag1}}` | `--{{flag2}}` | `--{{flag3}}`
+
+## 角色配置
+
+| ID | 名稱 | 模型 | 聚焦 |
+|----|------|------|------|
+| `{{agent-id}}` | {{角色名稱}} | sonnet | {{職責說明}} |
+| `{{agent-id-2}}` | {{角色名稱2}} | haiku | {{職責說明2}} |
+
+→ 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+
+## 執行流程
+
+```
+CP1: 工作流初始化 ⚡ 手動執行
+    python scripts/hooks/init_workflow.py --topic "{topic}" --stage {{STAGE}}
+    ↓
+Phase 0: {{階段說明}}
+    ↓
+Phase 1: {{階段說明}}
+    ↓
+Phase 2: {{階段說明}}
+    ↓
+Phase 3: MAP（並行執行）✅ 自動追蹤
+    ┌──────────┬──────────┬──────────┬──────────┐
+    │ {{角色1}} │ {{角色2}} │ {{角色3}} │ {{角色4}} │
+    └──────────┴──────────┴──────────┴──────────┘
+    [CP2/CP3 由 hooks 自動處理 Agent 狀態追蹤]
+
+    ⚠️ **並行執行關鍵**：
+       在單一訊息中發送多個 Task 工具呼叫
+
+    ⚠️ **強制**：每個 Agent 必須在完成前執行：
+       1. mkdir -p .claude/memory/{{type}}/{id}/perspectives/
+       2. Write → .claude/memory/{{type}}/{id}/perspectives/{perspective_id}.md
+       未執行 Write = 任務失敗，工作流中止
+    ↓
+Phase 4: REDUCE（{{匯總說明}}）
+    ↓
+Phase 5: {{階段說明}}
+    ↓
+CP4: Task Commit ✅ 自動執行
+    [寫入 .claude/memory/ 時自動 git commit]
+```
+
+## {{關鍵機制名稱}}
+
+{{說明機制的運作方式和重要性}}
+
+→ 配置：[shared/{{xxx}}/{{xxx}}.yaml](../../shared/{{xxx}}/{{xxx}}.yaml)
+
+## CP4: Task Commit
+
+**每個 {{單位}} 完成後**必須執行 CP4 Task Commit。
+
+```
+Phase {{X}}: {{階段名稱}}
+    ↓
+CP4: Task Commit（每個 {{單位}}）
+    ├── git add {{files}}
+    └── git commit -m "{{type}}({{scope}}): {{message}}"
+```
+
+→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+
+## 品質閘門
+
+通過條件（{{STAGE}} 階段）：
+- ✅ {{條件 1}}
+- ✅ {{條件 2}}
+- ✅ 品質分數 ≥ {{XX}}
+
+→ 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
+
+## 輸出結構
+
+```
+.claude/memory/{{type}}/[{{id}}]/
+├── meta.yaml               # 元數據
+├── perspectives/           # 完整報告（MAP 產出，保留）
+│   ├── {{perspective-1}}.md
+│   ├── {{perspective-2}}.md
+│   └── {{perspective-3}}.md
+├── summaries/              # 結構化摘要（REDUCE 產出，供快速查閱）
+│   ├── {{perspective-1}}.yaml
+│   ├── {{perspective-2}}.yaml
+│   └── {{perspective-3}}.yaml
+├── {{main-output}}.md      # 主輸出
+└── {{additional}}.md       # 其他輸出
+```
+
+> ⚠️ perspectives/ 保存完整報告，summaries/ 保存結構化摘要，兩者都必須保留。
+
+## Agent 能力限制
+
+**子 Agent 不應該開啟 Task**：
+
+| 允許的操作 | 說明 |
+|-----------|------|
+| ✅ Read | 讀取檔案 |
+| ✅ Glob/Grep | 搜尋檔案和內容 |
+| ✅ Explore agent | 輕量級探索 |
+| ✅ Bash | 執行命令 |
+| ✅ Write | 寫入報告 |
+| ❌ Task | 開子 Agent |
+
+## 行動日誌
+
+每個工具調用完成後，記錄到 `.claude/workflow/{workflow-id}/logs/actions.jsonl`。
+
+**記錄時機**：
+- 成功：記錄 `tool`、`input`、`output_preview`、`duration_ms`、`status: success`
+- 失敗：記錄 `tool`、`input`、`error`、`stderr`（如有）、`status: failed`
+
+**關鍵行動（{{STAGE}} 階段）**：
+| 行動 | 記錄重點 |
+|------|----------|
+| Read（{{說明}}） | `file_path`、`output_size` |
+| Write（{{說明}}） | `file_path`、`content_size` |
+| Task（{{說明}}） | `subagent_type`、`prompt` (truncated)、`agent_id` |
+
+**排查問題**：
+```bash
+# 查看階段失敗行動
+jq 'select(.stage == "{{STAGE}}" and .status == "failed")' actions.jsonl
+
+# 查看特定視角 Agent 的行動
+jq 'select(.agent_id == "{{agent_id}}")' actions.jsonl
+```
+
+→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+
+## 錯誤處理
+
+### 常見錯誤
+
+#### 錯誤 1: {{錯誤說明}}
+
+**症狀**：
+- {{現象描述}}
+
+**原因**：
+- {{根本原因}}
+
+**解決方案**：
+```bash
+# {{解決步驟}}
+```
+
+### 故障排除
+
+1. 檢查 {{項目 1}}
+2. 檢查 {{項目 2}}
+
+→ 完整故障排除：[shared/errors/troubleshooting.md](../../shared/errors/troubleshooting.md)
+
+## 共用模組
+
+| 模組 | 用途 |
+|------|------|
+| [{{module}}](../../shared/{{path}}/{{module}}) | {{說明}} |
+| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合 |
+| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
+
+## 工作流位置
+
+```
+RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
+             ↑
+          你在這裡
+```
+
+- **輸入**：{{來自上游 skill}}
+- **輸出**：{{提供給下游 skill}}

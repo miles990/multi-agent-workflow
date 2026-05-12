@@ -31,7 +31,7 @@ model: sonnet
 | `regression-checker` | 回歸檢查員 | haiku | 回歸測試、副作用 |
 | `acceptance-validator` | 驗收驗證員 | sonnet | 驗收標準、需求滿足 |
 
-→ 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+→ 模型路由配置：[shared/config/model-routing.yaml](_shared/config/model-routing.yaml)
 
 ## 執行流程
 
@@ -74,7 +74,7 @@ Phase 4: 品質閘門 → 發布/回退決策
 
 當 `first_pass_rate >= 0.98` 時，可直接發布（ship_it）。
 
-→ 配置：[shared/config/early-termination.yaml](../../shared/config/early-termination.yaml)
+→ 配置：[shared/config/early-termination.yaml](_shared/config/early-termination.yaml)
 
 ## CP4: Task Commit
 
@@ -88,7 +88,7 @@ CP4: Task Commit
     └── git commit -m "test(verify): complete {feature} verification"
 ```
 
-→ 協議：[shared/git/commit-protocol.md](../../shared/git/commit-protocol.md)
+→ 協議：[shared/git/commit-protocol.md](_shared/git/commit-protocol.md)
 
 ## 品質閘門
 
@@ -103,7 +103,7 @@ CP4: Task Commit
 - 邊界測試失敗 → 記錄但可繼續
 - 驗收標準未滿足 → 評估回退層級
 
-→ 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
+→ 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
 ## 回退策略
 
@@ -113,7 +113,7 @@ CP4: Task Commit
 - 4 次：回退 PLAN（重新評估設計）
 - 5+ 次：人工介入
 
-→ 配置：[shared/quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml)
+→ 配置：[shared/quality/rollback-strategy.yaml](_shared/quality/rollback-strategy.yaml)
 
 ## 輸出結構
 
@@ -177,18 +177,18 @@ jq 'select(.tool == "Bash" and .status == "failed" and .stage == "VERIFY")' acti
 jq 'select(.stage == "VERIFY" and .duration_ms > 10000)' actions.jsonl
 ```
 
-→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+→ 日誌規範：[shared/communication/execution-logs.md](_shared/communication/execution-logs.md)
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
-| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
-| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
-| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
-| [config/early-termination.yaml](../../shared/config/early-termination.yaml) | 早期終止 |
-| [quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml) | 回退策略 |
-| [perspectives/expertise-frameworks/testing.yaml](../../shared/perspectives/expertise-frameworks/testing.yaml) | 測試框架 |
+| [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](_shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
+| [quality/gates.yaml](_shared/quality/gates.yaml) | 品質閘門 |
+| [config/early-termination.yaml](_shared/config/early-termination.yaml) | 早期終止 |
+| [quality/rollback-strategy.yaml](_shared/quality/rollback-strategy.yaml) | 回退策略 |
+| [perspectives/expertise-frameworks/testing.yaml](_shared/perspectives/expertise-frameworks/testing.yaml) | 測試框架 |
 
 ## 工作流位置
 

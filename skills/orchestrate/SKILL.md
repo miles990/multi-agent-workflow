@@ -10,25 +10,32 @@ allowed-tools: [Read, Write, Bash, Glob, Grep, Skill, Task, TaskCreate, TaskUpda
 
 ## 路徑解析（必讀）
 
-此 Skill 使用 `shared/` 目錄下的工具。執行時必須使用完整路徑。
+此 Skill 使用共用工具。執行時必須先解析資源根目錄，再使用完整路徑。
 
 **從 command-message header 取得 Base directory**，例如：
 ```
 Base directory for this skill: /path/to/.../skills/orchestrate
 ```
 
-**Plugin Root** = Base directory 往上兩層（去掉 `/skills/orchestrate`）
+支援兩種安裝形態：
+
+- Plugin install：repo-level `shared/` 位於 plugin root。
+- `npx skills add`：generated `_shared/`、`_scripts/` 位於本 skill 目錄內。
 
 ```bash
-# 範例：如果 Base directory 是 /Users/user/.claude/plugins/cache/multi-agent-workflow/multi-agent-workflow/2.4.2/skills/orchestrate
-# 則 Plugin Root 是 /Users/user/.claude/plugins/cache/multi-agent-workflow/multi-agent-workflow/2.4.2
+if [ -d "$BASE_DIR/_shared" ]; then
+  SHARED_DIR="$BASE_DIR/_shared"
+  SCRIPTS_DIR="$BASE_DIR/_scripts"
+else
+  PLUGIN_ROOT="${BASE_DIR%/skills/orchestrate}"
+  SHARED_DIR="$PLUGIN_ROOT/shared"
+  SCRIPTS_DIR="$PLUGIN_ROOT/scripts"
+fi
 
-# 工具路徑
-PLUGIN_ROOT="${BASE_DIR%/skills/orchestrate}"  # 移除尾部
-$PLUGIN_ROOT/shared/tools/workflow-init.sh     # 正確路徑
+"$SHARED_DIR/tools/workflow-init.sh" init "$WORKFLOW_ID" orchestrate "需求摘要"
 ```
 
-**重要**：不要使用 `./shared/tools/...`，因為工作目錄是用戶專案，不是 plugin 目錄。
+**重要**：不要使用 `./shared/tools/...`，因為工作目錄是用戶專案，不是 skill/plugin 目錄。
 
 ---
 
@@ -97,10 +104,10 @@ RESEARCH → PLAN → TASKS → IMPLEMENT → REVIEW → VERIFY
 Phase 0: 初始化工作流
     ├── 生成 workflow-id
     ├── **【必要】執行 workflow-init.sh 初始化通訊環境**
-    │   └── Bash: $PLUGIN_ROOT/shared/tools/workflow-init.sh init <workflow-id> orchestrate "<需求摘要>"
+    │   └── Bash: "$SHARED_DIR/tools/workflow-init.sh" init <workflow-id> orchestrate "<需求摘要>"
     │   └── 這會創建 .claude/workflow/current.json（Hooks 依賴此檔案）
     ├── 載入執行模式配置
-    │   └── 讀取 $PLUGIN_ROOT/shared/config/execution-profiles.yaml
+    │   └── 讀取 $SHARED_DIR/config/execution-profiles.yaml
     │   └── 套用視角數和模型配置
     ├── 建立報告目錄
     └── 記錄開始時間
@@ -164,7 +171,7 @@ git commit -m "chore(workflow): complete {workflow-id}"
 - 階段間振盪 → 暫停分析根因
 - 總迭代 > 10 → 強制停止
 
-→ 配置：[shared/quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml)
+→ 配置：[shared/quality/rollback-strategy.yaml](_shared/quality/rollback-strategy.yaml)
 
 ## 部分完成處理（Partial Completion）
 
@@ -244,7 +251,7 @@ failed_stage:
 | REVIEW | 無 BLOCKER/HIGH | 直接通過 |
 | VERIFY | pass_rate ≥ 0.98 | 可發布 |
 
-→ 配置：[shared/config/early-termination.yaml](../../shared/config/early-termination.yaml)
+→ 配置：[shared/config/early-termination.yaml](_shared/config/early-termination.yaml)
 
 ## 報告生成
 
@@ -254,7 +261,7 @@ failed_stage:
 - `quality-report.md` - 品質報告
 - `decisions.md` - 決策記錄
 
-→ 工具：[shared/tools/generate-report.sh](../../shared/tools/generate-report.sh)
+→ 工具：[shared/tools/generate-report.sh](_shared/tools/generate-report.sh)
 
 ## 輸出結構
 
@@ -273,13 +280,13 @@ failed_stage:
 
 | 模組 | 用途 |
 |------|------|
-| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
-| [quality/rollback-strategy.yaml](../../shared/quality/rollback-strategy.yaml) | 智慧回退 |
-| [config/early-termination.yaml](../../shared/config/early-termination.yaml) | 早期終止 |
-| [config/execution-profiles.yaml](../../shared/config/execution-profiles.yaml) | 執行模式 |
-| [config/context-freshness.yaml](../../shared/config/context-freshness.yaml) | 上下文新鮮 |
-| [tools/generate-report.sh](../../shared/tools/generate-report.sh) | 報告生成 |
-| [tools/workflow-init.sh](../../shared/tools/workflow-init.sh) | 工作流初始化 |
+| [quality/gates.yaml](_shared/quality/gates.yaml) | 品質閘門 |
+| [quality/rollback-strategy.yaml](_shared/quality/rollback-strategy.yaml) | 智慧回退 |
+| [config/early-termination.yaml](_shared/config/early-termination.yaml) | 早期終止 |
+| [config/execution-profiles.yaml](_shared/config/execution-profiles.yaml) | 執行模式 |
+| [config/context-freshness.yaml](_shared/config/context-freshness.yaml) | 上下文新鮮 |
+| [tools/generate-report.sh](_shared/tools/generate-report.sh) | 報告生成 |
+| [tools/workflow-init.sh](_shared/tools/workflow-init.sh) | 工作流初始化 |
 
 ## 【重要】初始化步驟
 
@@ -288,14 +295,14 @@ failed_stage:
 ```bash
 # 0. 從 command-message header 取得 Base directory，計算 Plugin Root
 # 例如：Base directory: /path/.../2.4.2/skills/orchestrate
-# PLUGIN_ROOT 就是 /path/.../2.4.2（去掉 /skills/orchestrate）
+# SHARED_DIR 是 repo-level shared 或本 skill 內 generated _shared
 
 # 1. 生成 workflow ID（格式：orchestrate_YYYYMMDD_HHMMSS_xxxx）
 WORKFLOW_ID="orchestrate_$(date +%Y%m%d_%H%M%S)_$(openssl rand -hex 4)"
 
 # 2. 執行初始化（創建 current.json，讓 Hooks 能記錄活動）
 # 使用完整路徑，不要用 ./shared/...
-$PLUGIN_ROOT/shared/tools/workflow-init.sh init "$WORKFLOW_ID" orchestrate "需求摘要"
+"$SHARED_DIR/tools/workflow-init.sh" init "$WORKFLOW_ID" orchestrate "需求摘要"
 ```
 
 **為什麼這很重要？**
@@ -307,7 +314,7 @@ $PLUGIN_ROOT/shared/tools/workflow-init.sh init "$WORKFLOW_ID" orchestrate "需�
 
 **解決 Context Limit 的根本方案**：使用檔案系統作為 Agent 間的「外部記憶體」。
 
-→ 完整說明：[shared/coordination/file-based-handoff.md](../../shared/coordination/file-based-handoff.md)
+→ 完整說明：[shared/coordination/file-based-handoff.md](_shared/coordination/file-based-handoff.md)
 
 ### 為什麼會 Context Limit？
 
@@ -367,7 +374,7 @@ File-Based Handoff：
 
 當用戶要求同時執行多個任務時，Orchestrator 會智能決定執行策略。
 
-→ 配置：[shared/config/parallel-execution.yaml](../../shared/config/parallel-execution.yaml)
+→ 配置：[shared/config/parallel-execution.yaml](_shared/config/parallel-execution.yaml)
 
 ### 並行度控制
 
@@ -426,7 +433,7 @@ File-Based Handoff：
 
 ## Context Limit 處理（v3.2 新增）
 
-→ 指南：[shared/coordination/context-limit-handler.md](../../shared/coordination/context-limit-handler.md)
+→ 指南：[shared/coordination/context-limit-handler.md](_shared/coordination/context-limit-handler.md)
 
 ### 預防機制
 

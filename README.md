@@ -52,7 +52,12 @@ If you use the open Agent Skills installer, install this repository with:
 npx skills add miles990/multi-agent-workflow
 ```
 
-This installs the repository skills. For the complete framework with repo-level `shared/`, `templates/`, hooks, and plugin tooling, use the Claude Code plugin install below.
+This installs the repository skills. Each skill carries generated portable copies
+of the shared framework resources under `_shared/`, `_templates/`, `_scripts/`,
+and `_cli/`,
+so `/multi-research`, `/multi-plan`, `/multi-tasks`, `/multi-implement`,
+`/multi-review`, `/multi-verify`, and `/orchestrate` can still access the
+common CT, quality, metrics, coordination, template, and hook assets.
 
 ### Via Claude Code Plugin - Full framework install
 
@@ -72,7 +77,9 @@ This installs the repository skills. For the complete framework with repo-level 
 /plugin install miles990/multi-agent-workflow
 ```
 
-Use the plugin install when you need the full repository-level framework: `shared/`, `templates/`, hooks, plugin cache sync, `/plugin-dev`, and release/version tooling.
+Use the plugin install when you specifically need Claude Code plugin packaging:
+plugin cache sync, marketplace metadata, `/plugin-dev`, and release/version
+tooling.
 
 ## Available Skills
 
@@ -290,7 +297,11 @@ multi-agent-workflow/
 │   │   ├── SKILL.md
 │   │   ├── 00-quickstart/
 │   │   ├── 01-perspectives/
-│   │   └── 02-ct-mode/
+│   │   ├── 02-ct-mode/
+│   │   ├── _shared/              # generated portable copy of shared/
+│   │   ├── _scripts/             # generated portable scripts
+│   │   ├── _templates/           # generated portable templates
+│   │   └── _cli/                 # generated portable Python CLI modules
 │   ├── plan/                     # ✅ Ready
 │   ├── tasks/                    # ✅ Ready (v2.2 新增)
 │   ├── implement/                # ✅ Ready
@@ -299,7 +310,9 @@ multi-agent-workflow/
 │   └── orchestrate/              # ✅ Ready
 ├── scripts/                      # 開發工具
 │   ├── create-skill.sh           # Skill 腳手架工具
-│   └── validate-skills.sh        # Skill 結構驗證
+│   ├── validate-skills.sh        # Skill 結構驗證
+│   └── portable/
+│       └── sync-skill-resources.sh # 同步 generated portable resources
 ├── shared/                       # 共用模組
 │   ├── ct/                       # CT schema、compiler、checker、templates
 │   │   ├── taxonomy.yaml
@@ -425,6 +438,16 @@ skills/my-skill/
 - 01-perspectives/_base/default-perspectives.md 存在
 
 詳細規範請參考 [Skill 結構標準](./shared/skill-structure/STANDARD.md)。
+
+### 同步 npx portable resources
+
+Repo-level `shared/`、`templates/`、`scripts/hooks/` 是 source of truth。修改這些共用資源後，執行：
+
+```bash
+./scripts/portable/sync-skill-resources.sh
+```
+
+這會更新每個 skill 內的 generated `_shared/`、`_templates/`、`_scripts/`、`_cli/`，讓 `npx skills add miles990/multi-agent-workflow` 安裝單一 skill 目錄時仍保留完整能力。
 
 ### 查詢視角定義
 

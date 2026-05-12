@@ -1,0 +1,113 @@
+# {{skill_name}} Summary
+
+> 執行時間：{{started_at}} - {{completed_at}}
+
+## 概要
+
+{{簡短摘要，說明執行的目標和結果}}
+
+## 輸入
+
+- **主題**：{{topic}}
+- **來源**：{{from_skill}} ({{from_id}})
+- **參數**：
+  - `{{flag1}}`: {{value1}}
+  - `{{flag2}}`: {{value2}}
+
+## 執行過程
+
+### Phase 0: {{階段名稱}}
+
+{{階段說明}}
+
+### Phase 1: {{階段名稱}}
+
+{{階段說明}}
+
+### Phase 2: {{階段名稱}}
+
+{{階段說明}}
+
+### Phase 3: MAP（並行執行）
+
+| 視角 | Agent ID | 狀態 | 產出 |
+|------|---------|------|------|
+| {{perspective_1}} | {{agent_id_1}} | ✅ 完成 | [報告](./perspectives/{{perspective_1}}.md) |
+| {{perspective_2}} | {{agent_id_2}} | ✅ 完成 | [報告](./perspectives/{{perspective_2}}.md) |
+| {{perspective_3}} | {{agent_id_3}} | ✅ 完成 | [報告](./perspectives/{{perspective_3}}.md) |
+| {{perspective_4}} | {{agent_id_4}} | ✅ 完成 | [報告](./perspectives/{{perspective_4}}.md) |
+
+### Phase 4: REDUCE（匯總整合）
+
+{{匯總結果說明}}
+
+### Phase 5: {{階段名稱}}
+
+{{階段說明}}
+
+## 關鍵產出
+
+### 主要輸出
+
+- [{{main_output}}](./{{main_output}}.md)
+
+### 視角報告
+
+- [{{perspective_1}}](./perspectives/{{perspective_1}}.md)
+- [{{perspective_2}}](./perspectives/{{perspective_2}}.md)
+- [{{perspective_3}}](./perspectives/{{perspective_3}}.md)
+- [{{perspective_4}}](./perspectives/{{perspective_4}}.md)
+
+### 結構化摘要
+
+- [{{perspective_1}}](./summaries/{{perspective_1}}.yaml)
+- [{{perspective_2}}](./summaries/{{perspective_2}}.yaml)
+- [{{perspective_3}}](./summaries/{{perspective_3}}.yaml)
+- [{{perspective_4}}](./summaries/{{perspective_4}}.yaml)
+
+## 品質指標
+
+| 指標 | 分數 | 狀態 |
+|------|------|------|
+| {{criterion_1}} | {{score_1}} | {{status_1}} |
+| {{criterion_2}} | {{score_2}} | {{status_2}} |
+| {{criterion_3}} | {{score_3}} | {{status_3}} |
+| **總分** | **{{total_score}}** | **{{gate_status}}** |
+
+### 品質閘門
+
+- 最低分數要求：{{minimum_score}}
+- 實際分數：{{actual_score}}
+- 狀態：{{gate_status}}
+
+## 問題與解決
+
+### 遇到的問題
+
+{{如有問題，列出問題和解決方案}}
+
+### 風險識別
+
+{{識別的風險項目}}
+
+## 下一步
+
+建議的後續行動：
+
+1. {{action_1}}
+2. {{action_2}}
+3. {{action_3}}
+
+## 相關檔案
+
+- **Meta**: [meta.yaml](./meta.yaml)
+- **工作流日誌**: `.claude/workflow/{{workflow_id}}/logs/actions.jsonl`
+- **狀態檔案**: `.claude/workflow/{{workflow_id}}/current.json`
+
+## Git Commit
+
+```bash
+git commit -m "{{commit_type}}({{commit_scope}}): {{commit_message}}"
+```
+
+Commit ID: {{commit_id}}

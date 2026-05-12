@@ -1,0 +1,84 @@
+# Early Termination Configuration
+# 根據中間結果決定是否提前完成或停止
+
+version: "1.0"
+
+# 成功早期終止條件
+success_early_stop:
+  RESEARCH:
+    condition: "consensus_rate >= 0.9"
+    action: "skip_conflict_resolution"
+    description: "共識率足夠高，跳過衝突解決"
+
+  PLAN:
+    condition: "risk_score < 0.2"
+    action: "use_quick_mode"
+    description: "風險低，使用快速模式"
+
+  REVIEW:
+    condition: "no_blockers AND no_high_issues"
+    action: "approve_immediately"
+    description: "無嚴重問題，直接通過"
+
+  VERIFY:
+    condition: "first_pass_rate >= 0.98"
+    action: "ship_it"
+    description: "首次通過率極高，可以發布"
+
+# 失敗早期終止條件
+failure_early_stop:
+  any_stage:
+    - condition: "critical_blocker_found"
+      action: "stop_and_report"
+      description: "發現關鍵阻塞，停止並報告"
+
+    - condition: "budget_exceeded"
+      action: "pause_for_approval"
+      description: "超出預算，暫停等待批准"
+
+  IMPLEMENT:
+    - condition: "consecutive_failures >= 3"
+      action: "pause_for_human"
+      description: "連續失敗 3 次，暫停等待人工"
+
+    - condition: "same_error_repeated >= 2"
+      action: "escalate_to_rollback"
+      description: "相同錯誤重複，升級到回退"
+
+# 漸進深度策略
+progressive_depth:
+  level_1:
+    perspectives: 2
+    depth: "shallow"
+    trigger: "default"
+    description: "預設淺層分析"
+
+  level_2:
+    perspectives: 4
+    depth: "normal"
+    trigger: "issues_found_in_level_1"
+    description: "發現問題，正常深度"
+
+  level_3:
+    perspectives: 6
+    depth: "deep"
+    trigger: "critical_issues_found"
+    description: "關鍵問題，深度分析"
+
+# 絕對不能早期終止的情況
+never_terminate:
+  conditions:
+    - "any_blocker_exists"
+    - "quality_score < 80"
+    - "tdd_compliance < 95"
+    - "security_issues_unresolved"
+  description: "這些情況下必須完成完整流程"
+
+# 監控指標
+monitoring:
+  check_interval: "after_each_perspective"
+  metrics:
+    - "consensus_rate"
+    - "error_count"
+    - "quality_score"
+    - "time_elapsed"

@@ -1,0 +1,48 @@
+version: "1.0"
+description: "Constraint Texture metrics for research-grade workflow evaluation"
+
+ct_metrics:
+  constraint_compliance_rate:
+    type: percentage
+    range: [0, 100]
+    formula: "(compliant_items / total_checked_items) * 100"
+    target: ">= 90"
+
+  unsupported_claim_rate:
+    type: percentage
+    range: [0, 100]
+    formula: "(unsupported_claims / total_claims) * 100"
+    target: "<= 20"
+
+  drift_event_count:
+    type: integer
+    min: 0
+    target: "<= 2"
+
+  evidence_coverage:
+    type: number
+    range: [0, 1]
+    formula: "supported_core_claims / total_core_claims"
+    target: ">= 0.8"
+
+  hypothesis_testability_score:
+    type: number
+    range: [0, 1]
+    target: ">= 0.7"
+
+  experiment_readiness_score:
+    type: number
+    range: [0, 1]
+    target: ">= 0.7"
+
+  contradiction_resolution_rate:
+    type: percentage
+    range: [0, 100]
+    formula: "(resolved_contradictions / total_contradictions) * 100"
+    target: ">= 80"
+
+  friction_reduction_score:
+    type: number
+    range: [0, 1]
+    description: "Estimated reduction in user rework, clarification, and manual synthesis."
+    target: ">= 0.6"

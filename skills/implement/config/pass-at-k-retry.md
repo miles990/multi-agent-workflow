@@ -331,4 +331,4 @@ cp5_trigger:
 
 - [監督模式說明](./supervision-mode.md)
 - [回饋循環配置](./feedback-loop.md)
-- [evolve Checkpoint 整合](../../../shared/integration/evolve-checkpoints.md)
+- [evolve Checkpoint 整合](../_shared/integration/evolve-checkpoints.md)

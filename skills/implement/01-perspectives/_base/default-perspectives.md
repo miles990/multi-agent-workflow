@@ -76,4 +76,4 @@ perspectives:
 2. TDD 阻擋 > Performance 阻擋
 3. 多視角共識 > 單視角意見
 
-完整定義請參考 [catalog.yaml](../../../../shared/perspectives/catalog.yaml)。
+完整定義請參考 [catalog.yaml](../../_shared/perspectives/catalog.yaml)。

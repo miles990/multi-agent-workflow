@@ -73,4 +73,4 @@ perspectives:
 - 優點列表
 - 改進建議
 
-完整定義請參考 [catalog.yaml](../../../../shared/perspectives/catalog.yaml)。
+完整定義請參考 [catalog.yaml](../../_shared/perspectives/catalog.yaml)。

@@ -1,0 +1,141 @@
+version: "1.0"
+description: "Rules for selecting CT mode before multi-research execution"
+
+default_mode: lite
+
+modes:
+  off:
+    description: "No CT envelope. Use only for explicit drafts, quick notes, or user override."
+    threshold: 0.0
+
+  lite:
+    description: "Default research guardrails: evidence, uncertainty, and drift control."
+    threshold: 0.25
+
+  strict:
+    description: "Deep architecture, risk, product, and technical decision research."
+    threshold: 0.55
+
+  experiment:
+    description: "Research hypotheses, benchmark design, evaluation, and reproducible experiments."
+    threshold: 0.75
+
+overrides:
+  no_ct_flags:
+    - "--no-ct"
+  ct_flags:
+    - "--ct off"
+    - "--ct lite"
+    - "--ct strict"
+    - "--ct experiment"
+  deep_flags:
+    - "--deep"
+  quick_flags:
+    - "--quick"
+
+signals:
+  lite:
+    keywords:
+      - "研究"
+      - "比較"
+      - "整理"
+      - "方向"
+      - "想法"
+      - "可行"
+    intent_patterns:
+      - "幫我研究"
+      - "幫我比較"
+      - "整理方向"
+      - "有沒有搞頭"
+    score_add: 0.15
+
+  strict:
+    keywords:
+      - "架構"
+      - "技術選型"
+      - "風險"
+      - "MVP"
+      - "產品"
+      - "市場"
+      - "安全"
+      - "成本"
+      - "長期維護"
+      - "agent"
+      - "workflow"
+      - "KG"
+      - "memory"
+      - "tool policy"
+      - "context engineering"
+    intent_patterns:
+      - "怎麼做最好"
+      - "是否可行"
+      - "優缺點"
+      - "怎麼設計"
+      - "要不要用"
+      - "有什麼風險"
+    score_add: 0.25
+
+  experiment:
+    keywords:
+      - "論文"
+      - "實驗"
+      - "驗證"
+      - "benchmark"
+      - "ablation"
+      - "evaluation"
+      - "harness"
+      - "指標"
+      - "變因"
+      - "對照組"
+      - "假設"
+      - "模型比較"
+      - "數據證明"
+      - "可重複"
+      - "投稿"
+      - "arXiv"
+      - "NeurIPS"
+      - "CHI"
+    intent_patterns:
+      - "如何證明"
+      - "如何驗證"
+      - "能不能寫成論文"
+      - "設計實驗"
+      - "做 benchmark"
+      - "降低 agent drift"
+    score_add: 0.45
+
+risk_signals:
+  high_impact_decision:
+    keywords: ["決策", "選型", "架構", "路線", "投入", "成本"]
+    score_add: 0.2
+
+  requires_external_evidence:
+    keywords: ["最新", "現況", "市場", "競品", "案例", "來源", "證據"]
+    score_add: 0.15
+
+  multi_step_workflow:
+    keywords: ["流程", "pipeline", "工作流", "多階段", "orchestrate", "handoff"]
+    score_add: 0.15
+
+  ambiguous_but_high_stakes:
+    keywords: ["最好", "風險", "失敗", "安全", "維護", "可靠"]
+    score_add: 0.2
+
+guards:
+  avoid_over_escalation:
+    if_user_says:
+      - "簡單看"
+      - "快速"
+      - "先粗略"
+      - "不用太詳細"
+      - "草稿"
+      - "大概"
+    downgrade_by: 0.25
+
+selection:
+  confidence:
+    base: 0.5
+    per_signal: 0.08
+    user_override: 1.0
+    max: 0.95
+  tie_breaker: "choose higher mode only when experiment signal is explicit"

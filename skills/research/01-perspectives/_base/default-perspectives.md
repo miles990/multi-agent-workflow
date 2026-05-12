@@ -66,4 +66,4 @@ perspectives:
 | 全面分析 | 全部 4 視角 | 預設模式 |
 | 快速研究 | architecture + industry | --quick 模式 |
 
-完整定義請參考 [catalog.yaml](../../../../shared/perspectives/catalog.yaml)。
+完整定義請參考 [catalog.yaml](../../_shared/perspectives/catalog.yaml)。

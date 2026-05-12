@@ -150,5 +150,5 @@ related:
 
 ## 共用模組參考
 
-- Memory 系統通用規範：[shared/integration/memory-system.md](../../../shared/integration/memory-system.md)
-- Checkpoint 對應：[shared/integration/evolve-checkpoints.md](../../../shared/integration/evolve-checkpoints.md)
+- Memory 系統通用規範：[shared/integration/memory-system.md](../_shared/integration/memory-system.md)
+- Checkpoint 對應：[shared/integration/evolve-checkpoints.md](../_shared/integration/evolve-checkpoints.md)

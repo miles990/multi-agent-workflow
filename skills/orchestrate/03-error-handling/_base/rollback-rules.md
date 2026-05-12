@@ -462,5 +462,5 @@ max_iterations_in_worktree:
 
 - [階段判斷](../../01-stage-detection/_base/auto-detect.md)
 - [數據傳遞](../../02-data-flow/_base/stage-handoff.md)
-- [evolve Checkpoint 整合](../../../../shared/integration/evolve-checkpoints.md)
+- [evolve Checkpoint 整合](../../_shared/integration/evolve-checkpoints.md)
 - [Git Worktree 生命週期](../../04-git-worktree/_base/lifecycle.md)

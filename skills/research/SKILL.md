@@ -48,8 +48,8 @@ model: sonnet
 - 偵測到「快速」「先粗略」「不用太詳細」會降級，除非使用者明確要求 experiment。
 - 使用者 override 永遠優先。
 
-→ Router：[shared/ct/escalation-router.md](../../shared/ct/escalation-router.md)
-→ Rules：[shared/ct/escalation-rules.yaml](../../shared/ct/escalation-rules.yaml)
+→ Router：[shared/ct/escalation-router.md](_shared/ct/escalation-router.md)
+→ Rules：[shared/ct/escalation-rules.yaml](_shared/ct/escalation-rules.yaml)
 
 ## 預設 4 視角
 
@@ -60,7 +60,7 @@ model: sonnet
 | `workflow` | 工作流設計 | haiku | 執行流程、整合策略 |
 | `industry` | 業界實踐 | haiku | 現有框架、最佳實踐 |
 
-→ 模型路由配置：[shared/config/model-routing.yaml](../../shared/config/model-routing.yaml)
+→ 模型路由配置：[shared/config/model-routing.yaml](_shared/config/model-routing.yaml)
 
 ## 執行流程
 
@@ -117,7 +117,7 @@ CP4: Task Commit ✅ 自動執行
 3. 記錄 action 到 `actions.jsonl`
 
 → Hook 設定：[.claude/settings.local.json.template](../../.claude/settings.local.json.template)
-→ 協議：[shared/checkpoints/mandatory-checkpoints.md](../../shared/checkpoints/mandatory-checkpoints.md)
+→ 協議：[shared/checkpoints/mandatory-checkpoints.md](_shared/checkpoints/mandatory-checkpoints.md)
 
 ## 品質閘門
 
@@ -129,19 +129,19 @@ CP4: Task Commit ✅ 自動執行
 - ✅ CT-strict 以上不得有 HIGH CT 違規
 - ✅ CT-experiment 需產出可測假設與實驗設計
 
-→ 閘門配置：[shared/quality/gates.yaml](../../shared/quality/gates.yaml)
+→ 閘門配置：[shared/quality/gates.yaml](_shared/quality/gates.yaml)
 
 ## 早期終止
 
 當 `consensus_rate >= 0.9` 時，可跳過衝突解決。
 
-→ 配置：[shared/config/early-termination.yaml](../../shared/config/early-termination.yaml)
+→ 配置：[shared/config/early-termination.yaml](_shared/config/early-termination.yaml)
 
 ## Context7 整合
 
 自動偵測技術棧關鍵字（react, vue, fastapi 等）時，查詢最新文檔。
 
-→ 配置：[shared/integration/context7.yaml](../../shared/integration/context7.yaml)
+→ 配置：[shared/integration/context7.yaml](_shared/integration/context7.yaml)
 
 ## 輸出結構
 
@@ -224,24 +224,24 @@ jq 'select(.agent_id == "architecture")' \
 cat .claude/workflow/{workflow-id}/current.json | jq .
 ```
 
-→ Hook 腳本：[scripts/hooks/](../../scripts/hooks/)
-→ 日誌規範：[shared/communication/execution-logs.md](../../shared/communication/execution-logs.md)
+→ Hook 腳本：[scripts/hooks/](_scripts/hooks/)
+→ 日誌規範：[shared/communication/execution-logs.md](_shared/communication/execution-logs.md)
 
 ## 共用模組
 
 | 模組 | 用途 |
 |------|------|
-| [ct/escalation-router.md](../../shared/ct/escalation-router.md) | CT 模式自動偵測 |
-| [ct/escalation-rules.yaml](../../shared/ct/escalation-rules.yaml) | CT 升級/降級規則 |
+| [ct/escalation-router.md](_shared/ct/escalation-router.md) | CT 模式自動偵測 |
+| [ct/escalation-rules.yaml](_shared/ct/escalation-rules.yaml) | CT 升級/降級規則 |
 | [02-ct-mode/lite.md](02-ct-mode/lite.md) | CT-lite envelope |
 | [02-ct-mode/strict.md](02-ct-mode/strict.md) | CT-strict envelope |
 | [02-ct-mode/experiment.md](02-ct-mode/experiment.md) | CT-experiment envelope |
 | [02-ct-mode/compliance.md](02-ct-mode/compliance.md) | CT compliance rules |
-| [coordination/map-phase.md](../../shared/coordination/map-phase.md) | 並行協調 |
-| [coordination/reduce-phase.md](../../shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
-| [synthesis/cross-validation.md](../../shared/synthesis/cross-validation.md) | 交叉驗證 |
-| [quality/gates.yaml](../../shared/quality/gates.yaml) | 品質閘門 |
-| [config/model-routing.yaml](../../shared/config/model-routing.yaml) | 模型路由 |
+| [coordination/map-phase.md](_shared/coordination/map-phase.md) | 並行協調 |
+| [coordination/reduce-phase.md](_shared/coordination/reduce-phase.md) | 匯總整合、大檔案處理 |
+| [synthesis/cross-validation.md](_shared/synthesis/cross-validation.md) | 交叉驗證 |
+| [quality/gates.yaml](_shared/quality/gates.yaml) | 品質閘門 |
+| [config/model-routing.yaml](_shared/config/model-routing.yaml) | 模型路由 |
 
 ## 工作流位置
 

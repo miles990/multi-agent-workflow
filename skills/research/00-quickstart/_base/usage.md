@@ -106,4 +106,4 @@
 - [CT-lite](../../02-ct-mode/lite.md)
 - [CT-strict](../../02-ct-mode/strict.md)
 - [CT-experiment](../../02-ct-mode/experiment.md)
-- [理解 Map-Reduce 流程](../../../../shared/coordination/map-phase.md)
+- [理解 Map-Reduce 流程](../../_shared/coordination/map-phase.md)

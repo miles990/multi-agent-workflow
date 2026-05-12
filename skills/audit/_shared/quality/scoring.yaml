@@ -1,0 +1,179 @@
+# Quality Scoring Configuration
+# 統一的輸出品質評分框架
+
+version: "1.0"
+
+# 評分維度
+dimensions:
+  completeness:
+    weight: 30
+    description: "內容完整性"
+    criteria:
+      - id: "all_sections_present"
+        description: "所有必要章節存在"
+        points: 10
+
+      - id: "no_tbd_placeholders"
+        description: "無 TBD 或空白區塊"
+        points: 10
+
+      - id: "examples_included"
+        description: "包含具體範例"
+        points: 5
+
+      - id: "edge_cases_covered"
+        description: "邊界案例有處理"
+        points: 5
+
+  consistency:
+    weight: 30
+    description: "內容一致性"
+    criteria:
+      - id: "terminology_consistent"
+        description: "術語一致"
+        points: 10
+
+      - id: "no_contradictions"
+        description: "與其他視角不矛盾"
+        points: 10
+
+      - id: "format_consistent"
+        description: "格式一致"
+        points: 5
+
+      - id: "style_consistent"
+        description: "風格一致"
+        points: 5
+
+  actionability:
+    weight: 40
+    description: "可操作性"
+    criteria:
+      - id: "specific_recommendations"
+        description: "建議具體可執行"
+        points: 15
+
+      - id: "what_defined"
+        description: "WHAT: 做什麼明確"
+        points: 5
+
+      - id: "why_explained"
+        description: "WHY: 為什麼要做"
+        points: 5
+
+      - id: "how_described"
+        description: "HOW: 如何做有說明"
+        points: 5
+
+      - id: "who_assigned"
+        description: "WHO: 負責人明確"
+        points: 5
+
+      - id: "when_scheduled"
+        description: "WHEN: 時間安排清晰"
+        points: 5
+
+# 評分閾值
+thresholds:
+  passing: 70
+  good: 80
+  excellent: 90
+
+# 評分等級
+grades:
+  A:
+    range: [90, 100]
+    label: "優秀"
+    color: "green"
+
+  B:
+    range: [80, 90]
+    label: "良好"
+    color: "blue"
+
+  C:
+    range: [70, 80]
+    label: "及格"
+    color: "yellow"
+
+  D:
+    range: [60, 70]
+    label: "待改善"
+    color: "orange"
+
+  F:
+    range: [0, 60]
+    label: "不及格"
+    color: "red"
+
+# 階段特定調整
+stage_adjustments:
+  RESEARCH:
+    extra_criteria:
+      - id: "sources_cited"
+        description: "來源有引用"
+        points: 5
+    weight_override:
+      consistency: 35
+      actionability: 35
+
+  PLAN:
+    extra_criteria:
+      - id: "risks_assessed"
+        description: "風險已評估"
+        points: 5
+    weight_override:
+      actionability: 45
+
+  TASKS:
+    extra_criteria:
+      - id: "estimates_reasonable"
+        description: "估算合理"
+        points: 5
+
+  IMPLEMENT:
+    extra_criteria:
+      - id: "tests_pass"
+        description: "測試通過"
+        points: 10
+      - id: "code_quality"
+        description: "程式碼品質"
+        points: 5
+
+  REVIEW:
+    extra_criteria:
+      - id: "issues_prioritized"
+        description: "問題已排序"
+        points: 5
+
+  VERIFY:
+    extra_criteria:
+      - id: "acceptance_verified"
+        description: "驗收標準確認"
+        points: 10
+
+# 自評機制
+self_evaluation:
+  enabled: true
+  prompt_template: |
+    請根據以下維度對你的輸出進行自評：
+    1. 完整性 (30%): {completeness_criteria}
+    2. 一致性 (30%): {consistency_criteria}
+    3. 可操作性 (40%): {actionability_criteria}
+
+    請給出各維度分數和總分。
+
+# 報告格式
+reporting:
+  format: "markdown"
+  template: |
+    ## 品質評分報告
+
+    | 維度 | 分數 | 權重 | 加權分 |
+    |------|------|------|--------|
+    | 完整性 | {completeness_score} | 30% | {completeness_weighted} |
+    | 一致性 | {consistency_score} | 30% | {consistency_weighted} |
+    | 可操作性 | {actionability_score} | 40% | {actionability_weighted} |
+    | **總計** | | 100% | **{total_score}** |
+
+    **等級**: {grade} ({grade_label})

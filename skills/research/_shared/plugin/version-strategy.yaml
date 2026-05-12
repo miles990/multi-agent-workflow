@@ -1,0 +1,106 @@
+# Version Strategy Configuration
+# Defines semantic versioning rules and compatibility
+
+# Semantic versioning
+semver:
+  # Format: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
+  format: "{major}.{minor}.{patch}"
+
+  # Version components
+  components:
+    major:
+      description: "Breaking API changes"
+      triggers:
+        - api_removed
+        - api_renamed
+        - required_param_added
+        - config_format_changed
+        - skill_removed
+
+    minor:
+      description: "New features (backwards compatible)"
+      triggers:
+        - new_skill
+        - new_command
+        - new_config_option
+        - new_optional_param
+
+    patch:
+      description: "Bug fixes and minor improvements"
+      triggers:
+        - bug_fix
+        - typo_fix
+        - doc_update
+        - performance_improvement
+
+# Compatibility checking
+compatibility:
+  # Check methods
+  methods:
+    static:
+      description: "Compare API declarations"
+      checks:
+        - plugin_json_diff
+        - skill_md_params
+        - config_schema
+
+    semantic:
+      description: "Analyze git diff for changes"
+      patterns:
+        - function_removal
+        - class_removal
+        - parameter_changes
+
+    manual:
+      description: "Human-marked breaking changes"
+      markers:
+        - "BREAKING CHANGE:"
+        - "BREAKING:"
+        - "[BREAKING]"
+
+  # Compatibility matrix
+  matrix:
+    # Format: source_major -> [compatible_target_majors]
+    backwards:
+      "2": ["2"]
+      "1": ["1"]
+
+    # Upgrade paths
+    upgrade_paths:
+      "1.x": "2.x"  # Upgrade guide link
+
+# Deprecation policy
+deprecation:
+  # Deprecation notice period (in minor versions)
+  notice_period: 2
+
+  # Deprecation markers
+  markers:
+    - "@deprecated"
+    - "DEPRECATED:"
+    - "[DEPRECATED]"
+
+  # Actions
+  on_deprecated:
+    - add_warning
+    - log_usage
+    - suggest_alternative
+
+# Prerelease versions
+prerelease:
+  allowed_identifiers:
+    - alpha
+    - beta
+    - rc
+    - dev
+
+  # Format: version-identifier.number
+  format: "{version}-{identifier}.{number}"
+
+# Build metadata
+build_metadata:
+  # Include in version string
+  include: false
+
+  # Format
+  format: "+{commit_hash}.{timestamp}"

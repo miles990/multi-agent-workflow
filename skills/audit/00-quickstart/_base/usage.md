@@ -111,5 +111,5 @@
 ## 下一步
 
 - [了解預設視角](../../01-perspectives/_base/default-perspectives.md)
-- [視角詳細定義](../../../../shared/perspectives/catalog.yaml)
-- [理解 Map-Reduce 流程](../../../../shared/coordination/map-phase.md)
+- [視角詳細定義](../../_shared/perspectives/catalog.yaml)
+- [理解 Map-Reduce 流程](../../_shared/coordination/map-phase.md)

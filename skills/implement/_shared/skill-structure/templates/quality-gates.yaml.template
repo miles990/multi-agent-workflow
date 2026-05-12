@@ -1,0 +1,112 @@
+# 品質閘門配置模板
+skill: {{skill_name}}
+stage: {{STAGE}}
+version: {{version}}
+
+# 品質閘門設定
+quality_gate:
+  enabled: true
+  minimum_score: {{minimum_score}}  # 最低通過分數 (0-100)
+  blocking: true  # 未通過是否阻擋後續流程
+
+# 評分標準
+criteria:
+  - id: completeness
+    name: 完整性
+    description: 所有必要項目都已完成
+    weight: 0.3  # 權重
+    threshold: 0.8  # 最低達標率
+    checks:
+      - 所有視角都已產出報告
+      - 所有必要檔案都已建立
+      - 元數據完整
+
+  - id: quality
+    name: 品質
+    description: 輸出品質符合標準
+    weight: 0.3
+    threshold: 0.7
+    checks:
+      - 報告結構完整
+      - 分析深度足夠
+      - 無明顯邏輯錯誤
+
+  - id: consistency
+    name: 一致性
+    description: 視角之間達成共識
+    weight: 0.2
+    threshold: 0.6
+    checks:
+      - 核心結論一致
+      - 無重大衝突
+      - 設計決策明確
+
+  - id: actionability
+    name: 可執行性
+    description: 產出可直接用於下游
+    weight: 0.2
+    threshold: 0.7
+    checks:
+      - 建議具體可行
+      - 步驟清晰明確
+      - 依賴關係明確
+
+# 特定階段檢查
+stage_specific:
+  RESEARCH:
+    additional_criteria:
+      - id: coverage
+        name: 覆蓋度
+        weight: 0.1
+        threshold: 0.8
+        checks:
+          - 主要面向都已研究
+          - 參考資料充足
+
+  PLAN:
+    additional_criteria:
+      - id: risk_assessment
+        name: 風險評估
+        weight: 0.15
+        threshold: 0.7
+        checks:
+          - 識別關鍵風險
+          - 提出緩解策略
+
+  IMPLEMENT:
+    additional_criteria:
+      - id: test_coverage
+        name: 測試覆蓋率
+        weight: 0.2
+        threshold: 0.8
+        checks:
+          - 測試通過率 100%
+          - 覆蓋率 ≥ 80%
+
+# 早期攔截（Phase 2）
+early_detection:
+  enabled: true
+  blocking_issues:
+    - 安全機制未定義
+    - 認證授權缺失
+    - 循環依賴存在
+  high_priority_issues:
+    - 效能風險
+    - 擴展性問題
+    - 整合困難
+
+# 輸出
+output:
+  score_file: .claude/memory/{{type}}/{{id}}/quality-score.yaml
+  report_file: .claude/memory/{{type}}/{{id}}/quality-report.md
+  metrics_file: .claude/memory/{{type}}/{{id}}/metrics.yaml
+
+# 通知
+notifications:
+  on_pass:
+    enabled: true
+    message: "✅ 品質閘門通過 (分數: {{score}})"
+  on_fail:
+    enabled: true
+    message: "❌ 品質閘門未通過 (分數: {{score}}, 要求: {{minimum_score}})"
+    include_details: true

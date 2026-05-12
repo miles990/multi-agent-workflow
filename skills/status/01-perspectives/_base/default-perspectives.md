@@ -22,4 +22,4 @@
 
 - [SKILL.md](../../SKILL.md) - 完整的 Skill 定義
 - [usage.md](../../00-quickstart/_base/usage.md) - 快速上手指南
-- [workflow-status.py](../../../../shared/tools/workflow-status.py) - CLI 核心工具
+- [workflow-status.py](../../_shared/tools/workflow-status.py) - CLI 核心工具

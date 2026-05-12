@@ -1,0 +1,98 @@
+# Rollback Strategy Configuration
+# 智慧回退策略：根據問題類型決定回退到哪個階段
+
+version: "1.0"
+
+# 迭代次數對應的回退策略
+iteration_rules:
+  iteration_1_2:
+    target: IMPLEMENT
+    scope: "affected_tasks_only"
+    description: "前兩次嘗試只修復受影響的任務"
+    actions:
+      - "identify_failing_tasks"
+      - "fix_implementation"
+      - "rerun_tests"
+
+  iteration_3:
+    target: TASKS
+    scope: "re-evaluate_task_decomposition"
+    reason: "可能是任務分解問題"
+    description: "第三次嘗試重新評估任務分解"
+    actions:
+      - "analyze_failure_pattern"
+      - "check_missing_dependencies"
+      - "restructure_tasks_if_needed"
+
+  iteration_4:
+    target: PLAN
+    scope: "re-evaluate_approach"
+    reason: "可能是方案設計問題"
+    description: "第四次嘗試重新評估設計方案"
+    actions:
+      - "review_architectural_decisions"
+      - "identify_design_flaws"
+      - "propose_alternative_approach"
+
+  iteration_5_plus:
+    target: HUMAN
+    action: "force_human_intervention"
+    reason: "超過自動修復能力"
+    description: "第五次及以後強制人工介入"
+    actions:
+      - "generate_detailed_report"
+      - "list_all_attempted_fixes"
+      - "request_human_decision"
+
+# 循環偵測
+loop_detection:
+  same_error_twice:
+    condition: "identical_error_signature"
+    action: "escalate_to_next_level"
+    description: "相同錯誤出現兩次，升級到下一層回退"
+
+  oscillating_between_stages:
+    condition: "stage_visited_count >= 3"
+    action: "pause_and_analyze_root_cause"
+    description: "在階段間來回振盪，暫停分析根本原因"
+
+  infinite_loop_prevention:
+    max_total_iterations: 10
+    action_on_exceed: "force_stop_and_report"
+
+# 根據錯誤類型決定回退目標
+error_type_routing:
+  test_failure:
+    likely_cause: "implementation_bug"
+    initial_target: IMPLEMENT
+
+  dependency_error:
+    likely_cause: "task_ordering"
+    initial_target: TASKS
+
+  architecture_conflict:
+    likely_cause: "design_issue"
+    initial_target: PLAN
+
+  requirement_unclear:
+    likely_cause: "research_incomplete"
+    initial_target: RESEARCH
+
+# 回退時保留的資訊
+preserve_on_rollback:
+  always_keep:
+    - "all_decisions_made"
+    - "all_reports_generated"
+    - "error_history"
+    - "metrics_collected"
+
+  selectively_keep:
+    - "passing_test_results"
+    - "approved_components"
+
+# 回退通知
+notifications:
+  on_rollback:
+    - "log_rollback_reason"
+    - "update_timeline"
+    - "notify_if_human_needed"

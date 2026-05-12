@@ -13,6 +13,15 @@ model: haiku
 
 > Plugin 開發完整工作流 - 同步、監控、驗證、發布
 
+## 路徑解析
+
+從 command-message header 取得 `Base directory`，設為 `BASE_DIR`。npx 安裝時，Python CLI、shell scripts、config 會位於本 skill 的 generated portable resources：
+
+```bash
+PYTHONPATH="$BASE_DIR/_cli:$PYTHONPATH"
+"$BASE_DIR/_scripts/plugin/validate-plugin.sh"
+```
+
 ## 命令總覽
 
 | 命令 | 功能 | 用途 |
@@ -60,7 +69,7 @@ model: haiku
 
 **執行**：
 ```
-Bash: python -m cli.plugin.dev sync [options]
+Bash: PYTHONPATH="$BASE_DIR/_cli:$PYTHONPATH" python -m cli.plugin.dev sync [options]
 ```
 
 **範例**：
@@ -85,7 +94,7 @@ Bash: python -m cli.plugin.dev sync [options]
 
 **執行**：
 ```
-Bash: python -m cli.plugin.dev watch [options]
+Bash: PYTHONPATH="$BASE_DIR/_cli:$PYTHONPATH" python -m cli.plugin.dev watch [options]
 ```
 
 **範例**：
@@ -259,7 +268,7 @@ Bash: python -m cli.plugin.release release [LEVEL] [options]
 export PLUGIN_CACHE_BASE=~/.claude/plugins/cache
 ```
 
-配置檔案：`shared/plugin/config.yaml`
+配置檔案：`_shared/plugin/config.yaml`
 
 ### Watch 模式
 
@@ -282,21 +291,21 @@ export PLUGIN_CACHE_BASE=~/.claude/plugins/cache
 
 ```bash
 # 同步
-./scripts/plugin/sync-to-cache.sh
+"$BASE_DIR/_scripts/plugin/sync-to-cache.sh"
 
 # 監控
-./scripts/plugin/dev-watch.sh
+"$BASE_DIR/_scripts/plugin/dev-watch.sh"
 
 # 驗證
-./scripts/plugin/validate-plugin.sh
+"$BASE_DIR/_scripts/plugin/validate-plugin.sh"
 
 # 發布
-./scripts/plugin/publish.sh patch
+"$BASE_DIR/_scripts/plugin/publish.sh" patch
 ```
 
 ## 相關資源
 
-- [Python CLI 模組](../../cli/plugin/)
-- [Shell 腳本](../../scripts/plugin/)
-- [配置檔案](../../shared/plugin/)
-- [開發經驗](../../CLAUDE.md#plugin-開發工作流)
+- [Python CLI 模組](_cli/cli/plugin/)
+- [Shell 腳本](_scripts/plugin/)
+- [配置檔案](_shared/plugin/)
+- 開發經驗：repo 版本請見 `CLAUDE.md#plugin-開發工作流`

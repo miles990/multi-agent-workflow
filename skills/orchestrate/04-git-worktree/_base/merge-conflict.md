@@ -387,4 +387,4 @@ common_semantic_conflicts:
 
 - [Lifecycle](./lifecycle.md)
 - [Isolation Strategy](./isolation-strategy.md)
-- [Worktree Completion](../../../../shared/isolation/worktree-completion.md)
+- [Worktree Completion](../../_shared/isolation/worktree-completion.md)

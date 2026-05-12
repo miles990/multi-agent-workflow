@@ -6,7 +6,7 @@
 
 plan skill 的 REDUCE 階段需要將 4 個視角的規劃建議整合為一份統一的實作計劃。
 
-此文件定義 plan 專屬的合成規則，基礎規則參見 [shared/synthesis/](../../../shared/synthesis/)。
+此文件定義 plan 專屬的合成規則，基礎規則參見 [shared/synthesis/](../_shared/synthesis)。
 
 ## 設計共識規則
 
@@ -174,5 +174,5 @@ weights:
 
 ## 共用模組參考
 
-- 交叉驗證詳細規則：[shared/synthesis/cross-validation.md](../../../shared/synthesis/cross-validation.md)
-- 矛盾解決策略：[shared/synthesis/conflict-resolution.md](../../../shared/synthesis/conflict-resolution.md)
+- 交叉驗證詳細規則：[shared/synthesis/cross-validation.md](../_shared/synthesis/cross-validation.md)
+- 矛盾解決策略：[shared/synthesis/conflict-resolution.md](../_shared/synthesis/conflict-resolution.md)

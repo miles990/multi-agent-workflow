@@ -1,0 +1,136 @@
+# Completeness Checklist Configuration
+# 分層檢查清單 + 自動驗證
+
+version: "1.0"
+
+# 檢查層級
+layers:
+  L1_mandatory:
+    description: "必須通過的檢查項目"
+    fail_action: "halt_execution"
+    items:
+      - id: "dag_no_cycle"
+        check: "DAG 無循環依賴"
+        validation: "run dag-validator.py"
+        severity: BLOCKER
+
+      - id: "all_tasks_have_acceptance"
+        check: "所有任務有驗收標準"
+        validation: "check acceptance_criteria field exists"
+        severity: BLOCKER
+
+      - id: "tdd_correspondence"
+        check: "所有 T-F-* 有對應 TEST-*"
+        validation: "run tdd-coverage.py"
+        severity: BLOCKER
+
+      - id: "no_orphan_tasks"
+        check: "無孤立任務（無入無出）"
+        validation: "check task connectivity"
+        severity: HIGH
+
+  L2_recommended:
+    description: "建議通過的檢查項目"
+    fail_action: "warn_and_continue"
+    items:
+      - id: "reasonable_estimates"
+        check: "估算在合理範圍 (10-60 分鐘)"
+        validation: "check estimate field"
+        threshold:
+          min: 10
+          max: 60
+        severity: MEDIUM
+
+      - id: "files_field_complete"
+        check: "files 欄位完整"
+        validation: "check files field not empty"
+        severity: MEDIUM
+
+      - id: "dependencies_explicit"
+        check: "依賴關係明確"
+        validation: "check depends_on field"
+        severity: MEDIUM
+
+      - id: "description_sufficient"
+        check: "描述充分（>50 字元）"
+        validation: "check description length"
+        threshold: 50
+        severity: LOW
+
+  L3_optional:
+    description: "可選的檢查項目"
+    fail_action: "log_only"
+    items:
+      - id: "documentation_complete"
+        check: "文檔完整"
+        validation: "check docs exist"
+        severity: LOW
+
+      - id: "performance_baseline"
+        check: "效能基準定義"
+        validation: "check performance_baseline field"
+        severity: LOW
+
+      - id: "monitoring_defined"
+        check: "監控指標定義"
+        validation: "check monitoring field"
+        severity: LOW
+
+# 交叉驗證
+cross_validation:
+  perspective_coverage:
+    check: "視角 A 提到的元件，其他視角是否有處理"
+    method: "extract_components_and_cross_check"
+    severity: HIGH
+
+  requirement_tracing:
+    check: "需求 → 計劃 → 任務 追溯完整"
+    method: "trace_requirement_to_task"
+    severity: HIGH
+
+  terminology_consistency:
+    check: "術語在所有視角中一致使用"
+    method: "extract_and_compare_terms"
+    severity: MEDIUM
+
+# 階段特定檢查
+stage_specific:
+  RESEARCH:
+    - "至少 2 視角達成共識"
+    - "無未解決的關鍵矛盾"
+    - "所有來源有引用"
+
+  PLAN:
+    - "所有必要組件有設計"
+    - "風險評估完成"
+    - "里程碑定義清晰"
+
+  TASKS:
+    - "任務粒度適當"
+    - "平行任務正確識別"
+    - "關鍵路徑明確"
+
+  IMPLEMENT:
+    - "程式碼符合規範"
+    - "測試覆蓋率達標"
+    - "無 TODO 遺留"
+
+  REVIEW:
+    - "所有問題有分類"
+    - "修復建議具體"
+    - "優先級正確"
+
+  VERIFY:
+    - "所有測試用例執行"
+    - "驗收標準檢查"
+    - "效能基準對比"
+
+# 報告格式
+reporting:
+  format: "markdown"
+  summary_template: |
+    ## 完整性檢查報告
+    - L1 通過: {l1_pass}/{l1_total}
+    - L2 通過: {l2_pass}/{l2_total}
+    - L3 通過: {l3_pass}/{l3_total}
+    - 整體狀態: {overall_status}
